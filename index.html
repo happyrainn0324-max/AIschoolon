@@ -21,8 +21,12 @@
     --text-main: #2d2540; --text-muted: #9b8fc0; --text-sub: #6b5fa0;
   }
   html, body { height: 100%; width: 100%; }
-  body { font-family: 'Stylish', 'Noto Sans KR', sans-serif; background: var(--bg); min-height: 100vh; display: flex; justify-content: center; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
-  .phone { width: 100%; max-width: 100%; min-height: 100vh; min-height: 100dvh; background: var(--bg); display: flex; flex-direction: column; }
+  body { font-family: 'Stylish', 'Noto Sans KR', sans-serif; background: #f5f0ff; min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
+  .phone { width: 100%; max-width: 480px; background: var(--bg); display: flex; flex-direction: column; border: 2px solid var(--purple-light); border-radius: 28px; overflow: hidden; margin: 24px 0; box-shadow: 0 4px 32px rgba(123,92,245,0.13); }
+  @media (max-width: 500px) {
+    body { background: var(--bg); }
+    .phone { border: none; border-radius: 0; margin: 0; box-shadow: none; min-height: 100vh; min-height: 100dvh; }
+  }
   .status-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 20px 4px; font-size: 13px; font-weight: 700; color: var(--text-main); }
   .status-icons { display: flex; align-items: center; gap: 4px; }
   .top-nav { display: flex; align-items: center; justify-content: center; padding: 4px 18px 10px; }
