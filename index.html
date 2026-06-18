@@ -1277,7 +1277,7 @@ Respond in English always.
       (async function(){
         var ld=appendMsg('ai','입력 중...'); ld.classList.add('loading');
         try{
-          var r=await fetch('https://api.anthropic.com/v1/messages',{
+          var r=await fetch('/.netlify/functions/chat',{
             method:'POST',headers:{'Content-Type':'application/json'},
             body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:sys[cur]||'친절한 AI야. 한국어로 답변해. 모든 답변의 마지막 문장은 반드시 질문 1개여야 해.',messages:hist})
           });
@@ -1394,7 +1394,7 @@ Respond in English always.
     var ld=appendMsg('ai','입력 중...'); ld.classList.add('loading');
     try{
       var sysPrompt = (sys[cur] || '친절한 AI야. 한국어로 답변해.') + '\n\n【절대 규칙】모든 답변의 마지막 문장은 반드시 질문 1개로 끝내야 해. 예외 없음.';
-      var r=await fetch('https://api.anthropic.com/v1/messages',{
+      var r=await fetch('/.netlify/functions/chat',{
         method:'POST',headers:{'Content-Type':'application/json'},
         body:JSON.stringify({model:'claude-sonnet-4-6',max_tokens:1000,system:sysPrompt,messages:hist})
       });
@@ -1834,7 +1834,7 @@ Respond in English always.
       + '\n그 다음 한 줄로 짧게 대화를 이어가는 질문 1개만 해줘.';
 
     try {
-      var resp = await fetch('https://api.anthropic.com/v1/messages', {
+      var resp = await fetch('/.netlify/functions/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
