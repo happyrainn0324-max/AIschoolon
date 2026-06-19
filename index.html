@@ -149,7 +149,8 @@
     overflow: visible !important;
   }
 
-  .smart-summary { padding: 14px clamp(10px, 3vw, 14px) 14px clamp(12px, 4vw, 50px); gap: clamp(10px, 5vw, 30px); min-height: clamp(80px, 18vw, 100px); }
+  .smart-summary { padding: 14px clamp(10px, 3vw, 14px) 14px clamp(12px, 4vw, 50px); gap: clamp(10px, 5vw, 30px); min-height: clamp(100px, 22vw, 120px); }
+  .school-summary { min-height: clamp(100px, 22vw, 120px); }
   .smart-icon { margin-left: 10px; }
   .smart-summary .card-text { padding-left: 20px; }
 
@@ -162,18 +163,19 @@
   .worry-textarea { flex: 1; border: none; background: transparent; font-size: 14px; font-family: 'Noto Sans KR', sans-serif; color: var(--text-main); resize: none; outline: none; line-height: 1.6; min-height: 54px; max-height: 120px; }
   .worry-textarea::placeholder { color: #d4a0bc; }
   .worry-mic-btn {
-    background: none; border: none; cursor: pointer;
-    color: var(--pink); padding: 4px; flex-shrink: 0;
-    border-radius: 50%; transition: background 0.15s, transform 0.15s;
-    display: flex; align-items: center; justify-content: center;
+    width: 42px; height: 42px; border: none; border-radius: 50%;
+    background: rgba(240,236,255,0.9); color: var(--pink); padding: 0; flex-shrink: 0;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    align-self: flex-end; transition: background 0.15s, transform 0.15s;
   }
-  .worry-mic-btn:hover { background: rgba(232,62,140,0.12); transform: scale(1.1); }
-  .worry-mic-btn.recording { background: rgba(232,62,140,0.18); animation: mic-pulse 1s ease-in-out infinite; }
+  .worry-mic-btn:hover { background: rgba(232,62,140,0.12); transform: scale(1.08); }
+  .worry-mic-btn.recording { background: linear-gradient(135deg, #E83E8C, #c2166a); color: white; animation: mic-pulse 1s ease-in-out infinite; }
+  .worry-send-btn { width: 42px; height: 42px; background: linear-gradient(135deg, #E83E8C, #c2166a); border: none; border-radius: 50%; color: white; font-size: 17px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; align-self: flex-end; box-shadow: 0 3px 10px rgba(232,62,140,0.3); transition: transform 0.15s, box-shadow 0.15s; }
   .worry-send-btn:hover { transform: scale(1.08); box-shadow: 0 4px 14px rgba(232,62,140,0.45); }
 
   /* 고민 카테고리 버튼 */
   .worry-category-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
-  .worry-cat-btn { background: rgba(255,255,255,0.75); border: 1.5px solid rgba(232,62,140,0.2); border-radius: 12px; padding: 8px 4px; font-size: 11px; color: #222; text-align: center; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; font-weight: 700; line-height: 1.4; transition: all 0.15s; word-break: keep-all; }
+  .worry-cat-btn { background: rgba(255,255,255,0.75); border: 1.5px solid rgba(232,62,140,0.2); border-radius: 12px; padding: 8px 4px; font-size: 13px; color: #222; text-align: center; cursor: pointer; font-family: 'Noto Sans KR', sans-serif; font-weight: 700; line-height: 1.4; transition: all 0.15s; word-break: keep-all; }
   .worry-cat-btn:hover { background: rgba(255,255,255,0.95); border-color: var(--pink); }
   .worry-cat-btn.selected { background: linear-gradient(135deg, #E83E8C, #c2166a); color: white; border-color: #c2166a; box-shadow: 0 3px 10px rgba(232,62,140,0.35); transform: scale(1.04); }
   .dream-cat-btn.selected { background: linear-gradient(135deg, #7B5CF5, #B064E0) !important; border-color: #7B5CF5 !important; box-shadow: 0 3px 10px rgba(123,92,245,0.35) !important; }
@@ -423,7 +425,7 @@
           <div class="worry-input-wrap">
             <div class="worry-label">💭 오늘의 고민을 적어봐</div>
             <div class="worry-box">
-              <button class="worry-mic-btn" onclick="startMicFor('worry-input')" title="음성 입력"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button><textarea id="worry-input" class="worry-textarea" placeholder="지금 마음속에 있는 걸 자유롭게 적어줘...&#10;판단 없이 들어줄게 🤍" rows="3"></textarea>
+              <textarea id="worry-input" class="worry-textarea" placeholder="지금 마음속에 있는 걸 자유롭게 적어줘...&#10;판단 없이 들어줄게 🤍" rows="3"></textarea>
               <button class="worry-send-btn" onclick="sendWorry()">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M22 2L11 13" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -462,7 +464,7 @@
           <div class="worry-input-wrap">
             <div class="worry-label" style="color:var(--purple);">🌟 나의 진로 고민이나 꿈을 적어봐</div>
             <div class="worry-box" style="border-color:rgba(123,92,245,0.25);box-shadow:0 2px 8px rgba(123,92,245,0.08);">
-              <button class="worry-mic-btn" onclick="startMicFor('dream-input')" title="음성 입력" style="color:var(--purple);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button><textarea id="dream-input" class="worry-textarea" placeholder="진로 고민을 자유롭게 적어줘.&#10;함께 방향을 찾아볼게 🧭" rows="3"></textarea>
+              <textarea id="dream-input" class="worry-textarea" placeholder="진로 고민을 자유롭게 적어줘.&#10;함께 방향을 찾아볼게 🧭" rows="3"></textarea>
               <button class="worry-send-btn" style="background:linear-gradient(135deg,#7B5CF5,#B064E0);box-shadow:0 3px 10px rgba(123,92,245,0.35);align-self:center;" onclick="sendDreamMsg()">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M22 2L11 13" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -501,7 +503,7 @@
           <div class="worry-input-wrap">
             <div class="worry-label" style="color:var(--teal);">📖 공부하다가 어려운 부분을 적어봐</div>
             <div class="worry-box" style="border-color:rgba(13,148,136,0.25);box-shadow:0 2px 8px rgba(13,148,136,0.08);">
-              <button class="worry-mic-btn" onclick="startMicFor('tutor-input')" title="음성 입력" style="color:var(--teal);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button><textarea id="tutor-input" class="worry-textarea" placeholder="어떤 과목이든 모르는 내용을 적어줘.&#10;쉽게 설명해줄게 📚" rows="3"></textarea>
+              <textarea id="tutor-input" class="worry-textarea" placeholder="어떤 과목이든 모르는 내용을 적어줘.&#10;쉽게 설명해줄게 📚" rows="3"></textarea>
               <button class="worry-send-btn" style="background:linear-gradient(135deg,#0D9488,#0a7870);box-shadow:0 3px 10px rgba(13,148,136,0.35);align-self:center;" onclick="sendTutor()">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M22 2L11 13" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -561,7 +563,7 @@
           <div class="worry-input-wrap">
             <div class="worry-label" style="color:var(--orange);">💬 궁금한 것은 무엇이든 물어봐!</div>
             <div class="worry-box" style="border-color:rgba(249,115,22,0.25);box-shadow:0 2px 8px rgba(249,115,22,0.08);">
-              <button class="worry-mic-btn" onclick="startMicFor('wagle-input')" title="음성 입력" style="color:var(--orange);"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button><textarea id="wagle-input" class="worry-textarea" placeholder="뉴스, 시사, 세상 모든 것! 궁금한 건 뭐든 물어봐 😊" rows="3"></textarea>
+              <textarea id="wagle-input" class="worry-textarea" placeholder="뉴스, 시사, 세상 모든 것! 궁금한 건 뭐든 물어봐 😊" rows="3"></textarea>
               <button class="worry-send-btn" style="background:linear-gradient(135deg,#F97316,#e8630a);box-shadow:0 3px 10px rgba(249,115,22,0.35);align-self:center;" onclick="sendWagle()">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M22 2L11 13" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1736,6 +1738,8 @@ End every reply with ONE of these three types:
     var onlineText=document.getElementById('online-text');
     var sendBtn=document.querySelector('.send-btn');
     var iconBox=document.querySelector('.chat-header-emoji-box');
+    var attachBtn=document.querySelector('.chat-attach-btn');
+    var micBtn=document.querySelector('.chat-mic-btn');
     header.style.background=th.headerBg;
     header.style.borderBottom='none';
     handle.style.background=th.header+'44';
@@ -1743,6 +1747,8 @@ End every reply with ONE of these three types:
     onlineDot.style.color=th.online;
     sendBtn.style.background=th.bubbleBg;
     iconBox.style.background=th.iconBg;
+    if(attachBtn){ attachBtn.style.background=th.bg; attachBtn.style.color=th.header; }
+    if(micBtn){ micBtn.style.background=th.bg; micBtn.style.color=th.header; }
     document.getElementById('modal-title').textContent=s;
     document.getElementById('modal-emoji').textContent=e;
     document.getElementById('chat-header-sub-text').textContent=th.sub;
