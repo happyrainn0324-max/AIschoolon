@@ -124,6 +124,8 @@
   .chat-msg-row { display: flex; align-items: flex-start; gap: 8px; }
   .chat-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; background: white; border: 1.5px solid #eee; }
   .chat-msg-name { font-size: 11px; color: #aaa; margin-bottom: 3px; font-weight: 600; font-family: 'Noto Sans KR', sans-serif; }
+  .speak-btn { margin-top: 4px; border: none; background: rgba(59,130,246,0.12); color: #3B82F6; border-radius: 10px; padding: 4px 9px; font-size: 13px; cursor: pointer; }
+  .speak-btn:active { background: rgba(59,130,246,0.25); }
   .chat-messages::-webkit-scrollbar { display: none; }
   .msg { max-width: 82%; padding: 10px 13px; border-radius: 18px; font-size: clamp(13px, 4vw, 15px); line-height: 1.65; white-space: pre-wrap; word-break: break-word; font-family: 'Noto Sans KR', sans-serif; }
   .msg.ai { background: white; border: 1.5px solid #eee8ff; color: var(--text-main); align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 2px 6px rgba(123,92,245,0.06); }
@@ -1009,13 +1011,13 @@
         <div style="text-align:center;font-size:15px;font-weight:800;color:var(--purple);margin-bottom:10px;font-family:'Jua','Noto Sans KR',sans-serif;">💗 전화상담 요청하기 💗</div>
         <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
           <button onclick="showCallPopup('청소년 상담전화','1388')" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:12px;background:#fff0f7;border:1px solid #fbcfe3;cursor:pointer;">
-            <div style="font-size:13.5px;color:#333;font-weight:700;line-height:1.3;text-align:center;font-family:'Stylish','Noto Sans KR',sans-serif;">청소년<br>상담전화<br><span style="font-size:14px;font-weight:800;color:#E83E8C;">1388</span></div>
+            <div style="font-size:13.5px;color:#333;font-weight:700;line-height:1.3;text-align:center;font-family:'Stylish','Noto Sans KR',sans-serif;">청소년<br>상담전화<br><span style="font-size:17px;font-weight:800;color:#E83E8C;">1388</span></div>
           </button>
           <button onclick="showCallPopup('자살예방 상담전화','109')" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:12px;background:#eef3ff;border:1px solid #d6e2ff;cursor:pointer;">
-            <div style="font-size:13.5px;color:#333;font-weight:700;line-height:1.3;text-align:center;font-family:'Stylish','Noto Sans KR',sans-serif;">자살예방<br>상담전화<br><span style="font-size:14px;font-weight:800;color:#3B82F6;">109</span></div>
+            <div style="font-size:13.5px;color:#333;font-weight:700;line-height:1.3;text-align:center;font-family:'Stylish','Noto Sans KR',sans-serif;">자살예방<br>상담전화<br><span style="font-size:17px;font-weight:800;color:#3B82F6;">109</span></div>
           </button>
           <button onclick="showCallPopup('학교폭력 신고상담','117')" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:12px;background:#ccf0ea;border:1px solid #9dddd0;cursor:pointer;">
-            <div style="font-size:13.5px;color:#333;font-weight:700;line-height:1.3;text-align:center;font-family:'Stylish','Noto Sans KR',sans-serif;">학교폭력<br>신고상담<br><span style="font-size:14px;font-weight:800;color:#0D9488;">117</span></div>
+            <div style="font-size:13.5px;color:#333;font-weight:700;line-height:1.3;text-align:center;font-family:'Stylish','Noto Sans KR',sans-serif;">학교폭력<br>신고상담<br><span style="font-size:17px;font-weight:800;color:#0D9488;">117</span></div>
           </button>
         </div>
       </div>
@@ -1966,6 +1968,7 @@ End every reply with ONE of these three types:
           var data=await r.json();
           var rep=(data.content&&data.content[0]&&data.content[0].text)||'무엇이 궁금해?';
           ld.innerHTML=renderMd(rep); ld.classList.remove('loading');
+          addSpeakBtn(ld,rep);
           hist.push({role:'assistant',content:rep});
           awardStar();
         }catch(e){
@@ -2090,12 +2093,33 @@ End every reply with ONE of these three types:
       var data=await r.json();
       var rep=(data.content&&data.content[0]&&data.content[0].text)||'죄송해, 다시 한번 말해줄래?';
       ld.innerHTML=renderMd(rep); ld.classList.remove('loading');
+      addSpeakBtn(ld,rep);
       hist.push({role:'assistant',content:rep});
       awardStar();
     }catch(e){
       ld.textContent='연결에 문제가 생겼어. 잠시 후 다시 시도해줘! 🙏';
       ld.classList.remove('loading');
     }
+  }
+
+  function addSpeakBtn(msgDiv,text){
+    if(cur!=='Native Talk') return;
+    var btn=document.createElement('button');
+    btn.className='speak-btn';
+    btn.title='발음 듣기';
+    btn.textContent='🔊';
+    btn.onclick=function(){ speakEnglish(text); };
+    msgDiv.parentNode.appendChild(btn);
+  }
+
+  function speakEnglish(text){
+    if(!('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    var plain=text.replace(/\*\*(.+?)\*\*/g,'$1');
+    var u=new SpeechSynthesisUtterance(plain);
+    u.lang='en-US';
+    u.rate=0.95;
+    window.speechSynthesis.speak(u);
   }
 
   function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
