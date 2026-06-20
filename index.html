@@ -1004,6 +1004,24 @@
         </div>
       </div>
 
+      <!-- 긴급 상담 전화 -->
+      <div style="background:white;border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:0 2px 8px rgba(123,92,245,0.07);">
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+          <button onclick="showCallPopup('청소년 상담전화','1388')" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:12px;background:#fff0f7;border:1px solid #fbcfe3;cursor:pointer;">
+            <div style="font-size:18px;">☎️</div>
+            <div style="font-size:10.5px;color:#333;font-weight:700;line-height:1.3;text-align:center;">청소년 상담전화<br><span style="font-size:12px;font-weight:800;color:#E83E8C;">1388</span></div>
+          </button>
+          <button onclick="showCallPopup('자살예방 상담전화','109')" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:12px;background:#eef3ff;border:1px solid #d6e2ff;cursor:pointer;">
+            <div style="font-size:18px;">☎️</div>
+            <div style="font-size:10.5px;color:#333;font-weight:700;line-height:1.3;text-align:center;">자살예방 상담전화<br><span style="font-size:12px;font-weight:800;color:#3B82F6;">109</span></div>
+          </button>
+          <button onclick="showCallPopup('학교폭력 신고상담','117')" style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:12px;background:#ccf0ea;border:1px solid #9dddd0;cursor:pointer;">
+            <div style="font-size:18px;">☎️</div>
+            <div style="font-size:10.5px;color:#333;font-weight:700;line-height:1.3;text-align:center;">학교폭력 신고상담<br><span style="font-size:12px;font-weight:800;color:#0D9488;">117</span></div>
+          </button>
+        </div>
+      </div>
+
       <div class="privacy-notice">
         개인정보 보호를 위해 대화 내용은 저장되지 않으며,<br>
         학생들의 학습과 성장을 지원하기 위한 교육적 목적으로 활용됩니다.
@@ -1026,6 +1044,19 @@
     <div style="display:flex;gap:8px;">
       <button onclick="closeAuthModal()" style="flex:1;background:#f1edff;color:var(--purple);border:none;border-radius:14px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;">취소</button>
       <button onclick="submitAuth()" style="flex:1;background:linear-gradient(135deg,#7B5CF5,#9b7cf7);color:white;border:none;border-radius:14px;padding:12px;font-size:14px;font-weight:800;cursor:pointer;">로그인</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="call-modal" style="align-items:center;" onclick="if(event.target===this)closeCallPopup()">
+  <div style="background:white;border-radius:20px;padding:24px 20px;width:80%;max-width:300px;box-shadow:0 10px 30px rgba(40,20,80,0.25);text-align:center;">
+    <div style="font-size:30px;margin-bottom:8px;">☎️</div>
+    <div id="call-modal-name" style="font-family:'Jua','Noto Sans KR',sans-serif;font-size:15px;font-weight:800;color:var(--purple);margin-bottom:6px;"></div>
+    <div id="call-modal-number" style="font-size:28px;font-weight:800;color:#3a2a50;margin-bottom:14px;letter-spacing:1px;"></div>
+    <div style="font-size:12.5px;color:var(--text-muted);margin-bottom:16px;">전화 연결할까요?</div>
+    <div style="display:flex;gap:8px;">
+      <button onclick="closeCallPopup()" style="flex:1;background:#f1edff;color:var(--purple);border:none;border-radius:14px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;">취소</button>
+      <a id="call-modal-confirm" style="flex:1;background:linear-gradient(135deg,#7B5CF5,#9b7cf7);color:white;border:none;border-radius:14px;padding:12px;font-size:14px;font-weight:800;cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center;">📞 전화 연결</a>
     </div>
   </div>
 </div>
@@ -1792,6 +1823,17 @@ End every reply with ONE of these three types:
     document.getElementById('auth-modal').classList.remove('open');
     document.body.style.overflow='';
   }
+  function showCallPopup(name,number){
+    document.getElementById('call-modal-name').textContent=name;
+    document.getElementById('call-modal-number').textContent=number;
+    document.getElementById('call-modal-confirm').href='tel:'+number;
+    document.getElementById('call-modal').classList.add('open');
+    document.body.style.overflow='hidden';
+  }
+  function closeCallPopup(){
+    document.getElementById('call-modal').classList.remove('open');
+    document.body.style.overflow='';
+  }
   async function submitAuth(){
     var school=document.getElementById('auth-school').value.trim();
     var sid=document.getElementById('auth-sid').value.trim();
@@ -1987,6 +2029,8 @@ End every reply with ONE of these three types:
     var hasImages = attachedImages.length > 0;
     if(!t && !hasImages)return;
     inp.value=''; inp.style.height='auto';
+    if(recognizing && recognition){ micStoppedByUser = true; recognition.stop(); }
+    if(recognition && recognition.resetTranscript){ recognition.resetTranscript(); }
 
     // 사용자 메시지 표시 (텍스트 + 이미지 썸네일)
     if(hasImages){
@@ -2116,6 +2160,7 @@ End every reply with ONE of these three types:
     r.maxAlternatives = 1;
     r.continuous = true;
     var finalTranscript = '';
+    r.resetTranscript = function() { finalTranscript = ''; };
     r.onstart = function() {
       recognizing = true;
       micStoppedByUser = false;
