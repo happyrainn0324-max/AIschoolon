@@ -124,7 +124,7 @@
   .chat-msg-row { display: flex; align-items: flex-start; gap: 8px; }
   .chat-avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; background: white; border: 1.5px solid #eee; }
   .chat-msg-name { font-size: 11px; color: #aaa; margin-bottom: 3px; font-weight: 600; font-family: 'Noto Sans KR', sans-serif; }
-  .speak-btn { margin-top: 4px; border: none; background: rgba(59,130,246,0.12); color: #3B82F6; border-radius: 10px; padding: 4px 9px; font-size: 13px; cursor: pointer; }
+  .speak-btn { margin-top: 4px; border: none; background: rgba(59,130,246,0.12); color: #3B82F6; border-radius: 10px; padding: 5px 9px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
   .speak-btn:active { background: rgba(59,130,246,0.25); }
   .chat-messages::-webkit-scrollbar { display: none; }
   .msg { max-width: 82%; padding: 10px 13px; border-radius: 18px; font-size: clamp(13px, 4vw, 15px); line-height: 1.65; white-space: pre-wrap; word-break: break-word; font-family: 'Noto Sans KR', sans-serif; }
@@ -641,7 +641,7 @@
             <button class="starter-btn" onclick="openChat('Native Talk','🌍','영어 발음을 어떻게 하면 좋아질까요?')"><span class="starter-icon">🎯</span>Pronunciation</button>
             <button class="starter-btn" onclick="openChat('Native Talk','🌍','영어로 짧은 일기를 써보고 싶어!')"><span class="starter-icon">📝</span>Daily Diary</button>
             <button class="starter-btn" onclick="openChat('Native Talk','🌍','Lets have a debate in English! Pick a topic and lets discuss!')"><span class="starter-icon">🗣️</span>Debate</button>
-            <button class="starter-btn" onclick="openChat('Native Talk','🌍','영어 단어 퀴즈를 내줘! 내 수준에 맞게 문제를 내줘.')"><span class="starter-icon">🧩</span>Word Quiz</button>
+            <button class="starter-btn" onclick="openWordQuiz('🌍')"><span class="starter-icon">🧩</span>Word Quiz</button>
             <button class="starter-btn" onclick="openChat('Native Talk','🌍','내가 쓴 영어 글을 첨삭해줘. 문법, 표현, 자연스러움을 봐줘.')"><span class="starter-icon">✏️</span>Writing Check</button>
           </div>
           <button class="recommend-btn" onclick="openChat('Native Talk','🌍','내 영어 수준에 맞는 대화 주제를 추천해줘!')">✨ AI 맞춤 영어 주제 추천</button>
@@ -1899,6 +1899,45 @@ End every reply with ONE of these three types:
     if(!o){p.classList.add('open');if(a)a.classList.add('open');}
   }
 
+  function openWordQuiz(e){
+    openChat('Native Talk',e,null);
+    var c=document.getElementById('chat-messages');
+    var th=themes['Native Talk'];
+    var row=document.createElement('div');
+    row.className='chat-msg-row';
+    var av=document.createElement('div');
+    av.className='chat-avatar';
+    av.style.background=th.iconBg;
+    av.textContent=e;
+    var wrap=document.createElement('div');
+    var name=document.createElement('div');
+    name.className='chat-msg-name';
+    name.textContent='Native Talk';
+    var d=document.createElement('div');
+    d.className='msg ai';
+    d.style.border='1.5px solid '+th.header+'22';
+    d.textContent='먼저 단어 수준을 선택해줘!';
+    var btnRow=document.createElement('div');
+    btnRow.style.cssText='display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;';
+    [['중학교','중학교 수준'],['고등학교','고등학교 수준'],['심화영단어','심화']].forEach(function(p){
+      var b=document.createElement('button');
+      b.textContent=p[0];
+      b.style.cssText='background:'+th.bubbleBg+';color:white;border:none;border-radius:12px;padding:8px 12px;font-size:12.5px;font-weight:700;cursor:pointer;';
+      b.onclick=function(){ selectQuizLevel(p[1]); };
+      btnRow.appendChild(b);
+    });
+    d.appendChild(btnRow);
+    wrap.appendChild(name); wrap.appendChild(d);
+    row.appendChild(av); row.appendChild(wrap);
+    c.appendChild(row); c.scrollTop=c.scrollHeight;
+  }
+
+  function selectQuizLevel(level){
+    var inp=document.getElementById('chat-input');
+    inp.value=level+' 영단어로 퀴즈를 내줘! 내 수준에 맞게 문제를 내줘.';
+    sendMessage();
+  }
+
   function openChat(s,e,m){
     event.stopPropagation();
     cur=s; hist=[];
@@ -2107,19 +2146,40 @@ End every reply with ONE of these three types:
     var btn=document.createElement('button');
     btn.className='speak-btn';
     btn.title='발음 듣기';
-    btn.textContent='🔊';
+    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16.5 12c0-1.77-1-3.29-2.5-4.03v8.06c1.5-.74 2.5-2.26 2.5-4.03z"/><path d="M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
     btn.onclick=function(){ speakEnglish(text); };
     msgDiv.parentNode.appendChild(btn);
+  }
+
+  var _bestEnVoice = null;
+  function pickBestEnglishVoice(){
+    var voices = window.speechSynthesis.getVoices().filter(function(v){ return /^en-/.test(v.lang); });
+    if (!voices.length) return null;
+    var priority = [/Google US English/i, /Natural/i, /Premium/i, /Samantha/i, /Microsoft Aria/i, /Microsoft Jenny/i];
+    for (var i=0;i<priority.length;i++){
+      var m = voices.find(function(v){ return priority[i].test(v.name); });
+      if (m) return m;
+    }
+    var us = voices.find(function(v){ return v.lang==='en-US'; });
+    return us || voices[0];
   }
 
   function speakEnglish(text){
     if(!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
     var plain=text.replace(/\*\*(.+?)\*\*/g,'$1');
+    plain=plain.replace(/[^a-zA-Z0-9.,!?'"\s-]/g,' ');
+    plain=plain.replace(/\s+/g,' ').trim();
     var u=new SpeechSynthesisUtterance(plain);
     u.lang='en-US';
-    u.rate=0.95;
+    u.rate=0.92;
+    u.pitch=1;
+    if(!_bestEnVoice) _bestEnVoice=pickBestEnglishVoice();
+    if(_bestEnVoice) u.voice=_bestEnVoice;
     window.speechSynthesis.speak(u);
+  }
+  if ('speechSynthesis' in window) {
+    window.speechSynthesis.onvoiceschanged = function(){ _bestEnVoice = pickBestEnglishVoice(); };
   }
 
   function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
