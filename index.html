@@ -369,60 +369,57 @@
             <button onclick="openAuthModal()" style="background:linear-gradient(135deg,#6C4FE0,#9B6CF5 50%,#C77DFF);color:white;border:none;border-radius:30px;padding:17px 44px;font-size:19px;font-weight:800;font-family:'Jua','Noto Sans KR',sans-serif;letter-spacing:0.5px;cursor:pointer;box-shadow:0 6px 18px rgba(123,92,245,0.45);">✨ 에듀톡 시작하기</button>
           </div>
           <div id="auth-logged-in" style="display:none;align-items:center;justify-content:center;">
-            <span id="auth-user-label" style="font-family:'Jua','Noto Sans KR',sans-serif;font-size:15px;color:var(--purple);font-weight:800;"></span>
+            <span id="auth-user-label" style="font-family:'Jua','Noto Sans KR',sans-serif;font-size:19px;color:var(--purple);font-weight:800;"></span>
           </div>
 
           <!-- 🌏 다문화 언어 선택 -->
           <div style="margin-top:18px;background:white;border:1.5px solid var(--purple-light);border-radius:22px;padding:16px 14px 14px;box-shadow:0 4px 16px rgba(123,92,245,0.09);">
-            <!-- 헤더 -->
             <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:13px;">
               <span style="font-size:15px;">🌏</span>
               <span style="font-size:12px;font-weight:700;color:var(--text-sub);font-family:'Noto Sans KR',sans-serif;letter-spacing:0.2px;">다문화 학생용 언어 선택</span>
             </div>
-            <!-- 언어 버튼 그리드 -->
             <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;" id="lang-btn-grid">
-              <button class="lang-select-btn active" data-lang="ko" onclick="selectLang(this,'ko')"
-                style="border-radius:14px;padding:10px 4px 9px;border:none;background:linear-gradient(135deg,#7B5CF5,#E879A0);color:white;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all 0.18s;box-shadow:0 3px 10px rgba(123,92,245,0.35);">
-                <span style="font-size:13px;font-weight:800;letter-spacing:0.5px;background:rgba(255,255,255,0.25);border-radius:6px;padding:2px 7px;line-height:1.5;">KR</span>
-                <span style="font-size:10.5px;font-weight:700;letter-spacing:0.2px;">한국어</span>
-              </button>
               <button class="lang-select-btn" data-lang="vi" onclick="selectLang(this,'vi')"
-                style="border-radius:14px;padding:10px 4px 9px;border:1.5px solid #ede8ff;background:#faf8ff;color:#6b5fa0;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all 0.18s;">
-                <span style="font-size:13px;font-weight:800;letter-spacing:0.5px;background:#ede8ff;border-radius:6px;padding:2px 7px;line-height:1.5;color:#7B5CF5;">VN</span>
-                <span style="font-size:10.5px;font-weight:700;letter-spacing:0.2px;">베트남어</span>
+                style="border-radius:14px;padding:11px 4px 10px;border:1.5px solid #ede8ff;background:#faf8ff;color:#6b5fa0;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all 0.18s;width:100%;">
+                <span style="font-size:12px;font-weight:800;letter-spacing:0.5px;background:#ede8ff;border-radius:6px;padding:2px 6px;line-height:1.6;color:#7B5CF5;">VN</span>
+                <span style="font-size:10.5px;font-weight:700;">베트남어</span>
               </button>
               <button class="lang-select-btn" data-lang="zh" onclick="selectLang(this,'zh')"
-                style="border-radius:14px;padding:10px 4px 9px;border:1.5px solid #ede8ff;background:#faf8ff;color:#6b5fa0;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all 0.18s;">
-                <span style="font-size:13px;font-weight:800;letter-spacing:0.5px;background:#ede8ff;border-radius:6px;padding:2px 7px;line-height:1.5;color:#7B5CF5;">CN</span>
-                <span style="font-size:10.5px;font-weight:700;letter-spacing:0.2px;">중국어</span>
+                style="border-radius:14px;padding:11px 4px 10px;border:1.5px solid #ede8ff;background:#faf8ff;color:#6b5fa0;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all 0.18s;width:100%;">
+                <span style="font-size:12px;font-weight:800;letter-spacing:0.5px;background:#ede8ff;border-radius:6px;padding:2px 6px;line-height:1.6;color:#7B5CF5;">CN</span>
+                <span style="font-size:10.5px;font-weight:700;">중국어</span>
               </button>
               <button class="lang-select-btn" data-lang="ru" onclick="selectLang(this,'ru')"
-                style="border-radius:14px;padding:10px 4px 9px;border:1.5px solid #ede8ff;background:#faf8ff;color:#6b5fa0;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all 0.18s;">
-                <span style="font-size:13px;font-weight:800;letter-spacing:0.5px;background:#ede8ff;border-radius:6px;padding:2px 7px;line-height:1.5;color:#7B5CF5;">RU</span>
-                <span style="font-size:10.5px;font-weight:700;letter-spacing:0.2px;">러시아어</span>
+                style="border-radius:14px;padding:11px 4px 10px;border:1.5px solid #ede8ff;background:#faf8ff;color:#6b5fa0;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all 0.18s;width:100%;">
+                <span style="font-size:12px;font-weight:800;letter-spacing:0.5px;background:#ede8ff;border-radius:6px;padding:2px 6px;line-height:1.6;color:#7B5CF5;">RU</span>
+                <span style="font-size:10.5px;font-weight:700;">러시아어</span>
               </button>
               <button class="lang-select-btn" data-lang="fil" onclick="selectLang(this,'fil')"
-                style="border-radius:14px;padding:10px 4px 9px;border:1.5px solid #ede8ff;background:#faf8ff;color:#6b5fa0;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all 0.18s;">
-                <span style="font-size:13px;font-weight:800;letter-spacing:0.5px;background:#ede8ff;border-radius:6px;padding:2px 7px;line-height:1.5;color:#7B5CF5;">PH</span>
-                <span style="font-size:10.5px;font-weight:700;letter-spacing:0.2px;">필리핀어</span>
+                style="border-radius:14px;padding:11px 4px 10px;border:1.5px solid #ede8ff;background:#faf8ff;color:#6b5fa0;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all 0.18s;width:100%;">
+                <span style="font-size:12px;font-weight:800;letter-spacing:0.5px;background:#ede8ff;border-radius:6px;padding:2px 6px;line-height:1.6;color:#7B5CF5;">PH</span>
+                <span style="font-size:10.5px;font-weight:700;">필리핀어</span>
               </button>
               <button class="lang-select-btn" data-lang="id" onclick="selectLang(this,'id')"
-                style="border-radius:14px;padding:10px 4px 9px;border:1.5px solid #ede8ff;background:#faf8ff;color:#6b5fa0;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all 0.18s;">
-                <span style="font-size:13px;font-weight:800;letter-spacing:0.5px;background:#ede8ff;border-radius:6px;padding:2px 7px;line-height:1.5;color:#7B5CF5;">ID</span>
-                <span style="font-size:10.5px;font-weight:700;letter-spacing:0.2px;">인도네시아어</span>
+                style="border-radius:14px;padding:11px 4px 10px;border:1.5px solid #ede8ff;background:#faf8ff;color:#6b5fa0;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all 0.18s;width:100%;">
+                <span style="font-size:12px;font-weight:800;letter-spacing:0.5px;background:#ede8ff;border-radius:6px;padding:2px 6px;line-height:1.6;color:#7B5CF5;">ID</span>
+                <span style="font-size:10.5px;font-weight:700;">인도네시아어</span>
               </button>
               <button class="lang-select-btn" data-lang="th" onclick="selectLang(this,'th')"
-                style="border-radius:14px;padding:10px 4px 9px;border:1.5px solid #ede8ff;background:#faf8ff;color:#6b5fa0;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all 0.18s;">
-                <span style="font-size:13px;font-weight:800;letter-spacing:0.5px;background:#ede8ff;border-radius:6px;padding:2px 7px;line-height:1.5;color:#7B5CF5;">TH</span>
-                <span style="font-size:10.5px;font-weight:700;letter-spacing:0.2px;">태국어</span>
+                style="border-radius:14px;padding:11px 4px 10px;border:1.5px solid #ede8ff;background:#faf8ff;color:#6b5fa0;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all 0.18s;width:100%;">
+                <span style="font-size:12px;font-weight:800;letter-spacing:0.5px;background:#ede8ff;border-radius:6px;padding:2px 6px;line-height:1.6;color:#7B5CF5;">TH</span>
+                <span style="font-size:10.5px;font-weight:700;">태국어</span>
               </button>
               <button class="lang-select-btn" data-lang="uz" onclick="selectLang(this,'uz')"
-                style="border-radius:14px;padding:10px 4px 9px;border:1.5px solid #ede8ff;background:#faf8ff;color:#6b5fa0;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all 0.18s;">
-                <span style="font-size:13px;font-weight:800;letter-spacing:0.5px;background:#ede8ff;border-radius:6px;padding:2px 7px;line-height:1.5;color:#7B5CF5;">UZ</span>
-                <span style="font-size:10.5px;font-weight:700;letter-spacing:0.2px;">우즈베크어</span>
+                style="border-radius:14px;padding:11px 4px 10px;border:1.5px solid #ede8ff;background:#faf8ff;color:#6b5fa0;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all 0.18s;width:100%;">
+                <span style="font-size:12px;font-weight:800;letter-spacing:0.5px;background:#ede8ff;border-radius:6px;padding:2px 6px;line-height:1.6;color:#7B5CF5;">UZ</span>
+                <span style="font-size:10.5px;font-weight:700;">우즈베크어</span>
+              </button>
+              <button class="lang-select-btn" data-lang="my" onclick="selectLang(this,'my')"
+                style="border-radius:14px;padding:11px 4px 10px;border:1.5px solid #ede8ff;background:#faf8ff;color:#6b5fa0;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;flex-direction:column;align-items:center;gap:5px;transition:all 0.18s;width:100%;">
+                <span style="font-size:12px;font-weight:800;letter-spacing:0.5px;background:#ede8ff;border-radius:6px;padding:2px 6px;line-height:1.6;color:#7B5CF5;">MM</span>
+                <span style="font-size:10.5px;font-weight:700;">미얀마어</span>
               </button>
             </div>
-            <!-- 선택 안내 -->
             <div id="lang-notice" style="display:none;margin-top:11px;border-radius:12px;padding:9px 12px;font-size:11.5px;font-family:'Noto Sans KR',sans-serif;line-height:1.55;text-align:center;font-weight:600;"></div>
           </div>
         </div>
@@ -1182,9 +1179,24 @@
     'id':  { name:'인도네시아어', flag:'🇮🇩', prompt:'학생이 어떤 언어로 말하든, 반드시 인도네시아어(Bahasa Indonesia)로만 답변해. 한국어는 절대 사용하지 마.' },
     'th':  { name:'태국어',      flag:'🇹🇭', prompt:'학생이 어떤 언어로 말하든, 반드시 태국어(ภาษาไทย)로만 답변해. 한국어는 절대 사용하지 마.' },
     'uz':  { name:'우즈베크어',  flag:'🇺🇿', prompt:'학생이 어떤 언어로 말하든, 반드시 우즈베크어(O\'zbek tili)로만 답변해. 한국어는 절대 사용하지 마.' },
+    'my':  { name:'미얀마어',    flag:'🇲🇲', prompt:'학생이 어떤 언어로 말하든, 반드시 미얀마어(မြန်မာဘာသာ)로만 답변해. 한국어는 절대 사용하지 마.' },
   };
 
   function selectLang(btn, lang) {
+    // 같은 버튼 재클릭 → 선택 해제 (한국어로 복귀)
+    if (_multiLang === lang) {
+      _multiLang = 'ko';
+      document.querySelectorAll('.lang-select-btn').forEach(function(b) {
+        b.style.background = '#faf8ff'; b.style.color = '#6b5fa0';
+        b.style.border = '1.5px solid #ede8ff'; b.style.boxShadow = 'none'; b.style.transform = 'scale(1)';
+        b.classList.remove('active');
+        var badge = b.querySelector('span:first-child');
+        if (badge) { badge.style.background = '#ede8ff'; badge.style.color = '#7B5CF5'; }
+      });
+      document.getElementById('lang-notice').style.display = 'none';
+      try { localStorage.removeItem('edutalk_lang'); } catch(e) {}
+      return;
+    }
     _multiLang = lang;
     document.querySelectorAll('.lang-select-btn').forEach(function(b) {
       b.style.background = '#faf8ff';
@@ -1202,19 +1214,14 @@
     btn.style.boxShadow = '0 3px 10px rgba(123,92,245,0.35)';
     btn.style.transform = 'scale(1.06)';
     btn.classList.add('active');
-    // 활성 버튼 내 배지 색 → 흰색 반투명
     var activeBadge = btn.querySelector('span:first-child');
     if (activeBadge) { activeBadge.style.background = 'rgba(255,255,255,0.25)'; activeBadge.style.color = 'white'; }
     var notice = document.getElementById('lang-notice');
-    if (lang === 'ko') {
-      notice.style.display = 'none';
-    } else {
-      var info = _langMap[lang];
-      notice.style.display = 'block';
-      notice.style.background = 'linear-gradient(135deg,#f3eeff,#fce8f5)';
-      notice.style.color = '#a07cc5';
-      notice.textContent = info.flag + '  ' + info.name + ' 모드 ON · AI가 ' + info.name + '로 답변해요!';
-    }
+    var info = _langMap[lang];
+    notice.style.display = 'block';
+    notice.style.background = 'linear-gradient(135deg,#f3eeff,#fce8f5)';
+    notice.style.color = '#a07cc5';
+    notice.textContent = info.flag + '  ' + info.name + ' 모드 ON · AI가 ' + info.name + '로 답변해요!';
     try { localStorage.setItem('edutalk_lang', lang); } catch(e) {}
   }
 
@@ -1966,7 +1973,7 @@ End every reply with ONE of these three types:
       return;
     }
     window._userName=name;
-    document.getElementById('auth-user-label').textContent=name+'님, 환영합니다 ❤️';
+    document.getElementById('auth-user-label').textContent='⭐ '+name+'님, 환영합니다 ⭐';
     document.getElementById('auth-logged-out').style.display='none';
     document.getElementById('auth-logged-in').style.display='flex';
     try{
