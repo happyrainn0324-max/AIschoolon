@@ -1221,8 +1221,17 @@
     notice.style.display = 'block';
     notice.style.background = 'linear-gradient(135deg,#f3eeff,#fce8f5)';
     notice.style.color = '#a07cc5';
-    notice.textContent = info.flag + '  ' + info.name + ' 모드 ON · AI가 ' + info.name + '로 답변해요!';
+    notice.innerHTML = info.flag + '&nbsp; <strong>' + info.name + '</strong> 모드 ON · AI가 ' + info.name + '로 답변해요!'
+      + '<br><button onclick="openLangChat()" style="margin-top:9px;background:linear-gradient(135deg,#7B5CF5,#E879A0);color:white;border:none;border-radius:12px;padding:9px 22px;font-size:13px;font-weight:700;cursor:pointer;font-family:\'Noto Sans KR\',sans-serif;box-shadow:0 3px 10px rgba(123,92,245,0.3);">'
+      + info.flag + ' ' + info.name + '로 바로 대화 시작 →</button>';
     try { localStorage.setItem('edutalk_lang', lang); } catch(e) {}
+  }
+
+  function openLangChat() {
+    // 언어 선택 후 마이튜터로 바로 해당 언어 대화 시작
+    var info = _langMap[_multiLang];
+    if (!info) return;
+    openChat('마이튜터', '📚', null);
   }
 
   function _getLangPrompt() {
@@ -2059,7 +2068,7 @@ End every reply with ONE of these three types:
   }
 
   function openChat(s,e,m){
-    event.stopPropagation();
+    try { event.stopPropagation(); } catch(err) {}
     cur=s; hist=[];
     // 이름(닉네임) 가져오기
     try{
@@ -2102,12 +2111,43 @@ End every reply with ONE of these three types:
     welcome.className='msg ai';
     welcome.style.background='white';
     welcome.style.border='1.5px solid '+th.header+'33';
-    var welcomeText=sys[s]?'안녕하세요! 저는 '+s+'예요 😊\n무엇이든 편하게 물어보세요!':'안녕하세요! 무엇을 도와드릴까요?';
-    if(s==='Native Talk') welcomeText+='\n어떤 표현을 배워볼까요?';
-    welcome.textContent=welcomeText;
+    var langActive = (_multiLang && _multiLang !== 'ko' && _langMap[_multiLang]);
+    if (langActive) {
+      // 다국어 모드: AI가 해당 언어로 첫 인사를 생성하도록 로딩 상태로 시작
+      welcome.textContent = '...';
+      welcome.classList.add('loading');
+    } else {
+      var welcomeText=sys[s]?'안녕하세요! 저는 '+s+'예요 😊\n무엇이든 편하게 물어보세요!':'안녕하세요! 무엇을 도와드릴까요?';
+      if(s==='Native Talk') welcomeText+='\n어떤 표현을 배워볼까요?';
+      welcome.textContent=welcomeText;
+    }
     messages.appendChild(welcome);
     document.getElementById('modal').classList.add('open');
     document.body.style.overflow='hidden';
+    // 다국어 모드: 선택 언어로 첫 인사를 AI가 생성
+    if (langActive) {
+      (async function(){
+        try {
+          var sysBase = (sys[s] || '친절한 AI야.') + _getLangPrompt();
+          var n = (typeof window._userName !== 'undefined' && window._userName) ? window._userName : '';
+          var given = (n.length >= 2) ? n.slice(1) : n;
+          if (n) sysBase += '\n\n【학생 이름】' + n + ' (성을 뺀 이름: ' + given + ')';
+          var langInfo = _langMap[_multiLang];
+          var greetPrompt = '지금 채팅창이 열렸어. ' + langInfo.name + '로 친근하게 첫 인사를 해줘. 자신을 "' + s + '"라고 소개하고, 무엇이든 도와줄 준비가 됐다고 짧게 말해줘. 반드시 ' + langInfo.name + '로만 답해줘.';
+          var r = await fetch('/.netlify/functions/chat', {
+            method: 'POST', headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({model:'claude-sonnet-4-6', max_tokens:300, system: sysBase, messages:[{role:'user', content: greetPrompt}]})
+          });
+          var data = await r.json();
+          var rep = (data.content && data.content[0] && data.content[0].text) || langInfo.flag + ' 안녕하세요!';
+          welcome.innerHTML = renderMd(rep);
+          welcome.classList.remove('loading');
+        } catch(e) {
+          welcome.textContent = _langMap[_multiLang].flag + ' 안녕하세요! 😊';
+          welcome.classList.remove('loading');
+        }
+      })();
+    }
     if(m){
       // AI가 먼저 학생의 주제/상황을 파악하는 질문으로 대화 시작
       appendMsg('user',m);
