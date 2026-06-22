@@ -143,7 +143,7 @@
   .read-act-card:hover { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.10); }
   .read-act-icon { font-size: 26px; margin-bottom: 2px; }
   .read-act-title { font-size: 14px; font-weight: 800; font-family: 'Jua', 'Noto Sans KR', sans-serif; line-height: 1.3; }
-  .read-act-desc { font-size: 11.5px; font-family: 'Noto Sans KR', sans-serif; opacity: 0.82; line-height: 1.45; word-break: keep-all; }
+  .read-act-desc { font-size: 11.5px; font-family: 'Noto Sans KR', sans-serif; opacity: 0.82; line-height: 1.45; word-break: keep-all; overflow-wrap: break-word; text-wrap: balance; width: 100%; }
 
   .heart-icon-wrap {
     background: transparent !important;
@@ -827,49 +827,49 @@
           <div class="read-activity-grid">
 
             <!-- 카드 1: 뉴스·기사 읽기 -->
-            <div class="read-act-card" style="background:linear-gradient(135deg,#eef6ff,#dceeff);border:1.5px solid #b8d8ff;" onclick="openChat('읽고톡','📖','오늘 뉴스나 기사를 하나 읽고 싶어. 읽을 만한 시사 기사를 추천해주고, 읽은 후에 사실과 의견을 구분하는 법도 알려줘!')">
+            <div class="read-act-card" style="background:white;border:1.5px solid #b8d8ff;" onclick="openChat('읽고톡','📖','오늘 뉴스나 기사를 하나 읽고 싶어. 읽을 만한 시사 기사를 추천해주고, 읽은 후에 사실과 의견을 구분하는 법도 알려줘!')">
               <div class="read-act-icon">📰</div>
-              <div class="read-act-title" style="color:#3B82F6;">뉴스·기사 읽기</div>
-              <div class="read-act-desc" style="color:#3B82F6;">기사를 읽고 사실과 의견을 구분해봐요</div>
+              <div class="read-act-title" style="color:#2d2540;">뉴스·기사 읽기</div>
+              <div class="read-act-desc" style="color:#3B82F6;">기사를 읽고 사실과 의견을<br>구분해봐요</div>
             </div>
 
             <!-- 카드 2: 교과 연결 읽기 -->
-            <div class="read-act-card" style="background:linear-gradient(135deg,#edfaf4,#d6f5e8);border:1.5px solid #a8e0c8;" onclick="openChat('읽고톡','📖','수업에서 배운 내용과 연결되는 책이나 자료를 찾고 싶어. 어떤 과목을 배우고 있는지 먼저 물어봐줘!')">
+            <div class="read-act-card" style="background:white;border:1.5px solid #a8e0c8;" onclick="openChat('읽고톡','📖','수업에서 배운 내용과 연결되는 책이나 자료를 찾고 싶어. 어떤 과목을 배우고 있는지 먼저 물어봐줘!')">
               <div class="read-act-icon">📚</div>
-              <div class="read-act-title" style="color:#1AAD72;">교과 연결 읽기</div>
-              <div class="read-act-desc" style="color:#1AAD72;">수업 내용과 읽기를 연결해봐요</div>
+              <div class="read-act-title" style="color:#2d2540;">교과 연결 읽기</div>
+              <div class="read-act-desc" style="color:#1AAD72;">수업 내용과 읽기를<br>연결해봐요</div>
             </div>
 
             <!-- 카드 3: 읽고 쓰기 연결 -->
-            <div class="read-act-card" style="background:linear-gradient(135deg,#f5f2ff,#ede8ff);border:1.5px solid #c8bcf5;" onclick="openChat('읽고톡','📖','읽은 내용을 바탕으로 내 생각을 글로 정리하고 싶어. 읽은 자료나 책이 있으면 말해줄게. 먼저 뭘 읽었는지 물어봐줘!')">
+            <div class="read-act-card" style="background:white;border:1.5px solid #c8bcf5;" onclick="openChat('읽고톡','📖','읽은 내용을 바탕으로 내 생각을 글로 정리하고 싶어. 읽은 자료나 책이 있으면 말해줄게. 먼저 뭘 읽었는지 물어봐줘!')">
               <div class="read-act-icon">✍️</div>
-              <div class="read-act-title" style="color:#7B5CF5;">읽고 쓰기 연결</div>
-              <div class="read-act-desc" style="color:#7B5CF5;">읽은 것에서 내 생각을 글로 꺼내봐요</div>
+              <div class="read-act-title" style="color:#2d2540;">읽고 쓰기 연결</div>
+              <div class="read-act-desc" style="color:#7B5CF5;">읽은 것에서 내 생각을<br>글로 꺼내봐요</div>
             </div>
 
             <!-- 카드 4: 시사·사회 이슈 -->
-            <div class="read-act-card" style="background:linear-gradient(135deg,#fff4ec,#fde8d4);border:1.5px solid #f5c8a0;" onclick="openChat('읽고톡','📖','요즘 사회에서 일어나는 이슈에 대해 더 알고 싶어. 관심 있는 사회 문제나 이슈가 있는지 먼저 물어봐줘!')">
+            <div class="read-act-card" style="background:white;border:1.5px solid #f5c8a0;" onclick="openChat('읽고톡','📖','요즘 사회에서 일어나는 이슈에 대해 더 알고 싶어. 관심 있는 사회 문제나 이슈가 있는지 먼저 물어봐줘!')">
               <div class="read-act-icon">🌍</div>
-              <div class="read-act-title" style="color:#F97316;">시사·사회 이슈</div>
-              <div class="read-act-desc" style="color:#F97316;">세상 이야기를 읽고 내 생각을 키워요</div>
+              <div class="read-act-title" style="color:#2d2540;">시사·사회 이슈</div>
+              <div class="read-act-desc" style="color:#F97316;">세상 이야기를 읽고<br>내 생각을 키워요</div>
             </div>
 
             <!-- 카드 5: 탐구 주제 연결 -->
-            <div class="read-act-card" style="background:linear-gradient(135deg,#edfaf8,#ccf0ea);border:1.5px solid #9dddd0;" onclick="openChat('읽고톡','📖','탐구하고 싶은 주제가 있어. 그 주제와 관련된 책이나 기사를 찾고, 탐구 질문도 만들어보고 싶어. 먼저 어떤 주제에 관심 있는지 물어봐줘!')">
+            <div class="read-act-card" style="background:white;border:1.5px solid #9dddd0;" onclick="openChat('읽고톡','📖','탐구하고 싶은 주제가 있어. 그 주제와 관련된 책이나 기사를 찾고, 탐구 질문도 만들어보고 싶어. 먼저 어떤 주제에 관심 있는지 물어봐줘!')">
               <div class="read-act-icon">🔍</div>
-              <div class="read-act-title" style="color:#0D9488;">탐구 주제 연결</div>
-              <div class="read-act-desc" style="color:#0D9488;">읽기로 탐구 주제를 발전시켜봐요</div>
+              <div class="read-act-title" style="color:#2d2540;">탐구 주제 연결</div>
+              <div class="read-act-desc" style="color:#0D9488;">읽기로 탐구 주제를<br>발전시켜봐요</div>
             </div>
 
             <!-- 카드 6: 다양한 장르 읽기 -->
-            <div class="read-act-card" style="background:linear-gradient(135deg,#fef0f6,#fce8f3);border:1.5px solid #f0b8d4;" onclick="openChat('읽고톡','📖','소설, 시, 에세이, 만화 등 다양한 장르를 경험해보고 싶어. 내 취향에 맞는 장르를 찾을 수 있도록 먼저 내가 좋아하는 것들을 물어봐줘!')">
+            <div class="read-act-card" style="background:white;border:1.5px solid #f0b8d4;" onclick="openChat('읽고톡','📖','소설, 시, 에세이, 만화 등 다양한 장르를 경험해보고 싶어. 내 취향에 맞는 장르를 찾을 수 있도록 먼저 내가 좋아하는 것들을 물어봐줘!')">
               <div class="read-act-icon">🎭</div>
-              <div class="read-act-title" style="color:#E83E8C;">다양한 장르 읽기</div>
-              <div class="read-act-desc" style="color:#E83E8C;">소설·시·에세이 등 새 장르를 탐험해요</div>
+              <div class="read-act-title" style="color:#2d2540;">다양한 장르 읽기</div>
+              <div class="read-act-desc" style="color:#E83E8C;">소설·시·에세이 등<br>새 장르를 탐험해요</div>
             </div>
 
           </div>
-          <button class="recommend-btn" onclick="openChat('읽고톡','📖','내 나이와 관심사에 맞는 읽기 주제를 추천해줘! 먼저 내가 좋아하는 것들을 물어봐줘.')">✨ AI 읽기 주제 추천받기</button>
+          <button class="recommend-btn" style="margin-top:10px;" onclick="openChat('읽고톡','📖','내 나이와 관심사에 맞는 읽기 주제를 추천해줘! 먼저 내가 좋아하는 것들을 물어봐줘.')">✨ AI 읽기 주제 추천받기</button>
         </div>
       </div>
 
@@ -889,12 +889,13 @@
         <div class="starters-panel" id="panel-rws2">
           <!-- 출발·도착 입력 -->
           <div class="starters-label">📍 출발지와 도착지를 입력해봐!</div>
+          <div style="text-align:left;font-size:11.5px;color:var(--text-muted);margin-bottom:10px;">(걸을 수 있는 거리만 측정할 수 있어요!)</div>
           <div style="display:flex;gap:8px;align-items:stretch;margin-bottom:8px;">
             <!-- 입력 2단 -->
             <div style="flex:1;display:flex;flex-direction:column;gap:6px;min-width:0;">
               <div style="background:rgba(255,255,255,0.9);border:1.5px solid rgba(13,148,136,0.25);border-radius:12px;padding:9px 12px;display:flex;align-items:center;gap:7px;">
                 <span style="font-size:13px;flex-shrink:0;">🟢</span>
-                <input id="walk-from" type="text" placeholder="출발지 (예: 학교 정문)" style="flex:1;min-width:0;border:none;background:transparent;font-size:12.5px;font-family:'Noto Sans KR',sans-serif;color:var(--text-main);outline:none;" />
+                <input id="walk-from" type="text" placeholder="출발지 (예: 인천공항중학교)" style="flex:1;min-width:0;border:none;background:transparent;font-size:12.5px;font-family:'Noto Sans KR',sans-serif;color:var(--text-main);outline:none;" />
               </div>
               <div style="background:rgba(255,255,255,0.9);border:1.5px solid rgba(13,148,136,0.25);border-radius:12px;padding:9px 12px;display:flex;align-items:center;gap:7px;">
                 <span style="font-size:13px;flex-shrink:0;">🔴</span>
@@ -906,7 +907,6 @@
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
             </button>
           </div>
-          <div style="text-align:center;font-size:11.5px;color:var(--text-muted);margin-bottom:8px;">(걸을 수 있는 거리만 측정할 수 있어요!)</div>
           <!-- AI 결과 박스 (처음부터 예시와 함께 표시) -->
           <div id="walk-result-box" style="background:rgba(255,255,255,0.92);border:1.5px solid rgba(13,148,136,0.25);border-radius:14px;padding:12px 14px;margin-bottom:8px;font-size:13px;line-height:1.9;color:var(--text-main);box-shadow:0 2px 10px rgba(13,148,136,0.08);">
             <div id="walk-result-loading" style="color:#0D9488;font-size:12px;display:none;align-items:center;gap:6px;">
@@ -963,49 +963,49 @@
           <div class="read-activity-grid">
 
             <!-- 카드 1: 일상 기록 쓰기 -->
-            <div class="read-act-card" style="background:linear-gradient(135deg,#edfaf4,#d6f5e8);border:1.5px solid #a8e0c8;" onclick="openChat('쓰고톡','✏️','일상을 기록하는 글을 쓰고 싶어. 일기, 관찰일지, 생각 메모 같은 걸 어떻게 쓰면 좋은지 먼저 물어봐줘!')">
+            <div class="read-act-card" style="background:white;border:1.5px solid #a8e0c8;" onclick="openChat('쓰고톡','✏️','일상을 기록하는 글을 쓰고 싶어. 일기, 관찰일지, 생각 메모 같은 걸 어떻게 쓰면 좋은지 먼저 물어봐줘!')">
               <div class="read-act-icon">📔</div>
-              <div class="read-act-title" style="color:#1AAD72;">일상 기록 쓰기</div>
+              <div class="read-act-title" style="color:#2d2540;">일상 기록 쓰기</div>
               <div class="read-act-desc" style="color:#1AAD72;">일기·관찰일지·생각 메모로 오늘을 담아요</div>
             </div>
 
             <!-- 카드 2: 설득·주장 쓰기 -->
-            <div class="read-act-card" style="background:linear-gradient(135deg,#fff4ec,#fde8d4);border:1.5px solid #f5c8a0;" onclick="openChat('쓰고톡','✏️','내 생각을 논리적으로 표현하는 글을 쓰고 싶어. 논설문, 에세이, 의견문 같은 설득하는 글을 어떻게 쓰면 좋을지 먼저 물어봐줘!')">
+            <div class="read-act-card" style="background:white;border:1.5px solid #f5c8a0;" onclick="openChat('쓰고톡','✏️','내 생각을 논리적으로 표현하는 글을 쓰고 싶어. 논설문, 에세이, 의견문 같은 설득하는 글을 어떻게 쓰면 좋을지 먼저 물어봐줘!')">
               <div class="read-act-icon">💡</div>
-              <div class="read-act-title" style="color:#F97316;">설득·주장 쓰기</div>
+              <div class="read-act-title" style="color:#2d2540;">설득·주장 쓰기</div>
               <div class="read-act-desc" style="color:#F97316;">논설문·에세이로 내 생각을 논리적으로 펼쳐요</div>
             </div>
 
             <!-- 카드 3: 감성·표현 쓰기 -->
-            <div class="read-act-card" style="background:linear-gradient(135deg,#fef0f6,#fce8f3);border:1.5px solid #f0b8d4;" onclick="openChat('쓰고톡','✏️','감성적인 글을 쓰고 싶어. 시, 수필, 감상문처럼 느낌과 감정을 표현하는 글을 어떻게 쓰면 좋을지 먼저 물어봐줘!')">
+            <div class="read-act-card" style="background:white;border:1.5px solid #f0b8d4;" onclick="openChat('쓰고톡','✏️','감성적인 글을 쓰고 싶어. 시, 수필, 감상문처럼 느낌과 감정을 표현하는 글을 어떻게 쓰면 좋을지 먼저 물어봐줘!')">
               <div class="read-act-icon">🌸</div>
-              <div class="read-act-title" style="color:#E83E8C;">감성·표현 쓰기</div>
+              <div class="read-act-title" style="color:#2d2540;">감성·표현 쓰기</div>
               <div class="read-act-desc" style="color:#E83E8C;">시·수필·감상문으로 내 감정을 표현해요</div>
             </div>
 
             <!-- 카드 4: 정보·보고 쓰기 -->
-            <div class="read-act-card" style="background:linear-gradient(135deg,#eef6ff,#dceeff);border:1.5px solid #b8d8ff;" onclick="openChat('쓰고톡','✏️','정보를 전달하거나 탐구 결과를 정리하는 글을 쓰고 싶어. 뉴스 기사, 탐구 보고서, 발표문 같은 걸 어떻게 쓸지 먼저 물어봐줘!')">
+            <div class="read-act-card" style="background:white;border:1.5px solid #b8d8ff;" onclick="openChat('쓰고톡','✏️','정보를 전달하거나 탐구 결과를 정리하는 글을 쓰고 싶어. 뉴스 기사, 탐구 보고서, 발표문 같은 걸 어떻게 쓸지 먼저 물어봐줘!')">
               <div class="read-act-icon">📰</div>
-              <div class="read-act-title" style="color:#3B82F6;">정보·보고 쓰기</div>
+              <div class="read-act-title" style="color:#2d2540;">정보·보고 쓰기</div>
               <div class="read-act-desc" style="color:#3B82F6;">기사·보고서·발표문으로 정보를 전달해요</div>
             </div>
 
             <!-- 카드 5: 관계·소통 쓰기 -->
-            <div class="read-act-card" style="background:linear-gradient(135deg,#f5f2ff,#ede8ff);border:1.5px solid #c8bcf5;" onclick="openChat('쓰고톡','✏️','누군가에게 마음을 전하는 글을 쓰고 싶어. 편지, 감사카드, 사과문, SNS 글처럼 소통하는 글을 어떻게 쓸지 먼저 물어봐줘!')">
+            <div class="read-act-card" style="background:white;border:1.5px solid #c8bcf5;" onclick="openChat('쓰고톡','✏️','누군가에게 마음을 전하는 글을 쓰고 싶어. 편지, 감사카드, 사과문, SNS 글처럼 소통하는 글을 어떻게 쓸지 먼저 물어봐줘!')">
               <div class="read-act-icon">💌</div>
-              <div class="read-act-title" style="color:#7B5CF5;">관계·소통 쓰기</div>
-              <div class="read-act-desc" style="color:#7B5CF5;">편지·감사카드·SNS글로 마음을 전해요</div>
+              <div class="read-act-title" style="color:#2d2540;">관계·소통 쓰기</div>
+              <div class="read-act-desc" style="color:#7B5CF5;">편지·감사카드·SNS글로<br>마음을 전해요</div>
             </div>
 
             <!-- 카드 6: 창작·상상 쓰기 -->
-            <div class="read-act-card" style="background:linear-gradient(135deg,#edfaf8,#ccf0ea);border:1.5px solid #9dddd0;" onclick="openChat('쓰고톡','✏️','상상력을 발휘해서 이야기를 만들고 싶어. 단편소설, 동화, 시나리오처럼 창작하는 글을 어떻게 시작하면 좋을지 먼저 물어봐줘!')">
+            <div class="read-act-card" style="background:white;border:1.5px solid #9dddd0;" onclick="openChat('쓰고톡','✏️','상상력을 발휘해서 이야기를 만들고 싶어. 단편소설, 동화, 시나리오처럼 창작하는 글을 어떻게 시작하면 좋을지 먼저 물어봐줘!')">
               <div class="read-act-icon">✨</div>
-              <div class="read-act-title" style="color:#0D9488;">창작·상상 쓰기</div>
+              <div class="read-act-title" style="color:#2d2540;">창작·상상 쓰기</div>
               <div class="read-act-desc" style="color:#0D9488;">소설·동화·시나리오로 나만의 이야기를 만들어요</div>
             </div>
 
           </div>
-          <button class="recommend-btn" onclick="openChat('쓰고톡','✏️','내 나이와 관심사에 맞는 글쓰기 주제를 추천해줘! 먼저 내가 좋아하는 것들을 물어봐줘.')">✨ AI 쓰기 주제 추천받기</button>
+          <button class="recommend-btn" style="margin-top:10px;" onclick="openChat('쓰고톡','✏️','내 나이와 관심사에 맞는 글쓰기 주제를 추천해줘! 먼저 내가 좋아하는 것들을 물어봐줘.')">✨ AI 쓰기 주제 추천받기</button>
         </div>
       </div>
 
