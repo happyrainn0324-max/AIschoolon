@@ -887,62 +887,167 @@
           <div class="card-arrow" id="arr-rws2">›</div>
         </div>
         <div class="starters-panel" id="panel-rws2">
-          <!-- 출발·도착 입력 -->
-          <div class="starters-label">📍 출발지와 도착지를 입력해봐!</div>
-          <div style="font-size:14px;color:var(--text-muted);margin-bottom:10px;padding-left:1.6em;">(15km 이내 거리까지만 측정할 수 있어요!)</div>
-          <div style="display:flex;gap:8px;align-items:stretch;margin-bottom:8px;">
-            <!-- 입력 2단 -->
-            <div style="flex:1;display:flex;flex-direction:column;gap:6px;min-width:0;">
-              <div style="background:rgba(255,255,255,0.9);border:1.5px solid rgba(13,148,136,0.25);border-radius:12px;padding:9px 12px;display:flex;align-items:center;gap:7px;">
-                <span style="font-size:13px;flex-shrink:0;">🟢</span>
-                <input id="walk-from" type="text" placeholder="출발지 (예: 인천공항중학교)" style="flex:1;min-width:0;border:none;background:transparent;font-size:12.5px;font-family:'Noto Sans KR',sans-serif;color:var(--text-main);outline:none;" />
-              </div>
-              <div style="background:rgba(255,255,255,0.9);border:1.5px solid rgba(13,148,136,0.25);border-radius:12px;padding:9px 12px;display:flex;align-items:center;gap:7px;">
-                <span style="font-size:13px;flex-shrink:0;">🔴</span>
-                <input id="walk-to" type="text" placeholder="도착지 (예: 영종중학교)" style="flex:1;min-width:0;border:none;background:transparent;font-size:12.5px;font-family:'Noto Sans KR',sans-serif;color:var(--text-main);outline:none;" />
-              </div>
+          <style>
+            #wexplore-wrap{padding:8px 4px;font-family:'Noto Sans KR',sans-serif;}
+            #wex-title-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+            #wex-title{font-size:15px;font-weight:800;color:#2d2540;}
+            #wex-star-badge{background:#fff8e1;border:1.5px solid #ffd54f;border-radius:20px;padding:3px 10px;font-size:13px;font-weight:700;color:#e65100;}
+            #wex-step-row{display:flex;gap:7px;margin-bottom:10px;align-items:center;}
+            #wex-step-row input{flex:1;border:1.5px solid #ede8ff;border-radius:12px;padding:8px 12px;font-size:14px;font-family:'Noto Sans KR',sans-serif;color:#2d2540;outline:none;background:white;}
+            #wex-step-row input:focus{border-color:#7B5CF5;}
+            #wex-go-btn{background:linear-gradient(135deg,#0D9488,#0a7870);color:white;border:none;border-radius:12px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;}
+            #wex-map{position:relative;background:#e8f5e9;border-radius:16px;border:2px solid #c8e6c9;width:100%;height:200px;overflow:hidden;margin-bottom:8px;}
+            #wex-path-track{position:absolute;bottom:24px;left:16px;right:16px;height:14px;background:#c8e6c9;border-radius:7px;}
+            #wex-path-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(90deg,#66bb6a,#43a047);border-radius:7px;transition:width 0.6s cubic-bezier(.4,0,.2,1);max-width:100%;}
+            #wex-char{position:absolute;font-size:24px;bottom:32px;transition:left 0.6s cubic-bezier(.4,0,.2,1);transform:translateX(-50%);}
+            .wex-item{position:absolute;font-size:18px;bottom:38px;transition:opacity 0.3s;}
+            .wex-tree{position:absolute;font-size:20px;}
+            #wex-map-label{position:absolute;top:8px;left:12px;font-size:11px;font-weight:700;color:#388e3c;background:rgba(255,255,255,0.75);border-radius:8px;padding:2px 7px;}
+            #wex-status-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+            #wex-status-text{font-size:12px;color:#0D9488;font-weight:700;}
+            #wex-lv-badge{background:linear-gradient(135deg,#0D9488,#43a047);color:white;border-radius:10px;padding:2px 9px;font-size:11px;font-weight:700;}
+            #wex-prog-bar{background:#d6f5e8;border-radius:10px;height:8px;margin-bottom:7px;overflow:hidden;}
+            #wex-prog-fill{height:100%;background:linear-gradient(90deg,#0D9488,#43a047);border-radius:10px;transition:width 0.6s;}
+            #wex-msg{background:white;border:1.5px solid #a8e0c8;border-radius:12px;padding:9px 12px;font-size:12.5px;color:#2d2540;line-height:1.6;min-height:40px;margin-bottom:8px;}
+            #wex-items-found{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:7px;}
+            .wex-chip{background:#edfaf4;border:1.5px solid #a8e0c8;border-radius:10px;padding:2px 9px;font-size:11.5px;color:#0D9488;font-weight:600;}
+            #wex-btn-row{display:flex;gap:7px;margin-bottom:6px;}
+            .wex-action-btn{flex:1;background:#edfaf4;border:1.5px solid #a8e0c8;border-radius:11px;padding:7px;font-size:12px;font-weight:700;color:#0D9488;cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
+            .wex-action-btn:active{background:#ccf0ea;}
+            #wex-total-row{text-align:center;font-size:11px;color:#9b8fc0;}
+          </style>
+          <div id="wexplore-wrap">
+            <div id="wex-title-row">
+              <div id="wex-title">🗺️ 걷기 탐험대</div>
+              <div id="wex-star-badge">⭐ <span id="wex-total-stars">0</span></div>
             </div>
-            <!-- 화살표 버튼 -->
-            <button onclick="sendWalkRoute()" style="width:44px;height:44px;flex-shrink:0;background:linear-gradient(135deg,#0D9488,#0a7870);border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px rgba(13,148,136,0.35);align-self:center;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-            </button>
-          </div>
-          <!-- AI 결과 박스 (처음부터 예시와 함께 표시) -->
-          <div id="walk-result-box" style="background:rgba(255,255,255,0.92);border:1.5px solid rgba(13,148,136,0.25);border-radius:14px;padding:12px 14px;margin-bottom:8px;font-size:14.5px;line-height:1.9;color:var(--text-main);box-shadow:0 2px 10px rgba(13,148,136,0.08);">
-            <div id="walk-result-loading" style="color:#0D9488;font-size:12px;display:none;align-items:center;gap:6px;">
-              <span style="display:inline-block;width:10px;height:10px;border:2px solid #0D9488;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></span>AI가 거리를 계산하고 있어요...
+            <div id="wex-step-row">
+              <input type="number" id="wex-step-input" placeholder="오늘 걸음 수 (예: 5000)" min="0" max="99999" />
+              <button id="wex-go-btn" onclick="wexAddSteps()">탐험!</button>
             </div>
-            <div id="walk-result-text" style="white-space:pre-line;color:#555;">📍 예상 거리 : ○○ km
-👣 예상 걸음 수 : 약 ○,○○○ 보
-🔥 예상 소모 칼로리 : 약 ○○○ kcal
-⏰ 예상 소요 시간 : 약 ○○ 분
-
-출발지와 도착지를 입력하고 ➤ 버튼을 눌러봐!</div>
+            <div id="wex-map">
+              <div id="wex-map-label">🌿 숲 입구</div>
+              <div style="position:absolute;top:12px;left:50px;font-size:16px;">☁️</div>
+              <div style="position:absolute;top:8px;left:180px;font-size:16px;">☁️</div>
+              <div class="wex-tree" style="bottom:38px;left:22px;">🌲</div>
+              <div class="wex-tree" style="bottom:38px;left:65px;">🌳</div>
+              <div class="wex-tree" style="bottom:38px;right:22px;">🌲</div>
+              <div class="wex-tree" style="bottom:38px;right:55px;">🌳</div>
+              <div id="wex-item1" class="wex-item" style="left:28%;">🍄</div>
+              <div id="wex-item2" class="wex-item" style="left:54%;">💎</div>
+              <div id="wex-item3" class="wex-item" style="left:78%;">🗝️</div>
+              <div id="wex-path-track"><div id="wex-path-fill" style="width:0%"></div></div>
+              <div id="wex-char" style="left:4%">🧒</div>
+            </div>
+            <div id="wex-status-row">
+              <div id="wex-status-text">오늘 <span id="wex-today-steps">0</span>보</div>
+              <div id="wex-lv-badge">Lv.1 새싹 탐험가</div>
+            </div>
+            <div id="wex-prog-bar"><div id="wex-prog-fill" style="width:0%"></div></div>
+            <div id="wex-msg">오늘 걸은 걸음 수를 입력하고 탐험을 시작해봐! 🌟</div>
+            <div id="wex-items-found"></div>
+            <div id="wex-btn-row">
+              <button class="wex-action-btn" onclick="openChat('걷고톡','🚶','오늘 걷기 미션을 하나 줘! 달성할 수 있는 걸음 수 목표도 알려줘.')">🎯 오늘의 미션</button>
+              <button class="wex-action-btn" onclick="openChat('걷고톡','🚶','걷기가 건강에 어떤 도움이 되는지 재미있게 알려줘!')">💪 걷기 효과</button>
+            </div>
+            <div id="wex-total-row">누적 <span id="wex-cumul-steps">0</span>보 탐험 완료</div>
           </div>
-          <!-- 6개 버튼 -->
-          <div class="starters-label" style="margin-top:4px;">✨ 걷기 활동 선택하기</div>
+          <script>
+          (function(){
+            var _levels=[
+              {min:0,max:2999,name:'새싹 탐험가',ch:'🧒'},
+              {min:3000,max:5999,name:'숲길 탐험가',ch:'🧑'},
+              {min:6000,max:9999,name:'산악 탐험가',ch:'🧗'},
+              {min:10000,max:14999,name:'강변 탐험가',ch:'🏃'},
+              {min:15000,max:19999,name:'바람 탐험가',ch:'🧚'},
+              {min:20000,max:Infinity,name:'전설 탐험가',ch:'🦸'}
+            ];
+            var _items=[
+              {id:'wex-item1',emoji:'🍄',name:'신비한 버섯',steps:2000},
+              {id:'wex-item2',emoji:'💎',name:'보석',steps:5000},
+              {id:'wex-item3',emoji:'🗝️',name:'황금 열쇠',steps:8000}
+            ];
+            var _zones=[
+              {min:0,label:'🌿 숲 입구'},{min:3000,label:'🌊 계곡 길'},
+              {min:6000,label:'⛰️ 산 중턱'},{min:10000,label:'🏔️ 정상 부근'},
+              {min:15000,label:'🌅 해돋이 고원'},{min:20000,label:'🌌 전설의 땅'}
+            ];
+            function getLv(s){for(var i=_levels.length-1;i>=0;i--){if(s>=_levels[i].min)return _levels[i];}return _levels[0];}
+            function getZone(s){for(var i=_zones.length-1;i>=0;i--){if(s>=_zones[i].min)return _zones[i].label;}return _zones[0].label;}
+            function loadState(){try{var s=JSON.parse(localStorage.getItem('wex3'));if(s)return s;}catch(e){}return{total:0,today:0,stars:0,found:[],date:''};}
+            function saveState(st){try{localStorage.setItem('wex3',JSON.stringify(st));}catch(e){}}
+            function wexRender(st){
+              var lv=getLv(st.today);
+              var li=_levels.indexOf(lv);
+              var nxt=_levels[li+1];
+              var pct=nxt?Math.min(100,((st.today-lv.min)/(nxt.min-lv.min)*100)):100;
+              document.getElementById('wex-char').textContent=lv.ch;
+              document.getElementById('wex-lv-badge').textContent='Lv.'+(li+1)+' '+lv.name;
+              document.getElementById('wex-prog-fill').style.width=pct+'%';
+              document.getElementById('wex-today-steps').textContent=st.today.toLocaleString();
+              document.getElementById('wex-total-stars').textContent=st.stars;
+              document.getElementById('wex-cumul-steps').textContent=st.total.toLocaleString();
+              document.getElementById('wex-map-label').textContent=getZone(st.today);
+              var cp=Math.min(92,4+(st.today/20000)*88);
+              document.getElementById('wex-char').style.left=cp+'%';
+              document.getElementById('wex-path-fill').style.width=Math.min(100,cp)+'%';
+              _items.forEach(function(it){
+                var el=document.getElementById(it.id);
+                if(!el)return;
+                el.style.opacity=st.found.indexOf(it.name)>=0?'0':(st.today>=it.steps?'1':'0.35');
+              });
+              var fc=document.getElementById('wex-items-found');
+              fc.innerHTML='';
+              st.found.forEach(function(name){
+                var it=_items.find(function(i){return i.name===name;});
+                var c=document.createElement('div');c.className='wex-chip';
+                c.textContent=(it?it.emoji:'✨')+' '+name;fc.appendChild(c);
+              });
+            }
+            window.wexAddSteps=function(){
+              var val=parseInt(document.getElementById('wex-step-input').value)||0;
+              if(val<=0){document.getElementById('wex-msg').textContent='걸음 수를 입력해줘! 😊';return;}
+              if(val>60000){document.getElementById('wex-msg').textContent='최대 60,000보까지 입력할 수 있어!';return;}
+              var st=loadState();
+              var td=new Date().toDateString();
+              if(st.date!==td){st.today=0;st.date=td;}
+              var prev=st.today;
+              st.today+=val;st.total+=val;
+              var nf=[];
+              _items.forEach(function(it){
+                if(prev<it.steps&&st.today>=it.steps&&st.found.indexOf(it.name)<0){
+                  st.found.push(it.name);nf.push(it.emoji+' '+it.name+' 발견!');st.stars+=2;
+                }
+              });
+              var pLv=getLv(prev);var cLv=getLv(st.today);
+              var lvUp=_levels.indexOf(cLv)>_levels.indexOf(pLv);
+              if(lvUp)st.stars+=5;
+              var msgs=[];
+              if(lvUp)msgs.push('🎉 레벨 업! '+cLv.name+' 달성! (별 +5)');
+              if(nf.length)msgs.push(nf.join(' · ')+' (별 +'+nf.length*2+')');
+              if(!msgs.length){
+                var needed=_items.find(function(i){return st.found.indexOf(i.name)<0&&i.steps>st.today;});
+                msgs.push(val.toLocaleString()+'보 탐험 완료! '+(needed?needed.emoji+' '+needed.name+'까지 '+(needed.steps-st.today).toLocaleString()+'보 남았어!':'모든 아이템 발견! 🏆'));
+              }
+              document.getElementById('wex-msg').textContent=msgs.join('\n');
+              document.getElementById('wex-step-input').value='';
+              saveState(st);wexRender(st);
+            };
+            wexRender(loadState());
+          })();
+          </script>
+          <div class="starters-label" style="margin-top:10px;">✨ 걷기 활동 선택하기</div>
           <div class="starters-list">
-            <button class="starter-btn" onclick="openChat('걷고톡','🚶','걷기의 효과가 궁금해!')">
-              <span class="starter-icon">✨</span>걷기 효과
-            </button>
-            <button class="starter-btn" onclick="openChat('걷고톡','🚶','오늘 걷기 미션을 주고 싶어!')">
-              <span class="starter-icon">🎯</span>걷기 미션
-            </button>
-            <button class="starter-btn" onclick="openChat('걷고톡','🚶','걷기 좋은 곳을 추천해줘!')">
-              <span class="starter-icon">🗺️</span>걷기 좋은 곳
-            </button>
-            <button class="starter-btn" onclick="openChat('걷고톡','🚶','걸으면서 자연을 탐구하고 싶어!')">
-              <span class="starter-icon">🌿</span>자연 탐구
-            </button>
-            <button class="starter-btn" onclick="openChat('걷고톡','🚶','걷기와 건강에 대해 이야기해보고 싶어!')">
-              <span class="starter-icon">🩺</span>건강톡톡
-            </button>
-            <button class="starter-btn" onclick="openChat('걷고톡','🚶','걸으면서 건강한 생각을 갖는 방법을 알고 싶어!')">
-              <span class="starter-icon">💚</span>건강한 생각
-            </button>
+            <button class="starter-btn" onclick="openChat('걷고톡','🚶','걷기의 효과가 궁금해!')"><span class="starter-icon">✨</span>걷기 효과</button>
+            <button class="starter-btn" onclick="openChat('걷고톡','🚶','오늘 걷기 미션을 주고 싶어!')"><span class="starter-icon">🎯</span>걷기 미션</button>
+            <button class="starter-btn" onclick="openChat('걷고톡','🚶','걷기 좋은 곳을 추천해줘!')"><span class="starter-icon">🗺️</span>걷기 좋은 곳</button>
+            <button class="starter-btn" onclick="openChat('걷고톡','🚶','걸으면서 자연을 탐구하고 싶어!')"><span class="starter-icon">🌿</span>자연 탐구</button>
+            <button class="starter-btn" onclick="openChat('걷고톡','🚶','걷기와 건강에 대해 이야기해보고 싶어!')"><span class="starter-icon">🩺</span>건강톡톡</button>
+            <button class="starter-btn" onclick="openChat('걷고톡','🚶','걸으면서 건강한 생각을 갖는 방법을 알고 싶어!')"><span class="starter-icon">💚</span>건강한 생각</button>
           </div>
-          <button class="recommend-btn" onclick="openChat('걷고톡','🚶','내 나이와 관심사에 맞는 걷기 주제를 추천해줘! 먼저 내가 좋아하는 것들을 물어봐줘.')">✨ AI 걷기 주제 추천받기</button>
+          <button class="recommend-btn" style="margin-top:10px;" onclick="openChat('걷고톡','🚶','내 나이와 관심사에 맞는 걷기 주제를 추천해줘! 먼저 내가 좋아하는 것들을 물어봐줘.')">✨ AI 걷기 주제 추천받기</button>
         </div>
+</div>
       </div>
 
       <!-- 쓰고톡 -->
@@ -2834,63 +2939,6 @@ End every reply with ONE of these three types:
     inp.value = '';
     inp.style.height = 'auto';
     openChat('걷고톡', '🚶', '오늘 걸으면서 이런 걸 봤어: ' + text + ' 이걸 더 탐구해보고 싶어!');
-  }
-  async function sendWalkRoute() {
-    var from = document.getElementById('walk-from').value.trim();
-    var to   = document.getElementById('walk-to').value.trim();
-    if (!from && !to) { alert('출발지 또는 도착지를 입력해줘! 🗺️'); return; }
-    var loc = from && to ? from + ' → ' + to : (from ? from + ' 출발' : to + ' 도착');
-
-    // 결과 박스 보이기
-    var box     = document.getElementById('walk-result-box');
-    var loading = document.getElementById('walk-result-loading');
-    var resText = document.getElementById('walk-result-text');
-    // 박스는 항상 표시
-    loading.style.display = 'flex'; loading.style.flexDirection = 'row';
-    resText.style.display  = 'none';
-    resText.textContent    = '';
-
-    var prompt = '[' + loc + '] 코스의 걷기 정보를 계산해줘.\n'
-      + '아래 형식으로만 답해줘 (다른 말 없이 딱 이 형식만):\n'
-      + '📍 예상 거리 : ○○km\n'
-      + '👣 예상 걸음 수 : 약 ○,○○○보\n'
-      + '🔥 예상 소모 칼로리 : 약 ○○○kcal\n'
-      + '⏰ 예상 소요 시간 : 약 ○○분\n'
-      + '\n그 다음 한 줄로 짧게 대화를 이어가는 질문 1개만 해줘.';
-
-    try {
-      var resp = await fetch('/.netlify/functions/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: 'claude-sonnet-4-6',
-          max_tokens: 400,
-          system: '너는 두 장소 사이의 도보 거리를 계산해주는 AI야. 한국 지리에 대한 지식을 바탕으로 최대한 실제 거리에 가깝게 계산해줘.',
-          messages: [{ role: 'user', content: prompt }]
-        })
-      });
-      var data = await resp.json();
-      var answer = data.content && data.content[0] ? data.content[0].text : '계산에 실패했어요.';
-      loading.style.display = 'none';
-      // 15km 초과 여부 체크
-      var distMatch = answer.match(/예상 거리[^:：]*[:：]\s*([\d.]+)\s*km/i);
-      var distKm = distMatch ? parseFloat(distMatch[1]) : 0;
-      if (distKm > 15) {
-        resText.style.color = '#E83E8C';
-        resText.style.fontWeight = '700';
-        resText.textContent = '😅 걷기에는 너무 긴 코스에요.\n다른 코스를 입력해보세요!';
-      } else {
-        resText.style.color = '#555';
-        resText.style.fontWeight = 'normal';
-        resText.textContent = answer;
-      }
-      resText.style.display = 'block';
-      awardStar();
-    } catch(e) {
-      loading.style.display = 'none';
-      resText.textContent   = '😢 계산 중 오류가 발생했어요. 다시 시도해줘!';
-      resText.style.display = 'block';
-    }
   }
   document.addEventListener('DOMContentLoaded', function() {
     var ta = document.getElementById('walk-input');
