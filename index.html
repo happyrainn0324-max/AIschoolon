@@ -281,59 +281,70 @@
   position:fixed;
   top:0;left:0;right:0;bottom:0;
   z-index:9999;
-  background:linear-gradient(160deg,#f5f0ff 0%,#fce8f5 50%,#ede8ff 100%);
+  background:#6B4FD4;
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:center;
-  padding:0 16px;
+  justify-content:flex-end;
   animation:introFadeIn 0.6s ease;
 ">
-  <img src="https://raw.githubusercontent.com/happyrainn0324-max/AIschoolon/main/intro.png" onerror="this.style.display='none';document.getElementById('intro-img-err').style.display='block'"
+  <!-- 배경 이미지 (상단 80% 차지) -->
+  <img src="https://raw.githubusercontent.com/happyrainn0324-max/AIschoolon/main/intro.png"
     style="
+      position:absolute;
+      top:0;left:0;right:0;
       width:100%;
-      max-width:480px;
-      border-radius:20px;
-      box-shadow:0 8px 32px rgba(123,92,245,0.18);
-      object-fit:contain;
-      flex:1;
-      max-height:calc(100vh - 120px);
+      height:82%;
+      object-fit:cover;
+      object-position:center top;
+      animation:introFloat 3.2s ease-in-out infinite;
+      transform-origin:center bottom;
     "
-    alt="AI 에듀톡 소개"
+    alt="AI 에듀톡"
   >
-  <div id="intro-img-err" style="display:none;font-size:14px;color:#9b6cf5;text-align:center;margin:20px 0;">
-    ⚠️ 이미지 로딩 실패<br><small>(/intro.png 경로 확인 필요)</small>
-  </div>
-  <button onclick="closeIntro()"
-    style="
-      margin-top:18px;
-      margin-bottom:env(safe-area-inset-bottom,12px);
+  <!-- 하단 버튼 영역 -->
+  <div style="
+    position:relative;
+    z-index:10;
+    width:100%;
+    padding:20px 24px calc(env(safe-area-inset-bottom,0px) + 28px);
+    background:linear-gradient(to bottom, transparent 0%, #5a3fc0 30%, #5a3fc0 100%);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:0;
+  ">
+    <button onclick="openIntroAuth()" style="
+      width:100%;
+      max-width:320px;
       background:linear-gradient(135deg,#6C4FE0,#9B6CF5 50%,#C77DFF);
       color:white;
       border:none;
       border-radius:30px;
-      padding:16px 52px;
-      font-size:18px;
+      padding:17px 44px;
+      font-size:19px;
       font-weight:800;
       font-family:'Jua','Noto Sans KR',sans-serif;
       letter-spacing:0.5px;
       cursor:pointer;
-      box-shadow:0 6px 18px rgba(123,92,245,0.45);
-      flex-shrink:0;
-      width:100%;
-      max-width:320px;
-    "
-  >✨ 에듀톡 시작하기</button>
+      box-shadow:0 6px 24px rgba(0,0,0,0.25);
+    ">✨ 에듀톡 시작하기</button>
+  </div>
 </div>
 
 <style>
 @keyframes introFadeIn {
-  from { opacity:0; transform:scale(0.97); }
-  to   { opacity:1; transform:scale(1); }
+  from { opacity:0; }
+  to   { opacity:1; }
 }
 @keyframes introFadeOut {
-  from { opacity:1; transform:scale(1); }
-  to   { opacity:0; transform:scale(1.02); }
+  from { opacity:1; }
+  to   { opacity:0; }
+}
+@keyframes introFloat {
+  0%   { transform:translateY(0px); }
+  50%  { transform:translateY(-10px); }
+  100% { transform:translateY(0px); }
 }
 </style>
 
@@ -341,9 +352,23 @@
 function closeIntro() {
   var el = document.getElementById('intro-screen');
   el.style.animation = 'introFadeOut 0.4s ease forwards';
-  setTimeout(function() {
-    el.style.display = 'none';
-  }, 400);
+  setTimeout(function() { el.style.display = 'none'; }, 400);
+}
+function openIntroAuth() {
+  // 저장된 로그인 정보 확인
+  var school = localStorage.getItem('edutalk_school');
+  var sid    = localStorage.getItem('edutalk_sid');
+  var name   = localStorage.getItem('edutalk_name');
+  var key    = localStorage.getItem('edutalk_key');
+
+  if (school && sid && name && key) {
+    // 저장된 정보 있으면 → 인트로만 닫고 바로 홈
+    closeIntro();
+  } else {
+    // 저장 정보 없으면 → 인트로 닫고 로그인 모달 열기
+    closeIntro();
+    setTimeout(function() { openAuthModal(); }, 450);
+  }
 }
 </script>
 
