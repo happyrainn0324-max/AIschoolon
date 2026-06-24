@@ -334,23 +334,33 @@ function openIntroAuth() {
   overflow:hidden;
   border-radius:inherit;
 ">
-  <!-- 배경: 이미지를 contain으로 상단 정렬, 남은 하단은 배경색으로 채움 -->
+  <!-- 배경 이미지: 상단 고정, 이미지 비율(1:2.1) 유지하며 너비 100% -->
   <img src="https://raw.githubusercontent.com/happyrainn0324-max/AIschoolon/main/intro.png?v=1782260989"
     style="
       position:absolute;
       top:0;left:0;
       width:100%;
-      height:auto;
-      display:block;
+      height:100%;
+      object-fit:cover;
+      object-position:center top;
       animation:introFloat 3.2s ease-in-out infinite;
       transform-origin:center bottom;
     "
     alt="AI 에듀톡"
   >
-  <!-- AI 에듀톡 제목 상단 학교명 -->
+  <!-- 하단 그라디언트: 티키·타카 영역부터 자연스럽게 보라색으로 -->
   <div style="
     position:absolute;
-    top:11%;
+    bottom:0;left:0;right:0;
+    height:38%;
+    z-index:5;
+    background:linear-gradient(to bottom, transparent 0%, rgba(75,42,175,0.7) 30%, rgba(65,32,165,0.97) 70%, #4520a8 100%);
+    pointer-events:none;
+  "></div>
+  <!-- 학교명: AI 에듀톡 제목 바로 위 (이미지 기준 상단 ~16%) -->
+  <div style="
+    position:absolute;
+    top:16%;
     left:0;right:0;
     z-index:10;
     text-align:center;
@@ -362,16 +372,15 @@ function openIntroAuth() {
       font-family:'Stylish','Noto Sans KR',sans-serif;
       color:rgba(255,255,255,0.88);
       letter-spacing:1px;
-      text-shadow:0 2px 10px rgba(40,10,100,0.5);
+      text-shadow:0 2px 12px rgba(40,10,100,0.7);
     ">인천공항중학교 진로상담부</p>
   </div>
-  <!-- 하단 보라색 띠 + 문구 + 버튼 -->
+  <!-- 하단 버튼 영역 -->
   <div style="
     position:absolute;
     bottom:0;left:0;right:0;
     z-index:10;
     padding:20px 28px calc(env(safe-area-inset-bottom,0px) + 32px);
-    background:linear-gradient(to bottom, transparent 0%, rgba(80,45,180,0.88) 28%, rgba(70,35,170,0.98) 100%);
     display:flex;
     flex-direction:column;
     align-items:center;
