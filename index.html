@@ -22,7 +22,7 @@
   }
   html, body { height: 100%; width: 100%; }
   body { font-family: 'Stylish', 'Noto Sans KR', sans-serif; background: #f5f0ff; min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; overflow-x: hidden; -webkit-text-size-adjust: 100%; }
-  .phone { width: 100%; max-width: 480px; background: var(--bg); display: flex; flex-direction: column; border: 2px solid var(--purple-light); border-radius: 28px; overflow: hidden; margin: 24px 0; box-shadow: 0 4px 32px rgba(123,92,245,0.13); height: 90vh; height: 90dvh; }
+  .phone { position:relative; width: 100%; max-width: 480px; background: var(--bg); display: flex; flex-direction: column; border: 2px solid var(--purple-light); border-radius: 28px; overflow: hidden; margin: 24px 0; box-shadow: 0 4px 32px rgba(123,92,245,0.13); height: 90vh; height: 90dvh; }
   @media (max-width: 500px) {
     body { background: var(--bg); }
     .phone { border: none; border-radius: 0; margin: 0; box-shadow: none; min-height: 100vh; min-height: 100dvh; }
@@ -276,9 +276,53 @@
 </head>
 <body>
 
+
+
+<style>
+@keyframes introFadeIn {
+  from { opacity:0; }
+  to   { opacity:1; }
+}
+@keyframes introFadeOut {
+  from { opacity:1; }
+  to   { opacity:0; }
+}
+@keyframes introFloat {
+  0%   { transform:translateY(0px); }
+  50%  { transform:translateY(-10px); }
+  100% { transform:translateY(0px); }
+}
+</style>
+
+<script>
+function closeIntro() {
+  var el = document.getElementById('intro-screen');
+  el.style.animation = 'introFadeOut 0.4s ease forwards';
+  setTimeout(function() { el.style.display = 'none'; }, 400);
+}
+function openIntroAuth() {
+  // 저장된 로그인 정보 확인
+  var school = localStorage.getItem('edutalk_school');
+  var sid    = localStorage.getItem('edutalk_sid');
+  var name   = localStorage.getItem('edutalk_name');
+  var key    = localStorage.getItem('edutalk_key');
+
+  if (school && sid && name && key) {
+    // 저장된 정보 있으면 → 인트로만 닫고 바로 홈
+    closeIntro();
+  } else {
+    // 저장 정보 없으면 → 인트로 닫고 로그인 모달 열기
+    closeIntro();
+    setTimeout(function() { openAuthModal(); }, 450);
+  }
+}
+</script>
+
+<div class="phone">
+
 <!-- ── 인트로 화면 ── -->
 <div id="intro-screen" style="
-  position:fixed;
+  position:absolute;
   top:0;left:0;right:0;bottom:0;
   z-index:9999;
   background:#6B4FD4;
@@ -287,6 +331,8 @@
   align-items:center;
   justify-content:flex-end;
   animation:introFadeIn 0.6s ease;
+  border-radius:inherit;
+  overflow:hidden;
 ">
   <!-- 배경 이미지 (상단 80% 차지) -->
   <img src="https://raw.githubusercontent.com/happyrainn0324-max/AIschoolon/main/intro.png?v=1782260989"
@@ -332,47 +378,6 @@
   </div>
 </div>
 
-<style>
-@keyframes introFadeIn {
-  from { opacity:0; }
-  to   { opacity:1; }
-}
-@keyframes introFadeOut {
-  from { opacity:1; }
-  to   { opacity:0; }
-}
-@keyframes introFloat {
-  0%   { transform:translateY(0px); }
-  50%  { transform:translateY(-10px); }
-  100% { transform:translateY(0px); }
-}
-</style>
-
-<script>
-function closeIntro() {
-  var el = document.getElementById('intro-screen');
-  el.style.animation = 'introFadeOut 0.4s ease forwards';
-  setTimeout(function() { el.style.display = 'none'; }, 400);
-}
-function openIntroAuth() {
-  // 저장된 로그인 정보 확인
-  var school = localStorage.getItem('edutalk_school');
-  var sid    = localStorage.getItem('edutalk_sid');
-  var name   = localStorage.getItem('edutalk_name');
-  var key    = localStorage.getItem('edutalk_key');
-
-  if (school && sid && name && key) {
-    // 저장된 정보 있으면 → 인트로만 닫고 바로 홈
-    closeIntro();
-  } else {
-    // 저장 정보 없으면 → 인트로 닫고 로그인 모달 열기
-    closeIntro();
-    setTimeout(function() { openAuthModal(); }, 450);
-  }
-}
-</script>
-
-<div class="phone">
   <div class="top-nav">
     <div class="nav-title" id="logo-text"><img id="logo-img" src="" style="height:10px;object-fit:contain;"></div>
   </div>
