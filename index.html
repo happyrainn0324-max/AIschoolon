@@ -831,7 +831,7 @@ function openIntroAuth() {
             <button class="starter-btn" onclick="openChat('Native Talk','🌍','What slang do teenagers use in English?')"><span class="starter-icon">😎</span>Teen Slang</button>
             <button class="starter-btn" onclick="openChat('Native Talk','🌍','영어 발음을 어떻게 하면 좋아질까요?')"><span class="starter-icon">🎯</span>Pronunciation</button>
             <button class="starter-btn" onclick="openChat('Native Talk','🌍','영어로 짧은 일기를 써보고 싶어!')"><span class="starter-icon">📝</span>Daily Diary</button>
-            <button class="starter-btn" onclick="openChat('Native Talk','🌍','Lets have a debate in English! Pick a topic and lets discuss!')"><span class="starter-icon">🗣️</span>Debate</button>
+            <button class="starter-btn" onclick="openDebateWithRandomTopic()"><span class="starter-icon">🗣️</span>Debate</button>
             <button class="starter-btn" onclick="openWordQuiz('🌍')"><span class="starter-icon">🧩</span>Word Quiz</button>
             <button class="starter-btn" onclick="openChat('Native Talk','🌍','내가 쓴 영어 글을 첨삭해줘. 문법, 표현, 자연스러움을 봐줘.')"><span class="starter-icon">✏️</span>Writing Check</button>
           </div>
@@ -2282,6 +2282,58 @@ Categories to rotate randomly:
     document.querySelectorAll('.starters-panel').forEach(x=>x.classList.remove('open'));
     document.querySelectorAll('.card-arrow').forEach(x=>x.classList.remove('open'));
     if(!o){p.classList.add('open');if(a)a.classList.add('open');}
+  }
+
+  var _debateTopics = [
+    "Should smartphones be banned in schools?",
+    "Is social media doing more harm than good for teenagers?",
+    "Should students be required to wear school uniforms?",
+    "Is it better to live in a big city or a small town?",
+    "Should homework be abolished?",
+    "Are video games a waste of time?",
+    "Should fast food restaurants be banned near schools?",
+    "Is online learning better than traditional classroom learning?",
+    "Should the voting age be lowered to 16?",
+    "Is it ethical to keep animals in zoos?",
+    "Should celebrities be considered role models?",
+    "Is it better to be an only child or to have siblings?",
+    "Should plastic bags be completely banned?",
+    "Is technology making us less social?",
+    "Should physical education be mandatory every day?",
+    "Are electric cars the solution to climate change?",
+    "Should students be allowed to use AI for homework?",
+    "Is it better to follow your passion or choose a stable career?",
+    "Should the internet be free for everyone?",
+    "Are sports more important than arts in schools?",
+    "Should junk food be taxed more heavily?",
+    "Is it better to read books or watch movies?",
+    "Should animals be used for scientific research?",
+    "Is competition in schools more helpful or harmful?",
+    "Should students have a say in what they learn at school?",
+    "Is it better to have many friends or a few close ones?",
+    "Should space exploration be a priority over solving Earth's problems?",
+    "Is it fair that some jobs pay much more than others?",
+    "Should everyone be required to do military service?",
+    "Are reality TV shows a bad influence on society?",
+    "Should vending machines selling unhealthy snacks be removed from schools?",
+    "Is it better to be street-smart or book-smart?",
+    "Should teenagers be allowed to have part-time jobs?",
+    "Is it more important to be popular or to be kind?",
+    "Should music and art classes be as important as math and science?",
+    "Is it ethical to eat meat?",
+    "Should zoos be replaced with wildlife sanctuaries?",
+    "Is working from home better than working in an office?",
+    "Should there be limits on how much screen time kids have per day?",
+    "Is it better to travel abroad or explore your own country?"
+  ];
+  var _lastDebateIdx = -1;
+
+  function openDebateWithRandomTopic(){
+    var available = _debateTopics.map(function(_, i){ return i; }).filter(function(i){ return i !== _lastDebateIdx; });
+    var randIdx = available[Math.floor(Math.random() * available.length)];
+    _lastDebateIdx = randIdx;
+    var topic = _debateTopics[randIdx];
+    openChat('Native Talk','🌍',"Let's have a debate in English! Today's topic is: \"" + topic + "\" — Which side are you on? Let's discuss!");
   }
 
   function openWordQuiz(e){
