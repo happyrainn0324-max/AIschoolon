@@ -3593,6 +3593,7 @@ Categories to rotate randomly:
   var _exprQuizActive = false;   // 퀴즈 진행 중 여부
   var _exprScore = 0;
   var _exprTotal = 0;
+  var _usedExpressions = [];   // 이미 출제된 표현 이력
 
   function openExpressionQuiz() {
     try { event.stopPropagation(); } catch(err) {}
@@ -3674,7 +3675,7 @@ Categories to rotate randomly:
         btnRow.querySelectorAll('button').forEach(function(b){ b.disabled=true; b.style.opacity='0.5'; });
         btn.style.opacity='1'; btn.style.background=th.header; btn.style.color='white'; btn.style.borderColor=th.header;
         appendMsg('user', opt.label + ' (' + opt.desc + ') 로 퀴즈 시작!');
-        _exprScore = 0; _exprTotal = 0;
+        _exprScore = 0; _exprTotal = 0; _usedExpressions = [];
         fetchExpressionQuiz(opt.level);
       };
       btnRow.appendChild(btn);
@@ -3711,13 +3712,14 @@ Categories to rotate randomly:
     c.appendChild(loadRow); c.scrollTop = c.scrollHeight;
 
     var levelDesc = {
-      beginner:     "beginner level: common everyday English expressions and idioms that Korean middle school students (age 13-15) encounter. Examples: Im starving, Break a leg, Its a piece of cake, Whats up",
-      intermediate: "intermediate level: practical English expressions, phrasal verbs, and idioms for daily life. Examples: Hit the books, Under the weather, Hang in there, Spill the beans",
-      advanced:     "advanced level: native-speaker idioms, slang, and figurative expressions. Examples: Bite the bullet, Cost an arm and a leg, Beat around the bush, Once in a blue moon"
+      beginner:     "beginner level: common everyday English expressions and idioms that Korean middle school students (age 13-15) encounter. Choose from expressions like: What's up, Break a leg, I'm all ears, Keep it up, No pain no gain, Hit the road, You're welcome, Long time no see, Hang in there, Good luck, Take it easy, That's too bad, My bad, Sounds good, Never mind, Good job, Way to go, No worries, What a day, I'm serious",
+      intermediate: "intermediate level: practical English expressions, phrasal verbs, and idioms for daily life and school. Choose from expressions like: Hit the books, Under the weather, Hang in there, Spill the beans, Call it a day, Give it a shot, Keep an eye on, Figure out, Run out of, Look forward to, Make up one's mind, Turn down, Bring up, Go over, Come up with, Catch up, Show off, Get along with, Run into, Pick up",
+      advanced:     "advanced level: native-speaker idioms, slang, and figurative expressions. Choose from expressions like: Bite the bullet, Cost an arm and a leg, Beat around the bush, Once in a blue moon, Hit the nail on the head, Burn the midnight oil, The ball is in your court, Under the radar, Cut corners, Bite off more than you can chew, Jump on the bandwagon, The tip of the iceberg, A blessing in disguise, Break the ice, Miss the boat, Let the cat out of the bag, Piece of cake, Back to square one, Steal the show, Kill two birds with one stone"
     };
 
+    var alreadyUsed = _usedExpressions.length > 0 ? " IMPORTANT: Do NOT use any of these expressions that were already used: [" + _usedExpressions.join(", ") + "]. Pick a completely different expression." : "";
     var sysPrompt = "You are an English expression quiz generator for Korean middle school students. Always respond ONLY with valid JSON. No markdown fences, no extra text, no explanation outside the JSON.";
-    var userPrompt = "Generate ONE English expression multiple-choice quiz at " + levelDesc[level] + ". Return ONLY a raw JSON object (no markdown, no backticks). Schema: {expression: string, question: string, choices: [string,string,string,string], answer: number, explanation: string, tip: string}. Rules: expression is a natural English idiom or common expression (e.g. Im starving, Break a leg). question asks what it means in Korean. choices are 4 Korean meanings only (no English). answer is 0-indexed correct choice index. explanation is a friendly Korean explanation with an example. tip is a short Korean usage tip.";
+    var userPrompt = "Generate ONE English expression multiple-choice quiz at " + levelDesc[level] + "." + alreadyUsed + " Return ONLY a raw JSON object (no markdown, no backticks). Schema: {expression: string, question: string, choices: [string,string,string,string], answer: number, explanation: string, tip: string}. Rules: expression must be a natural English idiom or common expression — never repeat ones already used. question asks what it means in Korean. choices are 4 Korean meanings only (no English). answer is 0-indexed correct choice index. explanation is a friendly Korean explanation with an example. tip is a short Korean usage tip.";
 
     (async function(){
       try {
@@ -3746,6 +3748,10 @@ Categories to rotate randomly:
     var c = document.getElementById('chat-messages');
     var th = themes['Native Talk'] || { header:'#3B82F6', iconBg:'#dceeff', bubbleBg:'#3B82F6' };
     _exprTotal++;
+    // 출제 이력에 추가 (중복 방지)
+    if(quiz.expression && _usedExpressions.indexOf(quiz.expression) === -1) {
+      _usedExpressions.push(quiz.expression);
+    }
 
     var row = document.createElement('div');
     row.className = 'chat-msg-row';
