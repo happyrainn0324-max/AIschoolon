@@ -719,7 +719,7 @@ function openIntroAuth() {
           <div class="starters-list" style="grid-template-columns:1fr 1fr;">
             <button class="starter-btn" onclick="openChat('캠퍼스톡','📅','이번 달 학교 행사 일정을 알려줘!')"><span class="starter-icon">📌</span>행사 일정</button>
             <button class="starter-btn" onclick="openChat('캠퍼스톡','📅','다음 시험 일정을 알려줘!')"><span class="starter-icon">📝</span>시험 일정</button>
-            <button class="starter-btn" onclick="openChat('캠퍼스톡','📅','최근 학교 새로운 소식을 알려줘!')"><span class="starter-icon">📰</span>학교 소식</button>
+            <button class="starter-btn" onclick="window.open('http://gonghang.icems.kr/boardCnts/list.do?boardID=13356&m=0304&s=gonghang','_blank')"><span class="starter-icon">📰</span>학교 소식</button>
             <button class="starter-btn" onclick="openChat('캠퍼스톡','📅','오늘 급식 메뉴가 뭐야?')"><span class="starter-icon">🍱</span>급식 메뉴</button>
           </div>
           <a href="https://gonghang.icems.kr" target="_blank" class="recommend-btn" style="text-decoration:none;margin-top:2px;">🏫 우리학교 홈페이지 바로가기</a>
@@ -1087,10 +1087,7 @@ function openIntroAuth() {
             <div id="wex-prog-bar"><div id="wex-prog-fill" style="width:0%"></div></div>
             <div id="wex-msg">오늘 걸은 걸음 수를 입력하고 탐험을 시작해봐! 🌟</div>
             <div id="wex-items-found"></div>
-            <div id="wex-btn-row">
-              <button class="wex-action-btn" onclick="openChat('걷고톡','🚶','오늘 걷기 미션을 하나 줘! 달성할 수 있는 걸음 수 목표도 알려줘.')">🎯 오늘의 미션</button>
-              <button class="wex-action-btn" onclick="openChat('걷고톡','🚶','걷기가 건강에 어떤 도움이 되는지 재미있게 알려줘!')">💪 걷기 효과</button>
-            </div>
+
             <div id="wex-total-row">누적 <span id="wex-cumul-steps">0</span>보 탐험 완료</div>
           </div>
           <script>
