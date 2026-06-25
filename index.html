@@ -127,6 +127,9 @@
   .chat-msg-name { font-size: 11px; color: #aaa; margin-bottom: 3px; font-weight: 600; font-family: 'Noto Sans KR', sans-serif; }
   .speak-btn { margin-top: 4px; border: none; background: rgba(59,130,246,0.12); color: #3B82F6; border-radius: 10px; padding: 5px 9px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
   .speak-btn:active { background: rgba(59,130,246,0.25); }
+  .translate-btn { margin-top: 4px; border: none; background: rgba(16,185,129,0.12); color: #059669; border-radius: 10px; padding: 5px 9px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 4px; font-size: 11.5px; font-weight: 700; font-family: 'Noto Sans KR', sans-serif; transition: background 0.15s; }
+  .translate-btn:active { background: rgba(16,185,129,0.25); }
+  .translate-bubble { background: linear-gradient(135deg,#ecfdf5,#d1fae5); border: 1.5px solid #6ee7b744; border-radius: 14px; padding: 9px 13px; margin-top: 4px; font-size: 13px; color: #065f46; font-family: 'Noto Sans KR', sans-serif; line-height: 1.65; }
   .chat-messages::-webkit-scrollbar { display: none; }
   .msg { max-width: 82%; padding: 10px 13px; border-radius: 18px; font-size: clamp(13px, 4vw, 15px); line-height: 1.65; white-space: pre-wrap; word-break: break-word; font-family: 'Noto Sans KR', sans-serif; }
   .msg.ai { background: white; border: 1.5px solid #eee8ff; color: var(--text-main); align-self: flex-start; border-bottom-left-radius: 4px; box-shadow: 0 2px 6px rgba(123,92,245,0.06); }
@@ -824,13 +827,13 @@ function openIntroAuth() {
         <div class="starters-panel" id="c7">
           <div class="starters-label">✨ 추천 대화 시작하기</div>
           <div class="starters-list">
-            <button class="starter-btn" onclick="openChat('Native Talk','🌍','Hello! Can we have a simple conversation in English?')"><span class="starter-icon">👋</span>Small Talk</button>
-            <button class="starter-btn" onclick="openChat('Native Talk','🌍','What are some natural expressions for daily life?')"><span class="starter-icon">🗨</span>Conversation</button>
-            <button class="starter-btn" onclick="openChat('Native Talk','🌍','Can you correct my English and explain why?')"><span class="starter-icon">✅</span>Expressions</button>
-            <button class="starter-btn" onclick="openChat('Native Talk','🌍','How do I introduce myself in English naturally?')"><span class="starter-icon">🙋</span>Introduce Myself</button>
+            <button class="starter-btn" onclick="openSmallTalkTopicPicker()"><span class="starter-icon">👋</span>Small Talk</button>
+            <button class="starter-btn" onclick="openConversationSituationPicker()"><span class="starter-icon">🗨</span>Conversation</button>
+            <button class="starter-btn" onclick="openExpressionQuiz()"><span class="starter-icon">✅</span>Expressions</button>
+            <button class="starter-btn" onclick="openAboutMePicker()"><span class="starter-icon">🙋</span>About Me</button>
             <button class="starter-btn" onclick="openChat('Native Talk','🌍','What slang do teenagers use in English?')"><span class="starter-icon">😎</span>Teen Slang</button>
-            <button class="starter-btn" onclick="openChat('Native Talk','🌍','영어 발음을 어떻게 하면 좋아질까요?')"><span class="starter-icon">🎯</span>Pronunciation</button>
-            <button class="starter-btn" onclick="openChat('Native Talk','🌍','영어로 짧은 일기를 써보고 싶어!')"><span class="starter-icon">📝</span>Daily Diary</button>
+            <button class="starter-btn" onclick="openPronunciationPicker()"><span class="starter-icon">🎯</span>Pronunciation</button>
+            <button class="starter-btn" onclick="openWritingSkills()"><span class="starter-icon">📝</span>Writing Skills</button>
             <button class="starter-btn" onclick="openDebateWithRandomTopic()"><span class="starter-icon">🗣️</span>Debate</button>
             <button class="starter-btn" onclick="openWordQuiz('🌍')"><span class="starter-icon">🧩</span>Word Quiz</button>
             <button class="starter-btn" onclick="openChat('Native Talk','🌍','내가 쓴 영어 글을 첨삭해줘. 문법, 표현, 자연스러움을 봐줘.')"><span class="starter-icon">✏️</span>Writing Check</button>
@@ -2596,6 +2599,1589 @@ Categories to rotate randomly:
     c.scrollTop = c.scrollHeight;
   }
 
+
+
+
+
+
+
+  // ── Writing Skills ────────────────────────────────────────
+  // 100개 키워드 세트 풀 (레벨별 단문/중문/장문 혼합)
+  // 각 항목: { kr: "한글 해석", keywords: ["키워드1","키워드2",...], level: "short|medium|long" }
+  var _writingPool = [
+    // ── SHORT (3~5 keywords) ──────────────────────────────
+    { level:"short", kr:"나는 매일 아침 일찍 일어난다.", keywords:["I","wake up","early","every morning"] },
+    { level:"short", kr:"그녀는 사과를 좋아한다.", keywords:["She","like","apples"] },
+    { level:"short", kr:"우리는 오늘 공원에 갔다.", keywords:["We","go","park","today"] },
+    { level:"short", kr:"날씨가 오늘 매우 맑다.", keywords:["weather","very","sunny","today"] },
+    { level:"short", kr:"나는 숙제를 끝냈다.", keywords:["I","finish","homework"] },
+    { level:"short", kr:"그는 빠르게 달릴 수 있다.", keywords:["He","can","run","fast"] },
+    { level:"short", kr:"고양이가 소파 위에 앉아 있다.", keywords:["cat","sit","sofa"] },
+    { level:"short", kr:"나의 가장 좋아하는 과목은 영어다.", keywords:["favorite","subject","English"] },
+    { level:"short", kr:"버스가 5분 안에 도착할 것이다.", keywords:["bus","arrive","five minutes"] },
+    { level:"short", kr:"그들은 저녁에 축구를 했다.", keywords:["They","play","soccer","evening"] },
+    { level:"short", kr:"나는 어젯밤에 영화를 봤다.", keywords:["I","watch","movie","last night"] },
+    { level:"short", kr:"그녀는 피아노를 매우 잘 친다.", keywords:["She","play","piano","very well"] },
+    { level:"short", kr:"우리 선생님은 매우 친절하시다.", keywords:["teacher","very","kind"] },
+    { level:"short", kr:"나는 오늘 새 신발을 샀다.", keywords:["I","buy","new shoes","today"] },
+    { level:"short", kr:"그 책은 정말 재미있었다.", keywords:["book","really","interesting"] },
+    { level:"short", kr:"비가 밖에 오고 있다.", keywords:["It","rain","outside"] },
+    { level:"short", kr:"나는 매일 밤 일기를 쓴다.", keywords:["I","write","diary","every night"] },
+    { level:"short", kr:"그는 도서관에서 공부하고 있다.", keywords:["He","study","library"] },
+    { level:"short", kr:"점심이 정말 맛있었다.", keywords:["lunch","really","delicious"] },
+    { level:"short", kr:"우리는 내일 소풍을 갈 것이다.", keywords:["We","go","picnic","tomorrow"] },
+    // ── MEDIUM (5~8 keywords) ─────────────────────────────
+    { level:"medium", kr:"나는 방과 후에 도서관에서 공부하는 것을 좋아한다.", keywords:["I","like","study","library","after school"] },
+    { level:"medium", kr:"그녀는 친구들과 함께 케이크를 만들었다.", keywords:["She","make","cake","with","friends"] },
+    { level:"medium", kr:"우리 가족은 매주 일요일 함께 외식을 한다.", keywords:["family","eat out","together","every Sunday"] },
+    { level:"medium", kr:"그는 영어를 잘하기 위해 매일 연습한다.", keywords:["He","practice","every day","get better","English"] },
+    { level:"medium", kr:"나는 지난 주말에 할머니 댁을 방문했다.", keywords:["I","visit","grandmother","last weekend"] },
+    { level:"medium", kr:"그 영화는 너무 무서워서 눈을 감았다.", keywords:["movie","so scary","close","eyes"] },
+    { level:"medium", kr:"나는 생일 선물로 새 스마트폰을 받았다.", keywords:["I","receive","new smartphone","birthday gift"] },
+    { level:"medium", kr:"그들은 버스를 놓쳐서 학교에 늦었다.", keywords:["They","miss","bus","be late","school"] },
+    { level:"medium", kr:"그녀는 아침마다 30분씩 운동을 한다.", keywords:["She","exercise","30 minutes","every morning"] },
+    { level:"medium", kr:"우리는 방학 동안 제주도에 여행을 갔다.", keywords:["We","travel","Jeju Island","during vacation"] },
+    { level:"medium", kr:"나는 영어 시험 준비를 위해 열심히 공부했다.", keywords:["I","study hard","prepare","English exam"] },
+    { level:"medium", kr:"그는 스트레스를 받을 때 음악을 듣는다.", keywords:["He","listen to music","when","stressed"] },
+    { level:"medium", kr:"우리 팀은 결승전에서 아깝게 졌다.", keywords:["our team","lose","final","by a small margin"] },
+    { level:"medium", kr:"그녀는 용기를 내어 처음으로 혼자 여행을 떠났다.", keywords:["She","brave","travel alone","for the first time"] },
+    { level:"medium", kr:"나는 친구에게 이메일을 써서 안부를 물었다.", keywords:["I","write email","friend","ask how","doing"] },
+    { level:"medium", kr:"오늘 수업에서 새로운 영어 표현을 배웠다.", keywords:["today","class","learn","new","English expression"] },
+    { level:"medium", kr:"그는 아르바이트를 해서 용돈을 스스로 번다.", keywords:["He","part-time job","earn","pocket money","himself"] },
+    { level:"medium", kr:"우리는 함께 프로젝트를 완성해서 뿌듯했다.", keywords:["We","complete","project","together","proud"] },
+    { level:"medium", kr:"그녀는 실수를 하고 나서 사과하는 것을 잊지 않았다.", keywords:["She","make mistake","not forget","apologize"] },
+    { level:"medium", kr:"나는 처음에는 두려웠지만 결국 발표를 해냈다.", keywords:["I","scared at first","but","give presentation","in the end"] },
+    { level:"medium", kr:"그 선수는 부상에도 불구하고 끝까지 경기를 뛰었다.", keywords:["player","despite injury","play","until the end"] },
+    { level:"medium", kr:"우리는 환경을 보호하기 위해 일회용품 사용을 줄여야 한다.", keywords:["we","should","reduce","disposable","protect environment"] },
+    { level:"medium", kr:"그녀는 낯선 사람에게 길을 물어보는 것이 부끄러웠다.", keywords:["She","embarrassed","ask","stranger","directions"] },
+    { level:"medium", kr:"나는 책을 읽으면서 모르는 단어를 노트에 적었다.", keywords:["I","while reading","write down","unknown words","notebook"] },
+    { level:"medium", kr:"그는 오랫동안 준비한 대회에서 우승을 했다.", keywords:["He","win","competition","prepared","long time"] },
+    // ── LONG (8~12 keywords) ──────────────────────────────
+    { level:"long", kr:"나는 영어 말하기 능력을 향상시키기 위해 매일 원어민 영상을 보고 따라 말하는 연습을 한다.", keywords:["I","improve","speaking","watch","native speaker","videos","every day","shadow practice"] },
+    { level:"long", kr:"그녀는 처음에는 낯선 환경에 적응하는 데 어려움을 겪었지만, 시간이 지남에 따라 친구들을 사귀고 즐거운 학교생활을 하게 되었다.", keywords:["She","at first","struggle","adapt","unfamiliar","but","over time","make friends","enjoy","school life"] },
+    { level:"long", kr:"우리 가족은 여름휴가 동안 해외 여행을 계획하고 있는데, 나는 특히 현지 음식을 먹어보는 것과 유명한 관광지를 방문하는 것이 기대된다.", keywords:["My family","plan","overseas trip","summer vacation","I","especially","excited","try local food","visit","famous places"] },
+    { level:"long", kr:"환경 오염 문제를 해결하기 위해서는 개인의 노력뿐만 아니라 정부와 기업의 적극적인 참여가 함께 이루어져야 한다고 생각한다.", keywords:["I think","solve","environmental pollution","not only","individual effort","but also","government","companies","active participation","necessary"] },
+    { level:"long", kr:"독서는 단순히 지식을 쌓는 것을 넘어 상상력을 키우고 다양한 관점에서 세상을 바라볼 수 있는 능력을 길러준다.", keywords:["Reading","beyond","gaining knowledge","develop","imagination","see the world","various perspectives","ability"] },
+    { level:"long", kr:"소셜 미디어는 사람들을 연결해주는 편리한 도구이지만, 지나친 사용은 집중력 저하와 수면 부족 등 여러 부작용을 일으킬 수 있다.", keywords:["Social media","convenient tool","connect people","however","excessive use","cause","loss of concentration","lack of sleep","side effects"] },
+    { level:"long", kr:"나는 장래에 국제적으로 활동하는 의사가 되어 의료 혜택을 받지 못하는 사람들을 돕고 싶다는 꿈을 가지고 있다.", keywords:["I","dream","become","internationally active","doctor","help","people","cannot receive","medical care","in the future"] },
+    { level:"long", kr:"학교 축제 준비 과정에서 친구들과 의견 충돌이 있었지만, 서로의 입장을 이해하고 타협하면서 더욱 끈끈한 팀워크를 발휘할 수 있었다.", keywords:["During","school festival preparation","conflict","friends","but","understand each other","compromise","stronger teamwork"] },
+    { level:"long", kr:"인공지능 기술의 발전은 우리의 생활을 편리하게 해주는 동시에 일자리 감소와 같은 사회적 문제에 대한 깊은 고민도 필요하게 만들고 있다.", keywords:["Advancement","AI technology","make life","convenient","at the same time","require","serious thought","job loss","social issues"] },
+    { level:"long", kr:"봉사 활동을 통해 나보다 어려운 처지에 있는 사람들을 돕는 경험은 감사함과 책임감을 깨닫게 해주는 소중한 기회였다.", keywords:["volunteering","experience","help","people","worse situation","teach","gratitude","sense of responsibility","precious opportunity"] },
+    { level:"long", kr:"세계화 시대에 외국어 능력은 단순한 스펙을 넘어 다양한 문화를 이해하고 소통할 수 있는 핵심 역량이 되었다.", keywords:["In the era of globalization","foreign language skills","beyond","simple spec","understand","various cultures","communicate","core competency"] },
+    { level:"long", kr:"청소년 시기에 건강한 취미 활동을 갖는 것은 스트레스 해소는 물론 자아 정체성을 확립하는 데도 매우 중요한 역할을 한다.", keywords:["Having","healthy hobbies","adolescence","not only","relieve stress","but also","establish","self-identity","very important role"] },
+    { level:"long", kr:"나는 오늘 수업에서 기후 변화에 대한 다큐멘터리를 보면서, 우리가 일상생활에서 탄소 발자국을 줄이기 위해 작은 것부터 실천해야 한다는 것을 깨달았다.", keywords:["I","today","class","watch documentary","climate change","realize","reduce","carbon footprint","daily life","start with small things"] },
+    { level:"long", kr:"진정한 리더십이란 다른 사람들 위에 군림하는 것이 아니라, 팀원들의 강점을 이끌어내고 함께 목표를 향해 나아가도록 격려하는 능력이다.", keywords:["True leadership","not","dominate others","but","draw out","team members strengths","encourage","move toward","goal","together"] },
+    { level:"long", kr:"온라인 수업이 보편화되면서 자기 주도적 학습 능력의 중요성이 더욱 부각되었고, 학생들은 스스로 계획을 세우고 실천하는 습관을 길러야 한다.", keywords:["As online classes","become common","self-directed learning","more important","students","should","set their own plan","practice","develop habit"] },
+    { level:"long", kr:"나는 꿈을 이루기 위해 지금 당장 완벽할 필요는 없지만, 포기하지 않고 꾸준히 노력하는 자세가 결국 나를 성장시킨다고 믿는다.", keywords:["I believe","achieve dream","do not need","perfect right now","but","never give up","consistent effort","eventually","help me grow"] },
+    { level:"long", kr:"다문화 사회에서 서로 다른 배경을 가진 사람들이 함께 살아가기 위해서는 상호 존중과 열린 마음으로 차이를 이해하려는 노력이 필수적이다.", keywords:["In multicultural society","people","different backgrounds","live together","mutual respect","open mind","understand differences","essential"] },
+    { level:"long", kr:"스마트폰이 우리 삶의 필수품이 된 오늘날, 디지털 기기를 현명하게 사용하는 미디어 리터러시 교육의 중요성이 어느 때보다 높아지고 있다.", keywords:["Smartphones","become essential","our lives","today","media literacy education","use digital devices","wisely","more important","than ever"] },
+    { level:"long", kr:"시험에서 좋은 결과를 얻기 위해 벼락치기보다는 매일 꾸준히 복습하고 이해한 내용을 자신의 말로 정리하는 습관이 장기적으로 훨씬 효과적이다.", keywords:["To get good results","exams","rather than cramming","review","every day","consistently","summarize","own words","more effective","long term"] },
+    { level:"long", kr:"내가 존경하는 인물은 어려운 시련 속에서도 자신의 신념을 굽히지 않고 사회 정의를 위해 평생을 헌신한 역사 속의 위인들이다.", keywords:["People I admire","despite hardships","never compromise","beliefs","dedicate their lives","social justice","great figures in history"] },
+    { level:"short", kr:"나는 오늘 학교에서 새 친구를 사귀었다.", keywords:["I","make","new friend","school","today"] },
+    { level:"short", kr:"그 노래는 매우 신나고 중독성 있다.", keywords:["song","very","exciting","addictive"] },
+    { level:"short", kr:"우리 반은 반 티를 함께 맞췄다.", keywords:["our class","matching","class T-shirt","together"] },
+    { level:"short", kr:"나는 물을 하루에 여덟 잔 마시려고 한다.", keywords:["I","try","drink","eight glasses","water","day"] },
+    { level:"short", kr:"그녀는 항상 다른 사람들에게 친절하다.", keywords:["She","always","kind","others"] },
+    { level:"short", kr:"도서관은 토요일에도 문을 연다.", keywords:["library","open","Saturday","too"] },
+    { level:"short", kr:"나는 어제 늦게까지 게임을 해서 피곤하다.", keywords:["I","tired","play games","late","yesterday"] },
+    { level:"short", kr:"그 가방은 너무 비싸서 살 수 없었다.", keywords:["bag","too expensive","could not","buy"] },
+    { level:"short", kr:"봄이 되면 꽃들이 피어난다.", keywords:["spring","comes","flowers","bloom"] },
+    { level:"short", kr:"우리는 수업 전에 교실을 청소했다.", keywords:["We","clean","classroom","before class"] },
+    { level:"medium", kr:"나는 영어 독해 실력을 키우기 위해 매일 짧은 기사를 읽는다.", keywords:["I","read","short article","every day","improve","reading skills","English"] },
+    { level:"medium", kr:"그는 할 일 목록을 만들어 매일 우선순위에 따라 실천한다.", keywords:["He","make","to-do list","follow","priority","every day"] },
+    { level:"medium", kr:"우리는 수학여행에서 역사적인 장소를 여러 곳 방문했다.", keywords:["We","visit","several","historical places","school trip"] },
+    { level:"medium", kr:"그녀는 영화 감상문을 쓰기 위해 두 번 반복해서 봤다.", keywords:["She","watch","twice","write","movie review"] },
+    { level:"medium", kr:"나는 처음으로 혼자서 요리를 해봤는데 생각보다 어렵지 않았다.", keywords:["I","cook","alone","for the first time","not as hard","as I thought"] },
+    { level:"medium", kr:"그 선수는 부상을 극복하고 다시 경기에 복귀했다.", keywords:["player","overcome","injury","return","game"] },
+    { level:"medium", kr:"우리 학교는 올해 처음으로 영어 말하기 대회를 개최했다.", keywords:["our school","hold","English speaking contest","for the first time","this year"] },
+    { level:"medium", kr:"나는 친구와 다투고 나서 진심 어린 사과 편지를 썼다.", keywords:["I","write","sincere apology letter","after","argue","friend"] },
+    { level:"medium", kr:"그녀는 꿈을 위해 매일 조금씩이라도 노력하는 자신이 자랑스럽다.", keywords:["She","proud","herself","make effort","little by little","every day","dream"] },
+    { level:"medium", kr:"기후 변화 문제는 한 나라의 노력만으로는 해결할 수 없다.", keywords:["climate change","cannot","solve","with only","one country","effort"] },
+    { level:"long", kr:"청소년 시기는 자신의 정체성을 탐색하고 미래를 위한 기초를 닦는 중요한 시간이므로, 다양한 경험을 통해 자신이 진정으로 원하는 것을 발견하는 것이 중요하다.", keywords:["adolescence","important time","explore identity","build foundation","future","through various experiences","discover","what you truly want"] },
+    { level:"long", kr:"독서를 습관화하면 어휘력과 문해력은 물론, 비판적 사고 능력과 공감 능력도 자연스럽게 향상된다는 연구 결과들이 있다.", keywords:["research shows","making reading a habit","improve","vocabulary","literacy","critical thinking","empathy","naturally"] },
+    { level:"long", kr:"팀 프로젝트를 성공적으로 마치기 위해서는 명확한 역할 분담과 원활한 소통, 그리고 서로에 대한 신뢰가 무엇보다 중요하다.", keywords:["To complete","team project","successfully","clear role division","smooth communication","trust each other","most important"] },
+    { level:"long", kr:"나는 유튜브 알고리즘이 내 취향에 맞는 영상만 추천해주는 것이 편리하지만, 동시에 다양한 시각을 접하지 못하게 될 수 있다는 점이 우려된다.", keywords:["I","YouTube algorithm","recommends videos","matching taste","convenient","but","worried","may not","encounter","diverse perspectives"] },
+    { level:"long", kr:"현대 사회에서 정신 건강은 신체 건강만큼 중요하며, 자신의 감정을 솔직하게 표현하고 필요할 때 도움을 요청하는 것이 결코 약함의 표시가 아니다.", keywords:["In modern society","mental health","as important as","physical health","express emotions honestly","ask for help","when needed","never a sign of weakness"] },
+{ level:"short", kr:"나는 수업 시간에 선생님의 말씀을 열심히 들었다.", keywords:["I","listen","teacher","carefully","class"] },
+    { level:"short", kr:"그 식당은 항상 손님으로 가득 차 있다.", keywords:["restaurant","always","full","customers"] },
+    { level:"short", kr:"나는 시험 결과에 만족했다.", keywords:["I","satisfied","exam results"] },
+    { level:"medium", kr:"나는 어릴 때부터 우주 비행사가 되고 싶었고, 지금도 그 꿈을 포기하지 않았다.", keywords:["I","since childhood","want to be","astronaut","still","not given up","dream"] },
+    { level:"medium", kr:"그녀는 온라인 수업의 장단점을 직접 경험하고 나서 자신의 의견을 글로 정리했다.", keywords:["She","experience","pros and cons","online class","write down","her opinion"] },
+    { level:"medium", kr:"우리 학교 학생들은 매달 한 번씩 지역 복지관에서 봉사 활동을 한다.", keywords:["students","our school","volunteer","community center","once a month"] },
+    { level:"long", kr:"건강한 삶을 유지하기 위해서는 균형 잡힌 식사와 규칙적인 운동뿐 아니라 충분한 수면과 긍정적인 마음가짐도 함께 필요하다.", keywords:["maintain","healthy life","balanced diet","regular exercise","sufficient sleep","positive mindset","all necessary"] },
+    { level:"long", kr:"창의적인 사고는 정해진 틀에서 벗어나 새로운 방식으로 문제를 바라보고, 다양한 해결책을 탐색하는 데서 비롯된다.", keywords:["creative thinking","stems from","breaking out of","fixed framework","look at problems","new way","explore","various solutions"] },
+    { level:"long", kr:"나는 이번 학기 동안 영어 일기 쓰기 도전을 통해 꾸준히 쓰는 습관의 힘과 표현력의 중요성을 몸소 깨달았다.", keywords:["this semester","English diary challenge","realize","power of consistency","importance of expression","through experience"] },
+    { level:"long", kr:"지속 가능한 발전을 위해 현 세대는 미래 세대의 필요를 염두에 두고 환경 자원을 책임감 있게 사용해야 할 의무가 있다.", keywords:["current generation","obligation","use environmental resources","responsibly","keep in mind","needs of future generations","sustainable development"] }
+  ];
+
+  var _writingCurrent = null;
+
+  function openWritingSkills() {
+    try { event.stopPropagation(); } catch(err) {}
+    cur = "Native Talk"; hist = [];
+    _writingCurrent = null;
+    try {
+      var uname = sessionStorage.getItem("sc_name") || "";
+      if(uname && window._userNameInjected !== uname) { window._userName = uname; window._userNameInjected = uname; }
+    } catch(e2) {}
+    var th = themes["Native Talk"] || { bg:"#eef6ff", header:"#3B82F6", headerBg:"#dceeff", msgBg:"#f5faff", bubbleBg:"#3B82F6", online:"#3B82F6", iconBg:"#dceeff", sub:"AI가 함께할게 😊" };
+    var header = document.querySelector(".chat-header");
+    var messages = document.getElementById("chat-messages");
+    var handle = document.querySelector(".chat-handle");
+    var onlineDot = document.getElementById("online-dot");
+    var sendBtn = document.querySelector(".send-btn");
+    var iconBox = document.querySelector(".chat-header-emoji-box");
+    var attachBtn = document.querySelector(".chat-attach-btn");
+    var micBtn = document.querySelector(".chat-mic-btn");
+    header.style.background = th.headerBg; header.style.borderBottom = "none";
+    handle.style.background = th.header + "44";
+    messages.style.background = th.msgBg;
+    onlineDot.style.color = th.online;
+    sendBtn.style.background = th.bubbleBg;
+    iconBox.style.background = th.iconBg;
+    if(attachBtn){ attachBtn.style.background = th.bg; attachBtn.style.color = th.header; }
+    if(micBtn){ micBtn.style.background = th.bg; micBtn.style.color = th.header; }
+    document.getElementById("modal-title").textContent = "Native Talk";
+    document.getElementById("modal-emoji").textContent = "🌍";
+    document.getElementById("chat-header-sub-text").textContent = "Writing Skills ✍️";
+    messages.innerHTML = "";
+    var chatInputEl = document.getElementById("chat-input");
+    if(chatInputEl){ chatInputEl.value = ""; chatInputEl.style.height = "auto"; }
+    if(recognizing && recognition){ micStoppedByUser = true; if(recognition.resetTranscript) recognition.resetTranscript(); recognition.stop(); }
+
+    var welcome = document.createElement("div");
+    welcome.className = "msg ai";
+    welcome.style.cssText = "background:white;border:1.5px solid #3B82F633;";
+    welcome.textContent = "Hello! Writing Skills 시간이에요 ✍️\n키워드를 보고 영어 문장을 직접 만들어봐요! 길이를 선택해줘요.";
+    messages.appendChild(welcome);
+    document.getElementById("modal").classList.add("open");
+    document.body.style.overflow = "hidden";
+    setTimeout(function(){ appendWritingLevelPicker(); }, 300);
+  }
+
+  function appendWritingLevelPicker() {
+    var c  = document.getElementById("chat-messages");
+    var th = themes["Native Talk"] || { header:"#3B82F6", iconBg:"#dceeff" };
+    var row = document.createElement("div");
+    row.className = "chat-msg-row";
+    var av = document.createElement("div");
+    av.className = "chat-avatar"; av.style.background = th.iconBg; av.textContent = "🌍";
+    var wrap = document.createElement("div");
+    wrap.style.cssText = "display:flex;flex-direction:column;gap:6px;max-width:94%;";
+    var name = document.createElement("div");
+    name.className = "chat-msg-name"; name.textContent = "Native Talk";
+    var bubble = document.createElement("div");
+    bubble.className = "msg ai";
+    bubble.style.cssText = "border:1.5px solid " + th.header + "22;padding:14px;";
+    var label = document.createElement("div");
+    label.style.cssText = "font-size:12.5px;font-weight:700;color:" + th.header + ";margin-bottom:12px;font-family:'Noto Sans KR',sans-serif;";
+    label.textContent = "✍️ 문장 길이를 선택해줘요!";
+    var grid = document.createElement("div");
+    grid.style.cssText = "display:flex;gap:8px;";
+    [
+      { key:"short",  emoji:"💬", title:"단문",  desc:"3~5 키워드\n짧은 한 문장" },
+      { key:"medium", emoji:"📝", title:"중문",  desc:"5~8 키워드\n복잡한 문장" },
+      { key:"long",   emoji:"📄", title:"장문",  desc:"8~12 키워드\n긴 복합 문장" }
+    ].forEach(function(opt) {
+      var btn = document.createElement("button");
+      btn.style.cssText = "flex:1;padding:12px 8px;border-radius:16px;border:1.5px solid " + th.header + "44;background:white;color:#2d2540;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.18s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:5px;";
+      var em  = document.createElement("span"); em.style.fontSize = "24px"; em.textContent = opt.emoji;
+      var tit = document.createElement("span"); tit.style.cssText = "font-size:14px;font-weight:800;color:" + th.header + ";font-family:'Jua','Noto Sans KR',sans-serif;"; tit.textContent = opt.title;
+      var dsc = document.createElement("span"); dsc.style.cssText = "font-size:10.5px;color:#9b8fc0;font-weight:500;line-height:1.5;white-space:pre-line;"; dsc.textContent = opt.desc;
+      btn.appendChild(em); btn.appendChild(tit); btn.appendChild(dsc);
+      btn.onmouseover = function(){ btn.style.background = th.header + "0d"; btn.style.borderColor = th.header; };
+      btn.onmouseout  = function(){ btn.style.background = "white"; btn.style.borderColor = th.header + "44"; };
+      btn.onclick = function() {
+        grid.querySelectorAll("button").forEach(function(b){ b.disabled=true; b.style.opacity="0.5"; });
+        btn.style.opacity="1"; btn.style.background=th.header; btn.style.borderColor=th.header;
+        tit.style.color="white"; dsc.style.color="rgba(255,255,255,0.75)";
+        appendMsg("user", opt.emoji + " " + opt.title + " (" + opt.desc.replace("\n"," ") + ")");
+        showWritingCard(opt.key);
+      };
+      grid.appendChild(btn);
+    });
+    bubble.appendChild(label); bubble.appendChild(grid);
+    wrap.appendChild(name); wrap.appendChild(bubble);
+    row.appendChild(av); row.appendChild(wrap);
+    c.appendChild(row); c.scrollTop = c.scrollHeight;
+  }
+
+  function _pickWritingItem(level) {
+    var pool = _writingPool.filter(function(x){ return x.level === level; });
+    var item;
+    do { item = pool[Math.floor(Math.random() * pool.length)]; }
+    while(_writingCurrent && item.kr === _writingCurrent.kr && pool.length > 1);
+    _writingCurrent = item;
+    return item;
+  }
+
+  function showWritingCard(level) {
+    var c  = document.getElementById("chat-messages");
+    var th = themes["Native Talk"] || { header:"#3B82F6", iconBg:"#dceeff" };
+    var item = _pickWritingItem(level);
+
+    var row = document.createElement("div");
+    row.className = "chat-msg-row";
+    var av = document.createElement("div");
+    av.className = "chat-avatar"; av.style.background = th.iconBg; av.textContent = "🌍";
+    var wrap = document.createElement("div");
+    wrap.style.cssText = "display:flex;flex-direction:column;gap:6px;max-width:98%;width:100%;";
+    var name = document.createElement("div");
+    name.className = "chat-msg-name"; name.textContent = "Native Talk";
+    var bubble = document.createElement("div");
+    bubble.className = "msg ai";
+    bubble.style.cssText = "border:1.5px solid " + th.header + "22;padding:14px;width:100%;max-width:380px;box-sizing:border-box;";
+
+    // 헤더 배지
+    var badge = document.createElement("div");
+    badge.style.cssText = "display:flex;align-items:center;gap:6px;margin-bottom:10px;";
+    var levelTag = document.createElement("span");
+    levelTag.style.cssText = "font-size:11px;font-weight:700;background:" + th.header + "15;color:" + th.header + ";padding:3px 9px;border-radius:20px;font-family:'Noto Sans KR',sans-serif;";
+    levelTag.textContent = level === "short" ? "💬 단문" : level === "medium" ? "📝 중문" : "📄 장문";
+    var refreshTag = document.createElement("span");
+    refreshTag.style.cssText = "margin-left:auto;font-size:11px;color:#9b8fc0;cursor:pointer;font-family:'Noto Sans KR',sans-serif;font-weight:600;";
+    refreshTag.textContent = "🔄 다른 문제";
+    refreshTag.onclick = function(){ showWritingCard(level); };
+    badge.appendChild(levelTag); badge.appendChild(refreshTag);
+
+    // 한글 해석
+    var krBox = document.createElement("div");
+    krBox.style.cssText = "background:" + th.header + "0a;border-left:3px solid " + th.header + ";border-radius:0 10px 10px 0;padding:10px 12px;margin-bottom:12px;";
+    var krLabel = document.createElement("div");
+    krLabel.style.cssText = "font-size:10.5px;font-weight:700;color:" + th.header + ";margin-bottom:4px;font-family:'Noto Sans KR',sans-serif;";
+    krLabel.textContent = "🇰🇷 한글 해석";
+    var krText = document.createElement("div");
+    krText.style.cssText = "font-size:14px;font-weight:700;color:#2d2540;font-family:'Noto Sans KR',sans-serif;line-height:1.6;";
+    krText.textContent = item.kr;
+    krBox.appendChild(krLabel); krBox.appendChild(krText);
+
+    // 키워드 뱃지들
+    var kwLabel = document.createElement("div");
+    kwLabel.style.cssText = "font-size:11px;font-weight:700;color:#9b8fc0;margin-bottom:7px;font-family:'Noto Sans KR',sans-serif;";
+    kwLabel.textContent = "🔑 영작 키워드 (순서는 바꿔도 좋아요!)";
+    var kwGrid = document.createElement("div");
+    kwGrid.style.cssText = "display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;";
+    item.keywords.forEach(function(kw) {
+      var tag = document.createElement("span");
+      tag.style.cssText = "display:inline-block;padding:5px 11px;border-radius:20px;background:white;border:1.5px solid " + th.header + "55;color:" + th.header + ";font-size:12.5px;font-weight:700;font-family:'Noto Sans KR',sans-serif;";
+      tag.textContent = kw;
+      kwGrid.appendChild(tag);
+    });
+
+    // 안내 문구
+    var guide = document.createElement("div");
+    guide.style.cssText = "font-size:12px;color:#9b8fc0;font-family:'Noto Sans KR',sans-serif;margin-bottom:10px;line-height:1.6;";
+    guide.textContent = "✏️ 위 키워드를 모두 활용해서 한글 해석에 맞는 영어 문장을 작성해보세요!";
+
+    // 영작 입력창
+    var inputWrap = document.createElement("div");
+    inputWrap.style.cssText = "display:flex;gap:8px;align-items:flex-end;";
+    var textarea = document.createElement("textarea");
+    textarea.placeholder = "여기에 영어 문장을 써봐요...";
+    textarea.style.cssText = "flex:1;border:1.5px solid " + th.header + "44;border-radius:14px;padding:10px 12px;font-size:13.5px;font-family:'Noto Sans KR',sans-serif;color:#2d2540;background:#fafcff;resize:none;outline:none;min-height:52px;max-height:140px;line-height:1.6;transition:border-color 0.15s;";
+    textarea.addEventListener("focus", function(){ textarea.style.borderColor = th.header; });
+    textarea.addEventListener("blur",  function(){ textarea.style.borderColor = th.header + "44"; });
+    textarea.addEventListener("input", function(){
+      textarea.style.height = "auto";
+      textarea.style.height = Math.min(textarea.scrollHeight, 140) + "px";
+    });
+    textarea.addEventListener("keydown", function(e){
+      if(e.key === "Enter" && !e.shiftKey){ e.preventDefault(); submitBtn.click(); }
+    });
+    var submitBtn = document.createElement("button");
+    submitBtn.style.cssText = "width:42px;height:42px;border:none;border-radius:50%;background:linear-gradient(135deg," + th.header + ",#2563EB);color:white;font-size:17px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 3px 10px " + th.header + "44;";
+    submitBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
+    submitBtn.onclick = function() {
+      var written = textarea.value.trim();
+      if(!written){ textarea.focus(); return; }
+      textarea.disabled = true; submitBtn.disabled = true;
+      submitBtn.style.opacity = "0.5";
+      appendMsg("user", written);
+      requestWritingFeedback(item, written);
+    };
+    inputWrap.appendChild(textarea); inputWrap.appendChild(submitBtn);
+
+    bubble.appendChild(badge);
+    bubble.appendChild(krBox);
+    bubble.appendChild(kwLabel);
+    bubble.appendChild(kwGrid);
+    bubble.appendChild(guide);
+    bubble.appendChild(inputWrap);
+    wrap.appendChild(name); wrap.appendChild(bubble);
+    row.appendChild(av); row.appendChild(wrap);
+    c.appendChild(row); c.scrollTop = c.scrollHeight;
+    setTimeout(function(){ textarea.focus(); }, 200);
+  }
+
+  function requestWritingFeedback(item, written) {
+    var c  = document.getElementById("chat-messages");
+    var th = themes["Native Talk"] || { header:"#3B82F6", iconBg:"#dceeff" };
+    var row = document.createElement("div");
+    row.className = "chat-msg-row";
+    var av = document.createElement("div");
+    av.className = "chat-avatar"; av.style.background = th.iconBg; av.textContent = "🌍";
+    var wrap = document.createElement("div");
+    wrap.style.cssText = "display:flex;flex-direction:column;gap:4px;";
+    var name = document.createElement("div");
+    name.className = "chat-msg-name"; name.textContent = "Native Talk";
+    var ld = document.createElement("div");
+    ld.className = "msg ai loading"; ld.textContent = "영작 분석 중...";
+    wrap.appendChild(name); wrap.appendChild(ld);
+    row.appendChild(av); row.appendChild(wrap);
+    c.appendChild(row); c.scrollTop = c.scrollHeight;
+
+    var sysPrompt = "You are a warm and encouraging English writing coach for Korean middle school students. Give feedback in Korean with English examples inline. Be specific, kind, and educational.";
+    var userMsg = "Korean meaning the student was trying to express:\n[" + item.kr + "]\n\nKeywords provided:\n[" + item.keywords.join(", ") + "]\n\nThe student wrote:\n[" + written + "]\n\nPlease provide feedback in Korean using this structure:\n\n1. **전체 평가** — 한 두 문장으로 따뜻하게 총평해줘. 잘한 점을 먼저 언급해줘.\n2. **오류 분석** — 문법, 어휘, 어순, 키워드 활용 측면에서 오류를 짚어줘. 오류가 없으면 '오류 없음 — 완벽해요!'라고 써줘. 각 오류마다: 오류 → 올바른 표현 → 한 줄 이유 형식으로.\n3. **모범 답안** — 자연스러운 영어 문장을 제시해줘 (여러 표현이 가능하면 2개까지).\n4. **이번에 배운 포인트** — 오늘 이 문장에서 꼭 기억해야 할 문법 또는 표현 한 가지를 설명해줘.\n5. **응원 한마디** — 짧고 따뜻하게 마무리해줘.";
+
+    hist = [];
+    hist.push({ role:"user", content: userMsg });
+    (async function(){
+      try {
+        var r = await fetch("/.netlify/functions/chat", {
+          method:"POST", headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:800, system: sysPrompt, messages: hist })
+        });
+        var data = await r.json();
+        var rep = (data.content && data.content[0] && data.content[0].text) || "피드백을 가져오지 못했어요. 다시 시도해줘!";
+        ld.innerHTML = renderMd(rep); ld.classList.remove("loading");
+        hist.push({ role:"assistant", content: rep });
+        awardStar();
+
+        // 다음 액션 버튼
+        var nextRow = document.createElement("div");
+        nextRow.style.cssText = "display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;";
+        var againBtn = document.createElement("button");
+        againBtn.style.cssText = "flex:1;min-width:120px;padding:10px;border:none;border-radius:12px;background:linear-gradient(135deg," + th.header + ",#2563EB);color:white;font-size:12.5px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;";
+        againBtn.textContent = "✍️ 같은 문장 다시 도전";
+        againBtn.onclick = function(){ showWritingCard(_writingCurrent.level); };
+        var newBtn = document.createElement("button");
+        newBtn.style.cssText = "flex:1;min-width:120px;padding:10px;border:1.5px solid " + th.header + "44;border-radius:12px;background:white;color:" + th.header + ";font-size:12.5px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;";
+        newBtn.textContent = "🔄 새 문제 풀기";
+        newBtn.onclick = function(){ appendWritingLevelPicker(); };
+        nextRow.appendChild(againBtn); nextRow.appendChild(newBtn);
+        ld.appendChild(nextRow);
+        c.scrollTop = c.scrollHeight;
+      } catch(e) {
+        ld.textContent = "연결에 문제가 생겼어. 잠시 후 다시 시도해줘! 🙏";
+        ld.classList.remove("loading");
+      }
+    })();
+  }
+
+
+  // (추가 10개 — 총 100개 달성)
+
+  // ── Pronunciation Practice Picker ────────────────────────
+  var _pronTarget = "";      // 현재 연습 중인 문장/문단
+  var _pronMode   = "";      // "sentence" | "paragraph"
+  var _pronMicBtn = null;    // 전용 마이크 버튼 참조
+
+  var _pronSentences = [
+    "She sells seashells by the seashore.",
+    "How much wood would a woodchuck chuck if a woodchuck could chuck wood?",
+    "The early bird catches the worm.",
+    "I would like a cup of coffee, please.",
+    "Could you tell me how to get to the nearest subway station?",
+    "I am really looking forward to the weekend.",
+    "Practice makes perfect, so never give up!",
+    "The weather is absolutely beautiful today.",
+    "Would you mind if I opened the window?",
+    "I have been studying English for three years.",
+    "Can you repeat that more slowly, please?",
+    "It is nice to meet you. My name is Jamie.",
+    "I think we should leave a little earlier to avoid traffic.",
+    "She decided to pursue her dream of becoming a singer.",
+    "There is nothing better than a good book on a rainy day.",
+    "He was nervous before the presentation, but he did great.",
+    "We are planning a trip to Europe next summer.",
+    "Could I have the menu, please? I am ready to order.",
+    "The more you read, the better your vocabulary becomes.",
+    "I was wondering if you could help me with this problem.",
+    "Better late than never, but never late is better.",
+    "Every cloud has a silver lining, so keep your chin up.",
+    "She carefully placed the delicate flowers in the vase.",
+    "I cannot believe how quickly the time has passed.",
+    "He threw three free throws before the game started.",
+    "The colorful butterfly landed gently on the bright yellow flower.",
+    "Do you think it will rain tomorrow? I forgot my umbrella.",
+    "I would really appreciate it if you could reply by Friday.",
+    "The children laughed and ran through the golden autumn leaves.",
+    "Could you please speak up a little? I cannot hear you well.",
+    "She whispered a secret into her best friend's ear.",
+    "The thunder roared and the lightning flashed across the dark sky.",
+    "I am not sure where I left my keys this morning.",
+    "He worked very hard, so he finally earned his promotion.",
+    "The restaurant on the corner serves the most delicious pasta.",
+    "I was completely surprised by the unexpected gift.",
+    "Please make sure you double-check your answers before submitting.",
+    "The sunset painted the sky in brilliant shades of orange and pink.",
+    "I wish I had learned to play the piano when I was younger.",
+    "She always tries to find the positive side of every situation.",
+    "The mountain trail was steep, but the view from the top was breathtaking.",
+    "Could you show me how to use this application on my phone?",
+    "He read the entire novel in just two days because he loved it so much.",
+    "The little puppy wagged its tail and jumped into her arms.",
+    "I am looking for a book about world history. Can you recommend one?",
+    "The audience gave the performers a long and enthusiastic round of applause.",
+    "She took a deep breath and walked confidently onto the stage.",
+    "The scientist discovered a new species of bird deep in the rainforest.",
+    "I always drink a glass of warm water with lemon every morning.",
+    "The twins looked identical, but they had very different personalities."
+  ];
+
+  var _pronParagraphs = [
+    "Every morning, I wake up and make a cup of tea. Then I sit by the window and watch the sunrise. It is the most peaceful part of my day. I think starting the day quietly helps me feel ready for whatever comes next.",
+    "Last weekend, my family went on a picnic in the park. We brought sandwiches, fruit, and lemonade. The children played on the grass while the adults chatted. It was a simple day, but everyone came home smiling.",
+    "Learning a new language takes time and patience. At first, everything seems difficult and confusing. But little by little, words start to make sense. The key is to practice every day and never be afraid to make mistakes.",
+    "My favorite season is autumn. The leaves turn beautiful shades of red, orange, and yellow. The air feels crisp and cool. I love wearing cozy sweaters and drinking hot chocolate while reading a good book.",
+    "Technology has changed the way we communicate. We can send messages to anyone in the world in seconds. Video calls let us see the faces of people who are far away. It is amazing how connected the world has become.",
+    "I recently started learning how to cook. My first attempt at making pasta was a complete disaster. But I kept trying, and now I can make a few simple dishes that actually taste good. Cooking is harder than it looks, but very rewarding.",
+    "The library is one of my favorite places. It is quiet and full of books on every topic imaginable. I love exploring the shelves and finding a book I never expected to read. Libraries make knowledge available to everyone.",
+    "Exercise is important for both the body and the mind. Even a short walk every day can improve your mood. When I feel stressed or anxious, going outside for some fresh air always helps me feel better and think more clearly.",
+    "Last summer, I visited the ocean for the first time. The waves were bigger than I had imagined. I stood at the edge of the water and felt a mix of excitement and wonder. It was a moment I will never forget.",
+    "A good friendship is built on trust and honesty. True friends support each other through both good times and bad. They listen without judging and celebrate each other's successes. I am grateful for the wonderful friends I have in my life.",
+    "Music has always been a big part of my life. When I am happy, I sing along to my favorite songs. When I am sad, music helps me express emotions I cannot put into words. I believe music connects people across all languages and cultures.",
+    "Eating a balanced diet is essential for staying healthy. Fruits, vegetables, whole grains, and proteins all play an important role. I try to drink plenty of water and avoid too much sugar. Small changes in eating habits can make a big difference over time.",
+    "My school day begins at eight in the morning. I take the bus with my friends and we talk about everything on the way. Classes are interesting, especially science and English. After school, I usually stop by the library before heading home.",
+    "Traveling opens your mind to different cultures and ways of life. Even a short trip to a nearby town can teach you something new. Trying local food, listening to unfamiliar music, and meeting new people are all part of the adventure. Every journey leaves you with new stories to tell.",
+    "Reading before bed has become my favorite habit. I choose a novel or a short story collection and read for about thirty minutes. It helps me relax and forget about the worries of the day. By the time I turn off the light, I feel calm and ready to sleep.",
+    "The neighborhood I grew up in was small but lively. There was a bakery on the corner that smelled wonderful every morning. Children played in the street until the sun went down. I still visit sometimes, and it always feels like coming home.",
+    "Volunteering at the local animal shelter has been one of the most meaningful experiences of my life. I help feed the animals, clean their spaces, and give them attention. Seeing a shy dog slowly start to trust me is incredibly rewarding. I encourage everyone to give their time to a cause they care about.",
+    "The night sky is one of the most beautiful things in nature. On clear nights, you can see thousands of stars stretching endlessly above you. Each one is a sun like our own, perhaps with worlds orbiting around it. Looking up at the stars always makes me feel both small and amazed.",
+    "I have been keeping a journal since I was in middle school. Every evening I write about what happened during the day and how I felt about it. It helps me understand myself better and notice patterns in my emotions. Looking back at old entries always surprises me with how much I have grown.",
+    "Good sleep is just as important as diet and exercise for staying healthy. Most teenagers need about eight to ten hours of sleep each night. Without enough rest, it becomes harder to concentrate, remember things, and manage emotions. Going to bed at a consistent time and keeping away from screens before sleeping can make a real difference."
+  ];
+
+
+  function openPronunciationPicker() {
+    try { event.stopPropagation(); } catch(err) {}
+    cur = "Native Talk"; hist = [];
+    _pronTarget = ""; _pronMode = ""; _pronMicBtn = null;
+    try {
+      var uname = sessionStorage.getItem("sc_name") || "";
+      if(uname && window._userNameInjected !== uname) { window._userName = uname; window._userNameInjected = uname; }
+    } catch(e2) {}
+    var th = themes["Native Talk"] || { bg:"#eef6ff", header:"#3B82F6", headerBg:"#dceeff", msgBg:"#f5faff", bubbleBg:"#3B82F6", online:"#3B82F6", iconBg:"#dceeff", sub:"AI가 함께할게 😊" };
+    var header  = document.querySelector(".chat-header");
+    var messages= document.getElementById("chat-messages");
+    var handle  = document.querySelector(".chat-handle");
+    var onlineDot = document.getElementById("online-dot");
+    var sendBtn = document.querySelector(".send-btn");
+    var iconBox = document.querySelector(".chat-header-emoji-box");
+    var attachBtn = document.querySelector(".chat-attach-btn");
+    var micBtn  = document.querySelector(".chat-mic-btn");
+    header.style.background = th.headerBg; header.style.borderBottom = "none";
+    handle.style.background = th.header + "44";
+    messages.style.background = th.msgBg;
+    onlineDot.style.color = th.online;
+    sendBtn.style.background = th.bubbleBg;
+    iconBox.style.background = th.iconBg;
+    if(attachBtn){ attachBtn.style.background = th.bg; attachBtn.style.color = th.header; }
+    if(micBtn){ micBtn.style.background = th.bg; micBtn.style.color = th.header; }
+    document.getElementById("modal-title").textContent = "Native Talk";
+    document.getElementById("modal-emoji").textContent = "🌍";
+    document.getElementById("chat-header-sub-text").textContent = "Pronunciation 🎤";
+    messages.innerHTML = "";
+    var chatInputEl = document.getElementById("chat-input");
+    if(chatInputEl){ chatInputEl.value = ""; chatInputEl.style.height = "auto"; }
+    if(recognizing && recognition){ micStoppedByUser = true; if(recognition.resetTranscript) recognition.resetTranscript(); recognition.stop(); }
+
+    var welcome = document.createElement("div");
+    welcome.className = "msg ai";
+    welcome.style.cssText = "background:white;border:1.5px solid #3B82F633;";
+    welcome.textContent = "Hello! 발음 연습을 시작해봐요 🎤\n문장 읽기와 문단 읽기 중 선택해줘요!";
+    messages.appendChild(welcome);
+    document.getElementById("modal").classList.add("open");
+    document.body.style.overflow = "hidden";
+    setTimeout(function(){ appendPronModePicker(); }, 300);
+  }
+
+  function appendPronModePicker() {
+    var c  = document.getElementById("chat-messages");
+    var th = themes["Native Talk"] || { header:"#3B82F6", iconBg:"#dceeff" };
+    var row = document.createElement("div");
+    row.className = "chat-msg-row";
+    var av = document.createElement("div");
+    av.className = "chat-avatar"; av.style.background = th.iconBg; av.textContent = "🌍";
+    var wrap = document.createElement("div");
+    wrap.style.cssText = "display:flex;flex-direction:column;gap:6px;max-width:92%;";
+    var name = document.createElement("div");
+    name.className = "chat-msg-name"; name.textContent = "Native Talk";
+    var bubble = document.createElement("div");
+    bubble.className = "msg ai";
+    bubble.style.cssText = "border:1.5px solid " + th.header + "22;padding:14px;";
+    var label = document.createElement("div");
+    label.style.cssText = "font-size:12.5px;font-weight:700;color:" + th.header + ";margin-bottom:12px;font-family:'Noto Sans KR',sans-serif;";
+    label.textContent = "🎯 어떤 방식으로 발음 연습을 할까요?";
+    var modeRow = document.createElement("div");
+    modeRow.style.cssText = "display:flex;gap:10px;";
+    [
+      { key:"sentence",  emoji:"💬", title:"문장 읽기",  desc:"짧은 문장 한 개를 또렷하게 읽어봐요" },
+      { key:"paragraph", emoji:"📄", title:"문단 읽기",  desc:"4~5문장 문단을 자연스럽게 읽어봐요" }
+    ].forEach(function(opt) {
+      var btn = document.createElement("button");
+      btn.style.cssText = "flex:1;padding:14px 10px;border-radius:16px;border:1.5px solid " + th.header + "44;background:white;color:#2d2540;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.18s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;";
+      var em  = document.createElement("span"); em.style.fontSize  = "28px"; em.textContent = opt.emoji;
+      var tit = document.createElement("span"); tit.style.cssText  = "font-size:14px;font-weight:800;color:" + th.header + ";font-family:'Jua','Noto Sans KR',sans-serif;"; tit.textContent = opt.title;
+      var dsc = document.createElement("span"); dsc.style.cssText  = "font-size:11.5px;color:#9b8fc0;font-weight:500;line-height:1.4;word-break:keep-all;"; dsc.textContent = opt.desc;
+      btn.appendChild(em); btn.appendChild(tit); btn.appendChild(dsc);
+      btn.onmouseover = function(){ btn.style.background = th.header + "0d"; btn.style.borderColor = th.header; };
+      btn.onmouseout  = function(){ btn.style.background = "white"; btn.style.borderColor = th.header + "44"; };
+      btn.onclick = function() {
+        modeRow.querySelectorAll("button").forEach(function(b){ b.disabled=true; b.style.opacity="0.5"; });
+        btn.style.opacity = "1"; btn.style.background = th.header; btn.style.borderColor = th.header;
+        tit.style.color = "white"; dsc.style.color = "rgba(255,255,255,0.8)";
+        _pronMode = opt.key;
+        appendMsg("user", opt.emoji + " " + opt.title);
+        showPronPracticeCard(opt.key);
+      };
+      modeRow.appendChild(btn);
+    });
+    bubble.appendChild(label); bubble.appendChild(modeRow);
+    wrap.appendChild(name); wrap.appendChild(bubble);
+    row.appendChild(av); row.appendChild(wrap);
+    c.appendChild(row); c.scrollTop = c.scrollHeight;
+  }
+
+  function showPronPracticeCard(mode) {
+    var c  = document.getElementById("chat-messages");
+    var th = themes["Native Talk"] || { header:"#3B82F6", iconBg:"#dceeff" };
+
+    // 랜덤 텍스트 선택
+    var pool = (mode === "sentence") ? _pronSentences : _pronParagraphs;
+    _pronTarget = pool[Math.floor(Math.random() * pool.length)];
+
+    var row = document.createElement("div");
+    row.className = "chat-msg-row";
+    var av = document.createElement("div");
+    av.className = "chat-avatar"; av.style.background = th.iconBg; av.textContent = "🌍";
+    var wrap = document.createElement("div");
+    wrap.style.cssText = "display:flex;flex-direction:column;gap:6px;max-width:96%;width:100%;";
+    var name = document.createElement("div");
+    name.className = "chat-msg-name"; name.textContent = "Native Talk";
+
+    var bubble = document.createElement("div");
+    bubble.className = "msg ai";
+    bubble.style.cssText = "border:1.5px solid " + th.header + "22;padding:14px;width:100%;max-width:360px;";
+
+    // 라벨
+    var modeLabel = document.createElement("div");
+    modeLabel.style.cssText = "font-size:11.5px;font-weight:700;color:" + th.header + ";margin-bottom:8px;font-family:'Noto Sans KR',sans-serif;display:flex;align-items:center;gap:6px;";
+    modeLabel.innerHTML = (mode === "sentence" ? "💬 문장 읽기" : "📄 문단 읽기") + " <span style=\"margin-left:auto;font-size:10.5px;color:#9b8fc0;font-weight:500;cursor:pointer;\" id=\"pron-refresh-btn\">🔄 다른 문장</span>";
+
+    // 텍스트 박스
+    var textBox = document.createElement("div");
+    textBox.id = "pron-text-box";
+    textBox.style.cssText = "background:" + th.header + "0a;border:1.5px solid " + th.header + "33;border-radius:12px;padding:14px;margin-bottom:12px;font-size:" + (mode === "sentence" ? "16px" : "13.5px") + ";font-weight:600;color:#2d2540;line-height:1.8;font-family:'Noto Sans KR',sans-serif;word-break:break-word;";
+    textBox.textContent = _pronTarget;
+
+    // 발음 듣기 + 새로고침 버튼 행
+    var btnRow = document.createElement("div");
+    btnRow.style.cssText = "display:flex;gap:8px;margin-bottom:12px;";
+    var listenBtn = document.createElement("button");
+    listenBtn.style.cssText = "flex:1;padding:9px;border:none;border-radius:12px;background:" + th.header + "15;color:" + th.header + ";font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;transition:all 0.15s;";
+    listenBtn.innerHTML = "🔊 모범 발음 듣기";
+    listenBtn.onclick = function(){ speakEnglish(_pronTarget); };
+
+    btnRow.appendChild(listenBtn);
+
+    // 안내 문구
+    var guide = document.createElement("div");
+    guide.style.cssText = "font-size:12.5px;color:#9b8fc0;font-weight:600;font-family:'Noto Sans KR',sans-serif;margin-bottom:10px;text-align:center;line-height:1.6;";
+    guide.textContent = "🎤 아래 마이크 버튼을 누르고 발음을 연습해보세요!";
+
+    // ── 전용 Pronunciation 마이크 버튼 ──
+    var pronMicArea = document.createElement("div");
+    pronMicArea.style.cssText = "display:flex;flex-direction:column;align-items:center;gap:8px;";
+
+    var pronMicBtn = document.createElement("button");
+    pronMicBtn.id = "pron-mic-btn";
+    pronMicBtn.style.cssText = "width:60px;height:60px;border-radius:50%;border:none;background:linear-gradient(135deg," + th.header + ",#2563EB);color:white;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px " + th.header + "55;transition:all 0.2s;";
+    pronMicBtn.innerHTML = "🎤";
+    pronMicBtn.title = "눌러서 발음 녹음";
+    _pronMicBtn = pronMicBtn;
+
+    var pronMicStatus = document.createElement("div");
+    pronMicStatus.id = "pron-mic-status";
+    pronMicStatus.style.cssText = "font-size:11.5px;color:" + th.header + ";font-weight:700;font-family:'Noto Sans KR',sans-serif;min-height:16px;";
+    pronMicStatus.textContent = "";
+
+    var pronTranscriptBox = document.createElement("div");
+    pronTranscriptBox.id = "pron-transcript";
+    pronTranscriptBox.style.cssText = "width:100%;min-height:36px;padding:8px 12px;border-radius:10px;border:1.5px dashed " + th.header + "44;background:white;font-size:13px;color:#2d2540;font-family:'Noto Sans KR',sans-serif;line-height:1.6;display:none;word-break:break-word;";
+
+    // 마이크 버튼 클릭 이벤트
+    var _pronRecognition = null;
+    var _pronRecording   = false;
+    var _pronFinalText   = "";
+
+    pronMicBtn.onclick = function() {
+      if(_pronRecording) {
+        // 녹음 중지
+        _pronRecording = false;
+        if(_pronRecognition){ try{ _pronRecognition.stop(); }catch(e){} }
+        pronMicBtn.style.background = "linear-gradient(135deg," + th.header + ",#2563EB)";
+        pronMicBtn.innerHTML = "🎤";
+        pronMicStatus.textContent = "";
+        // 인식된 텍스트로 AI 피드백 요청
+        var spoken = _pronFinalText.trim();
+        if(spoken) {
+          pronTranscriptBox.style.display = "block";
+          pronTranscriptBox.textContent = "내가 말한 것: " + spoken;
+          requestPronFeedback(_pronTarget, spoken);
+        }
+        return;
+      }
+      // 녹음 시작
+      var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if(!SR){ alert("이 브라우저는 음성인식을 지원하지 않아요. Chrome을 사용해주세요!"); return; }
+      if(location.protocol !== "https:" && location.protocol !== "file:"){
+        showMicGuide(); return;
+      }
+      navigator.mediaDevices.getUserMedia({ audio:true })
+        .then(function(stream){
+          stream.getTracks().forEach(function(t){ t.stop(); });
+          _pronRecognition = new SR();
+          _pronRecognition.lang = "en-US";
+          _pronRecognition.interimResults = true;
+          _pronRecognition.continuous = true;
+          _pronRecognition.maxAlternatives = 1;
+          _pronFinalText = "";
+          _pronRecording = true;
+
+          pronMicBtn.style.background = "linear-gradient(135deg,#E83E8C,#c2166a)";
+          pronMicBtn.innerHTML = "⏹";
+          pronMicBtn.style.animation = "mic-pulse 1s ease-in-out infinite";
+          pronMicStatus.textContent = "🔴 녹음 중... 읽기 완료 후 버튼을 다시 눌러줘요";
+          pronTranscriptBox.style.display = "block";
+          pronTranscriptBox.textContent = "";
+
+          _pronRecognition.onresult = function(e) {
+            var interim = "";
+            _pronFinalText = "";
+            for(var i = 0; i < e.results.length; i++){
+              if(e.results[i].isFinal) _pronFinalText += e.results[i][0].transcript + " ";
+              else interim += e.results[i][0].transcript;
+            }
+            pronTranscriptBox.textContent = (_pronFinalText + interim).trim() || "";
+          };
+          _pronRecognition.onerror = function(err){
+            if(err.error === "no-speech" || err.error === "audio-capture") return;
+            _pronRecording = false;
+            pronMicBtn.style.background = "linear-gradient(135deg," + th.header + ",#2563EB)";
+            pronMicBtn.innerHTML = "🎤";
+            pronMicBtn.style.animation = "";
+            pronMicStatus.textContent = "마이크 오류: " + err.error;
+          };
+          _pronRecognition.onend = function(){
+            if(_pronRecording){
+              // 자동 끊김 재시작
+              try{ _pronRecognition.start(); } catch(e){}
+            } else {
+              pronMicBtn.style.animation = "";
+            }
+          };
+          _pronRecognition.start();
+        })
+        .catch(function(err){
+          if(err.name === "NotAllowedError") alert("마이크 권한을 허용해주세요!");
+          else showMicGuide();
+        });
+    };
+
+    // 다른 문장 버튼 (라벨에 있는 refresh)
+    bubble.appendChild(modeLabel);
+    bubble.appendChild(textBox);
+    bubble.appendChild(btnRow);
+    bubble.appendChild(guide);
+    pronMicArea.appendChild(pronMicBtn);
+    pronMicArea.appendChild(pronMicStatus);
+    pronMicArea.appendChild(pronTranscriptBox);
+    bubble.appendChild(pronMicArea);
+
+    wrap.appendChild(name); wrap.appendChild(bubble);
+    row.appendChild(av); row.appendChild(wrap);
+    c.appendChild(row); c.scrollTop = c.scrollHeight;
+
+    // 다른 문장 버튼 클릭 핸들러 (DOM 삽입 후)
+    var refreshSpan = document.getElementById("pron-refresh-btn");
+    if(refreshSpan) refreshSpan.onclick = function(){
+      if(_pronRecording){ try{ _pronRecognition.stop(); }catch(e){} _pronRecording=false; }
+      // 같은 풀에서 다른 랜덤 문장
+      var pool2 = (mode === "sentence") ? _pronSentences : _pronParagraphs;
+      var newText;
+      do { newText = pool2[Math.floor(Math.random() * pool2.length)]; } while(newText === _pronTarget && pool2.length > 1);
+      _pronTarget = newText;
+      textBox.textContent = _pronTarget;
+      pronTranscriptBox.textContent = ""; pronTranscriptBox.style.display = "none";
+      pronMicStatus.textContent = "";
+      pronMicBtn.style.background = "linear-gradient(135deg," + th.header + ",#2563EB)";
+      pronMicBtn.innerHTML = "🎤"; pronMicBtn.style.animation = "";
+      _pronFinalText = "";
+    };
+  }
+
+  function requestPronFeedback(target, spoken) {
+    var c  = document.getElementById("chat-messages");
+    var th = themes["Native Talk"] || { header:"#3B82F6", iconBg:"#dceeff" };
+    var row = document.createElement("div");
+    row.className = "chat-msg-row";
+    var av = document.createElement("div");
+    av.className = "chat-avatar"; av.style.background = th.iconBg; av.textContent = "🌍";
+    var wrap = document.createElement("div");
+    wrap.style.cssText = "display:flex;flex-direction:column;gap:4px;";
+    var name = document.createElement("div");
+    name.className = "chat-msg-name"; name.textContent = "Native Talk";
+    var ld = document.createElement("div");
+    ld.className = "msg ai loading";
+    ld.textContent = "발음 분석 중...";
+    wrap.appendChild(name); wrap.appendChild(ld);
+    row.appendChild(av); row.appendChild(wrap);
+    c.appendChild(row); c.scrollTop = c.scrollHeight;
+
+    var sysPrompt = "You are an expert English pronunciation coach for Korean middle school students. You give warm, specific, encouraging feedback on their spoken English. Always write feedback in Korean with English examples inline.";
+    var userPrompt = "Target sentence/paragraph the student was supposed to read:\n[" + target + "]\n\nWhat the speech recognition captured from the student:\n[" + spoken + "]\n\nPlease analyze the student's pronunciation and provide feedback in Korean. Structure your feedback as follows:\n1. 전체 평가 (1-2 sentences, warm and encouraging)\n2. 잘한 점 (specific words or phrases they got right)\n3. 개선 포인트 (specific sounds, stress, or rhythm to improve — max 3 points, each with a concrete tip)\n4. 억양 & 리듬 (one tip about sentence stress or intonation for this specific sentence)\n5. 한 줄 응원 (a short motivating closing line)\n\nIf the spoken text is very close to the target, focus on subtle improvements. If it is quite different, focus on the most important corrections first. Keep the tone friendly and encouraging throughout.";
+
+    hist = [];
+    hist.push({ role:"user", content: userPrompt });
+    (async function(){
+      try {
+        var r = await fetch("/.netlify/functions/chat", {
+          method:"POST", headers:{"Content-Type":"application/json"},
+          body: JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:700, system: sysPrompt, messages: hist })
+        });
+        var data = await r.json();
+        var rep = (data.content && data.content[0] && data.content[0].text) || "발음 피드백을 가져오지 못했어요. 다시 시도해줘!";
+        ld.innerHTML = renderMd(rep); ld.classList.remove("loading");
+        hist.push({ role:"assistant", content: rep });
+        awardStar();
+
+        // 한 번 더 연습 버튼
+        var retryRow2 = document.createElement("div");
+        retryRow2.style.cssText = "display:flex;gap:8px;margin-top:10px;";
+        var againBtn = document.createElement("button");
+        againBtn.style.cssText = "flex:1;padding:10px;border:none;border-radius:12px;background:linear-gradient(135deg," + th.header + ",#2563EB);color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;";
+        againBtn.textContent = "🎤 같은 문장 다시 연습";
+        againBtn.onclick = function(){ showPronPracticeCard(_pronMode); };
+        var newBtn = document.createElement("button");
+        newBtn.style.cssText = "flex:1;padding:10px;border:1.5px solid " + th.header + "44;border-radius:12px;background:white;color:" + th.header + ";font-size:13px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;";
+        newBtn.textContent = "🔄 새 문장으로";
+        newBtn.onclick = function(){ showPronPracticeCard(_pronMode); };
+        retryRow2.appendChild(againBtn); retryRow2.appendChild(newBtn);
+        ld.appendChild(retryRow2);
+        c.scrollTop = c.scrollHeight;
+      } catch(e) {
+        ld.textContent = "연결에 문제가 생겼어. 잠시 후 다시 시도해줘! 🙏";
+        ld.classList.remove("loading");
+      }
+    })();
+  }
+
+
+  // ── About Me Picker ──────────────────────────────────────
+  var aboutMeTopics = [
+    {
+      emoji: "🎨", label: "Hobby", kr: "취미",
+      styles: [
+        "Start by enthusiastically asking what I love doing in my free time. Be curious and excited like a new friend discovering something cool. Ask follow-up questions naturally.",
+        "Open by saying you love hearing about hobbies and ask what I am really into these days. Keep it casual and warm, like chatting after school.",
+        "Ask me what I would be doing right now if I had a totally free day. Use that to explore my hobbies in a fun imaginative way."
+      ]
+    },
+    {
+      emoji: "✨", label: "Personality", kr: "성격",
+      styles: [
+        "Ask me to describe myself in 3 words, then dig into each word with follow-up questions. Be encouraging and help me find the right English words.",
+        "Start with a fun question like 'Are you more of a morning person or a night owl?' and use my answer to explore my personality traits naturally.",
+        "Ask how my closest friend would describe me, then help me express those traits in natural English expressions."
+      ]
+    },
+    {
+      emoji: "🌟", label: "Dream", kr: "꿈·장래희망",
+      styles: [
+        "Ask me what I want to be in the future and why. Be inspiring and help me talk about my dreams using vivid English expressions. Ask what steps I am taking now.",
+        "Start with 'If anything were possible, what would your dream life look like?' and explore my ambitions in an open dreamy way.",
+        "Ask me who my role model is and what dream I share with them. Use that to dive into my future goals and aspirations."
+      ]
+    },
+    {
+      emoji: "🧠", label: "MBTI", kr: "MBTI·성격유형",
+      styles: [
+        "Ask me my MBTI type and react with genuine interest. Share what you know about that type and ask if I relate to it. Make it fun and relatable.",
+        "Start by asking whether I am more introverted or extroverted, then naturally lead into MBTI. Help me describe my type using English personality vocabulary.",
+        "Ask me to describe a typical Friday night for me, then playfully guess my MBTI from the answer and explain your reasoning."
+      ]
+    },
+    {
+      emoji: "👫", label: "Friends", kr: "친구",
+      styles: [
+        "Ask me about my best friend, how we met, what we love doing together, and what makes them special. Help me describe friendship in natural English.",
+        "Start with 'What kind of friend are you?' and explore what friendship means to me. Ask about a fun memory with a friend.",
+        "Ask me what I look for in a friend and whether my current friends fit that. Keep it warm, reflective, and natural."
+      ]
+    },
+    {
+      emoji: "👨‍👩‍👧", label: "Family", kr: "가족",
+      styles: [
+        "Ask me to introduce my family members one by one. React warmly to each detail and ask fun follow-up questions about each person.",
+        "Start with 'Who are you closest to in your family and why?' and explore family dynamics through that relationship.",
+        "Ask me about a favorite family tradition or memory, then use that to talk about each family member naturally."
+      ]
+    },
+    {
+      emoji: "🏫", label: "School Life", kr: "학교생활",
+      styles: [
+        "Ask me what my school day looks like from morning to afternoon. React with interest to every detail and help me describe routines in English.",
+        "Start with 'What is the best and worst part of your school day?' and explore school life through my honest answers.",
+        "Ask me which class I look forward to most and why. Use that to explore subjects, teachers, and school moments."
+      ]
+    },
+    {
+      emoji: "🍔", label: "Food & Taste", kr: "음식·취향",
+      styles: [
+        "Ask me what my all-time favorite food is and what I would never eat. React with fun and help me describe food preferences in vivid English.",
+        "Start with 'If you could only eat one meal for a week, what would it be?' and explore my food personality from there.",
+        "Ask me to describe the best meal I have ever had. Use sensory language to make the conversation descriptive and delicious."
+      ]
+    },
+    {
+      emoji: "🎵", label: "Music & Media", kr: "음악·미디어",
+      styles: [
+        "Ask me what song I have been listening to on repeat and why I love it. Explore how music reflects my mood and personality.",
+        "Start with 'Are you more into K-pop, indie, hip-hop, or something else?' and dig into my media world including music, YouTube, dramas, or games.",
+        "Ask me if I had to pick a soundtrack for my life right now, what would it be? Use that to explore my current vibe and interests."
+      ]
+    },
+    {
+      emoji: "💭", label: "My Values", kr: "가치관·생각",
+      styles: [
+        "Ask me what is most important to me in life, such as friendship, success, health, or creativity, and why. Help me express abstract values in confident English.",
+        "Start with a thought-provoking question like 'What is one thing you believe that most people your age do not?' and explore my unique perspective.",
+        "Ask me what kind of person I want to become by the time I am 30, and what values are guiding me there right now."
+      ]
+    }
+  ];
+
+  function openAboutMePicker() {
+    try { event.stopPropagation(); } catch(err) {}
+    cur = "Native Talk"; hist = [];
+    try {
+      var uname = sessionStorage.getItem("sc_name") || "";
+      if(uname && window._userNameInjected !== uname) { window._userName = uname; window._userNameInjected = uname; }
+    } catch(e2) {}
+    var th = themes["Native Talk"] || { bg:"#eef6ff", header:"#3B82F6", headerBg:"#dceeff", msgBg:"#f5faff", bubbleBg:"#3B82F6", online:"#3B82F6", iconBg:"#dceeff", sub:"AI가 함께할게 😊" };
+    var header = document.querySelector(".chat-header");
+    var messages = document.getElementById("chat-messages");
+    var handle = document.querySelector(".chat-handle");
+    var onlineDot = document.getElementById("online-dot");
+    var sendBtn = document.querySelector(".send-btn");
+    var iconBox = document.querySelector(".chat-header-emoji-box");
+    var attachBtn = document.querySelector(".chat-attach-btn");
+    var micBtn = document.querySelector(".chat-mic-btn");
+    header.style.background = th.headerBg; header.style.borderBottom = "none";
+    handle.style.background = th.header + "44";
+    messages.style.background = th.msgBg;
+    onlineDot.style.color = th.online;
+    sendBtn.style.background = th.bubbleBg;
+    iconBox.style.background = th.iconBg;
+    if(attachBtn){ attachBtn.style.background = th.bg; attachBtn.style.color = th.header; }
+    if(micBtn){ micBtn.style.background = th.bg; micBtn.style.color = th.header; }
+    document.getElementById("modal-title").textContent = "Native Talk";
+    document.getElementById("modal-emoji").textContent = "🌍";
+    document.getElementById("chat-header-sub-text").textContent = "About Me 💬";
+    messages.innerHTML = "";
+    var chatInputEl = document.getElementById("chat-input");
+    if(chatInputEl){ chatInputEl.value = ""; chatInputEl.style.height = "auto"; }
+    if(recognizing && recognition){ micStoppedByUser = true; if(recognition.resetTranscript) recognition.resetTranscript(); recognition.stop(); }
+    var welcome = document.createElement("div");
+    welcome.className = "msg ai";
+    welcome.style.cssText = "background:white;border:1.5px solid #3B82F633;";
+    welcome.textContent = "Hello! I'm Native Talk 😊\nAbout Me 대화를 시작해봐요! 어떤 주제로 영어로 이야기할까요?";
+    messages.appendChild(welcome);
+    document.getElementById("modal").classList.add("open");
+    document.body.style.overflow = "hidden";
+    setTimeout(function(){ appendAboutMeTopicBubble(); }, 300);
+  }
+
+  function appendAboutMeTopicBubble() {
+    var c = document.getElementById("chat-messages");
+    var th = themes["Native Talk"] || { header:"#3B82F6", iconBg:"#dceeff" };
+    var row = document.createElement("div");
+    row.className = "chat-msg-row";
+    var av = document.createElement("div");
+    av.className = "chat-avatar";
+    av.style.background = th.iconBg;
+    av.textContent = "🌍";
+    var wrap = document.createElement("div");
+    wrap.style.cssText = "display:flex;flex-direction:column;gap:6px;max-width:94%;";
+    var name = document.createElement("div");
+    name.className = "chat-msg-name";
+    name.textContent = "Native Talk";
+    var bubble = document.createElement("div");
+    bubble.className = "msg ai";
+    bubble.style.cssText = "border:1.5px solid " + th.header + "22;padding:12px 14px;";
+    var label = document.createElement("div");
+    label.style.cssText = "font-size:12.5px;font-weight:700;color:" + th.header + ";margin-bottom:10px;font-family:'Noto Sans KR',sans-serif;";
+    label.textContent = "💬 어떤 주제로 나를 소개해볼까요? What would you like to talk about?";
+    var grid = document.createElement("div");
+    grid.style.cssText = "display:grid;grid-template-columns:1fr 1fr;gap:7px;";
+    aboutMeTopics.forEach(function(topic) {
+      var btn = document.createElement("button");
+      btn.style.cssText = "padding:9px 10px;border-radius:14px;border:1.5px solid " + th.header + "44;background:white;color:#2d2540;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.18s;text-align:left;display:flex;flex-direction:column;gap:2px;font-weight:600;line-height:1.3;";
+      var topicSpan = document.createElement("span");
+      topicSpan.style.fontSize = "15px";
+      topicSpan.textContent = topic.emoji + " " + topic.label;
+      var krSpan = document.createElement("span");
+      krSpan.style.cssText = "font-size:10.5px;color:#9b8fc0;font-weight:500;";
+      krSpan.textContent = topic.kr;
+      btn.appendChild(topicSpan);
+      btn.appendChild(krSpan);
+      btn.onmouseover = function(){ btn.style.background = th.header + "11"; btn.style.borderColor = th.header; };
+      btn.onmouseout  = function(){ btn.style.background = "white"; btn.style.borderColor = th.header + "44"; };
+      btn.onclick = function() {
+        grid.querySelectorAll("button").forEach(function(b){ b.disabled = true; b.style.opacity = "0.5"; });
+        btn.style.opacity = "1";
+        btn.style.background = th.header;
+        btn.style.color = "white";
+        btn.style.borderColor = th.header;
+        krSpan.style.color = "rgba(255,255,255,0.75)";
+        var styleIdx = Math.floor(Math.random() * topic.styles.length);
+        var chosenStyle = topic.styles[styleIdx];
+        appendMsg("user", topic.emoji + " " + topic.label + "  (" + topic.kr + ")");
+        var sysBase = sys["Native Talk"] || "You are a friendly English conversation partner for Korean middle school students.";
+        var n = (typeof window._userName !== "undefined" && window._userName) ? window._userName : "";
+        var given = (n.length >= 2) ? n.slice(1) : n;
+        var fullSys = sysBase + "\n\n[ABOUT ME MODE] You are having a warm personal conversation helping the student talk about themselves in English. " + chosenStyle + " Keep each response short (2-4 sentences). Always end with exactly one natural follow-up question. Gently correct any English mistakes by echoing the correct form naturally in your reply without explicitly pointing out the error. If the student writes in Korean, encourage them to try saying it in English and offer the words they need.";
+        if(n) fullSys += " Student name: " + n + " (use first name " + given + " occasionally in a warm friendly way).";
+        hist = [];
+        hist.push({ role: "user", content: "I want to talk about my " + topic.label + " in English. Please start the conversation!" });
+        (async function(){
+          var ld = appendMsg("ai", "입력 중..."); ld.classList.add("loading");
+          try {
+            var r = await fetch("/.netlify/functions/chat", {
+              method: "POST", headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ model: "claude-sonnet-4-6", max_tokens: 500, system: fullSys, messages: hist })
+            });
+            var data = await r.json();
+            var rep = (data.content && data.content[0] && data.content[0].text) || "Tell me about yourself!";
+            ld.innerHTML = renderMd(rep); ld.classList.remove("loading");
+            addSpeakBtn(ld, rep);
+            hist.push({ role: "assistant", content: rep });
+            awardStar();
+          } catch(e) {
+            ld.textContent = "연결에 문제가 생겼어. 잠시 후 다시 시도해줘! 🙏";
+            ld.classList.remove("loading");
+          }
+        })();
+      };
+      grid.appendChild(btn);
+    });
+    bubble.appendChild(label);
+    bubble.appendChild(grid);
+    wrap.appendChild(name);
+    wrap.appendChild(bubble);
+    row.appendChild(av);
+    row.appendChild(wrap);
+    c.appendChild(row);
+    c.scrollTop = c.scrollHeight;
+  }
+
+
+  // ── Expression Quiz ──────────────────────────────────────
+  var _exprQuizActive = false;   // 퀴즈 진행 중 여부
+  var _exprScore = 0;
+  var _exprTotal = 0;
+
+  function openExpressionQuiz() {
+    try { event.stopPropagation(); } catch(err) {}
+    cur = 'Native Talk'; hist = [];
+    _exprQuizActive = true; _exprScore = 0; _exprTotal = 0;
+    try {
+      var uname = sessionStorage.getItem('sc_name') || '';
+      if(uname && window._userNameInjected !== uname) { window._userName = uname; window._userNameInjected = uname; }
+    } catch(e2) {}
+    var th = themes['Native Talk'] || { bg:'#eef6ff', header:'#3B82F6', headerBg:'#dceeff', msgBg:'#f5faff', bubbleBg:'#3B82F6', online:'#3B82F6', iconBg:'#dceeff', sub:'AI가 함께할게 😊' };
+    var header = document.querySelector('.chat-header');
+    var messages = document.getElementById('chat-messages');
+    var handle = document.querySelector('.chat-handle');
+    var onlineDot = document.getElementById('online-dot');
+    var sendBtn = document.querySelector('.send-btn');
+    var iconBox = document.querySelector('.chat-header-emoji-box');
+    var attachBtn = document.querySelector('.chat-attach-btn');
+    var micBtn = document.querySelector('.chat-mic-btn');
+    header.style.background = th.headerBg; header.style.borderBottom = 'none';
+    handle.style.background = th.header + '44';
+    messages.style.background = th.msgBg;
+    onlineDot.style.color = th.online;
+    sendBtn.style.background = th.bubbleBg;
+    iconBox.style.background = th.iconBg;
+    if(attachBtn){ attachBtn.style.background = th.bg; attachBtn.style.color = th.header; }
+    if(micBtn){ micBtn.style.background = th.bg; micBtn.style.color = th.header; }
+    document.getElementById('modal-title').textContent = 'Native Talk';
+    document.getElementById('modal-emoji').textContent = '🌍';
+    document.getElementById('chat-header-sub-text').textContent = '영어 표현 퀴즈 🎯';
+    messages.innerHTML = '';
+    var chatInputEl = document.getElementById('chat-input');
+    if(chatInputEl){ chatInputEl.value = ''; chatInputEl.style.height = 'auto'; }
+    if(recognizing && recognition){ micStoppedByUser = true; if(recognition.resetTranscript) recognition.resetTranscript(); recognition.stop(); }
+
+    // 웰컴
+    var welcome = document.createElement('div');
+    welcome.className = 'msg ai';
+    welcome.style.cssText = 'background:white;border:1.5px solid #3B82F622;';
+    welcome.textContent = 'Hello! 영어 표현 퀴즈 시간이에요 🎯\n수준을 선택하면 바로 시작할게요!';
+    messages.appendChild(welcome);
+    document.getElementById('modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function(){ appendExprLevelPicker(); }, 300);
+  }
+
+  function appendExprLevelPicker() {
+    var c = document.getElementById('chat-messages');
+    var th = themes['Native Talk'] || { header:'#3B82F6', iconBg:'#dceeff', bubbleBg:'#3B82F6' };
+    var row = document.createElement('div');
+    row.className = 'chat-msg-row';
+    var av = document.createElement('div');
+    av.className = 'chat-avatar';
+    av.style.background = th.iconBg;
+    av.textContent = '🌍';
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;gap:6px;max-width:88%;';
+    var name = document.createElement('div');
+    name.className = 'chat-msg-name';
+    name.textContent = 'Native Talk';
+    var bubble = document.createElement('div');
+    bubble.className = 'msg ai';
+    bubble.style.cssText = 'border:1.5px solid ' + th.header + '22;padding:12px 14px;';
+    var label = document.createElement('div');
+    label.style.cssText = 'font-size:12.5px;font-weight:700;color:' + th.header + ';margin-bottom:10px;font-family:"Noto Sans KR",sans-serif;';
+    label.textContent = '🎯 퀴즈 수준을 선택해줘!';
+    var btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;';
+    [
+      { label: '🌱 초급', desc: '중학교 기초 표현', level: 'beginner' },
+      { label: '📘 중급', desc: '중학교 실용 표현', level: 'intermediate' },
+      { label: '🚀 고급', desc: '고등/원어민 표현', level: 'advanced' }
+    ].forEach(function(opt) {
+      var btn = document.createElement('button');
+      btn.style.cssText = 'padding:9px 14px;border-radius:14px;border:1.5px solid ' + th.header + '44;background:white;color:#2d2540;font-size:12.5px;cursor:pointer;font-family:"Noto Sans KR",sans-serif;font-weight:700;display:flex;flex-direction:column;gap:2px;transition:all 0.15s;';
+      btn.innerHTML = '<span>' + opt.label + '</span><span style="font-size:10.5px;color:#9b8fc0;font-weight:500;">' + opt.desc + '</span>';
+      btn.onmouseover = function(){ btn.style.background = th.header + '11'; btn.style.borderColor = th.header; };
+      btn.onmouseout = function(){ btn.style.background = 'white'; btn.style.borderColor = th.header + '44'; };
+      btn.onclick = function(){
+        btnRow.querySelectorAll('button').forEach(function(b){ b.disabled=true; b.style.opacity='0.5'; });
+        btn.style.opacity='1'; btn.style.background=th.header; btn.style.color='white'; btn.style.borderColor=th.header;
+        appendMsg('user', opt.label + ' (' + opt.desc + ') 로 퀴즈 시작!');
+        _exprScore = 0; _exprTotal = 0;
+        fetchExpressionQuiz(opt.level);
+      };
+      btnRow.appendChild(btn);
+    });
+    bubble.appendChild(label);
+    bubble.appendChild(btnRow);
+    wrap.appendChild(name); wrap.appendChild(bubble);
+    row.appendChild(av); row.appendChild(wrap);
+    c.appendChild(row); c.scrollTop = c.scrollHeight;
+  }
+
+  function fetchExpressionQuiz(level) {
+    var c = document.getElementById('chat-messages');
+    var th = themes['Native Talk'] || { header:'#3B82F6', iconBg:'#dceeff', bubbleBg:'#3B82F6' };
+
+    // 로딩 말풍선
+    var loadRow = document.createElement('div');
+    loadRow.className = 'chat-msg-row';
+    loadRow.id = 'expr-loading';
+    var loadAv = document.createElement('div');
+    loadAv.className = 'chat-avatar';
+    loadAv.style.background = th.iconBg;
+    loadAv.textContent = '🌍';
+    var loadWrap = document.createElement('div');
+    loadWrap.style.cssText = 'display:flex;flex-direction:column;gap:4px;';
+    var loadName = document.createElement('div');
+    loadName.className = 'chat-msg-name';
+    loadName.textContent = 'Native Talk';
+    var loadBubble = document.createElement('div');
+    loadBubble.className = 'msg ai loading';
+    loadBubble.textContent = '퀴즈 만드는 중... ✨';
+    loadWrap.appendChild(loadName); loadWrap.appendChild(loadBubble);
+    loadRow.appendChild(loadAv); loadRow.appendChild(loadWrap);
+    c.appendChild(loadRow); c.scrollTop = c.scrollHeight;
+
+    var levelDesc = {
+      beginner:     "beginner level: common everyday English expressions and idioms that Korean middle school students (age 13-15) encounter. Examples: Im starving, Break a leg, Its a piece of cake, Whats up",
+      intermediate: "intermediate level: practical English expressions, phrasal verbs, and idioms for daily life. Examples: Hit the books, Under the weather, Hang in there, Spill the beans",
+      advanced:     "advanced level: native-speaker idioms, slang, and figurative expressions. Examples: Bite the bullet, Cost an arm and a leg, Beat around the bush, Once in a blue moon"
+    };
+
+    var sysPrompt = "You are an English expression quiz generator for Korean middle school students. Always respond ONLY with valid JSON. No markdown fences, no extra text, no explanation outside the JSON.";
+    var userPrompt = "Generate ONE English expression multiple-choice quiz at " + levelDesc[level] + ". Return ONLY a raw JSON object (no markdown, no backticks). Schema: {expression: string, question: string, choices: [string,string,string,string], answer: number, explanation: string, tip: string}. Rules: expression is a natural English idiom or common expression (e.g. Im starving, Break a leg). question asks what it means in Korean. choices are 4 Korean meanings only (no English). answer is 0-indexed correct choice index. explanation is a friendly Korean explanation with an example. tip is a short Korean usage tip.";
+
+    (async function(){
+      try {
+        var r = await fetch('/.netlify/functions/chat', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:600, system: sysPrompt, messages:[{role:'user', content: userPrompt}] })
+        });
+        var data = await r.json();
+        var raw = (data.content && data.content[0] && data.content[0].text) || '{}';
+        // JSON 파싱
+        var clean = raw.replace(/```json|```/g,'').trim();
+        var quiz = JSON.parse(clean);
+        // 로딩 제거 후 퀴즈 카드 렌더
+        var loadEl = document.getElementById('expr-loading');
+        if(loadEl) loadEl.remove();
+        renderExprQuizCard(quiz, level);
+      } catch(e) {
+        var loadEl = document.getElementById('expr-loading');
+        if(loadEl) loadEl.remove();
+        var errBubble = appendMsg('ai', '퀴즈를 불러오는 데 문제가 생겼어. 다시 시도해줘! 🙏');
+      }
+    })();
+  }
+
+  function renderExprQuizCard(quiz, level) {
+    var c = document.getElementById('chat-messages');
+    var th = themes['Native Talk'] || { header:'#3B82F6', iconBg:'#dceeff', bubbleBg:'#3B82F6' };
+    _exprTotal++;
+
+    var row = document.createElement('div');
+    row.className = 'chat-msg-row';
+    var av = document.createElement('div');
+    av.className = 'chat-avatar';
+    av.style.background = th.iconBg;
+    av.textContent = '🌍';
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;gap:6px;max-width:96%;width:100%;';
+    var name = document.createElement('div');
+    name.className = 'chat-msg-name';
+    name.textContent = 'Native Talk';
+
+    // 퀴즈 카드 버블
+    var bubble = document.createElement('div');
+    bubble.className = 'msg ai';
+    bubble.style.cssText = 'border:1.5px solid ' + th.header + '22;padding:14px 14px 12px;width:100%;max-width:340px;';
+
+    // 점수 배지
+    var scoreBadge = document.createElement('div');
+    scoreBadge.style.cssText = 'font-size:11px;color:' + th.header + ';font-weight:700;margin-bottom:8px;font-family:"Noto Sans KR",sans-serif;display:flex;align-items:center;gap:6px;';
+    scoreBadge.innerHTML = '<span style="background:' + th.header + '15;padding:2px 8px;border-radius:20px;">🎯 문제 ' + _exprTotal + '</span><span style="margin-left:auto;color:#9b8fc0;">점수 ' + _exprScore + '/' + (_exprTotal-1) + '</span>';
+    bubble.appendChild(scoreBadge);
+
+    // 영어 표현 + 발음 버튼
+    var exprBox = document.createElement('div');
+    exprBox.style.cssText = 'background:' + th.header + '0d;border:1.5px solid ' + th.header + '33;border-radius:12px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px;';
+    var exprText = document.createElement('div');
+    exprText.style.cssText = 'font-size:18px;font-weight:900;color:' + th.header + ';font-family:"Noto Sans KR",sans-serif;letter-spacing:0.3px;';
+    exprText.textContent = quiz.expression;
+    var speakBtn = document.createElement('button');
+    speakBtn.style.cssText = 'border:none;background:' + th.header + ';color:white;border-radius:50%;width:32px;height:32px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;';
+    speakBtn.innerHTML = '🔊';
+    speakBtn.title = '영어 발음 듣기';
+    speakBtn.onclick = function(){ speakEnglish(quiz.expression); };
+    exprBox.appendChild(exprText);
+    exprBox.appendChild(speakBtn);
+    bubble.appendChild(exprBox);
+
+    // 질문
+    var qText = document.createElement('div');
+    qText.style.cssText = 'font-size:13px;font-weight:700;color:#2d2540;margin-bottom:10px;font-family:"Noto Sans KR",sans-serif;line-height:1.5;';
+    qText.textContent = quiz.question || '"' + quiz.expression + '"의 뜻은 무엇일까요?';
+    bubble.appendChild(qText);
+
+    // 선택지 그리드
+    var choiceGrid = document.createElement('div');
+    choiceGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:4px;';
+    var answered = false;
+
+    quiz.choices.forEach(function(choice, idx) {
+      var choiceBtn = document.createElement('button');
+      var labels = ['①','②','③','④'];
+      choiceBtn.style.cssText = 'padding:9px 8px;border-radius:12px;border:1.5px solid rgba(0,0,0,0.1);background:white;color:#2d2540;font-size:12.5px;cursor:pointer;font-family:"Noto Sans KR",sans-serif;font-weight:600;line-height:1.4;text-align:left;display:flex;align-items:flex-start;gap:5px;transition:all 0.15s;';
+      choiceBtn.innerHTML = '<span style="flex-shrink:0;color:' + th.header + ';font-weight:800;">' + labels[idx] + '</span><span>' + choice + '</span>';
+      choiceBtn.onmouseover = function(){ if(!answered) choiceBtn.style.background = th.header + '11'; };
+      choiceBtn.onmouseout = function(){ if(!answered && choiceBtn.style.background !== 'rgb(255,255,255)') choiceBtn.style.background = 'white'; };
+
+      choiceBtn.onclick = function() {
+        if(answered) return;
+        answered = true;
+        var correct = (idx === quiz.answer);
+        if(correct) _exprScore++;
+
+        // 모든 버튼 결과 표시
+        choiceGrid.querySelectorAll('button').forEach(function(b, i) {
+          b.disabled = true;
+          if(i === quiz.answer) {
+            b.style.background = '#d6f5e8'; b.style.borderColor = '#1AAD72'; b.style.color = '#0a6e48';
+          } else if(i === idx && !correct) {
+            b.style.background = '#ffe0e8'; b.style.borderColor = '#E83E8C'; b.style.color = '#a0103e';
+          } else {
+            b.style.opacity = '0.5';
+          }
+        });
+
+        // 결과 + 해설 표시
+        var resultBox = document.createElement('div');
+        resultBox.style.cssText = 'margin-top:10px;padding:10px 12px;border-radius:12px;font-family:"Noto Sans KR",sans-serif;font-size:12.5px;line-height:1.6;';
+        if(correct) {
+          resultBox.style.background = '#d6f5e8'; resultBox.style.border = '1.5px solid #1AAD7244';
+          resultBox.innerHTML = '<div style="font-weight:800;color:#0a6e48;margin-bottom:4px;">🎉 정답이에요!</div>';
+        } else {
+          resultBox.style.background = '#fff0f5'; resultBox.style.border = '1.5px solid #E83E8C44';
+          resultBox.innerHTML = '<div style="font-weight:800;color:#a0103e;margin-bottom:4px;">😅 아쉬워요! 정답은 ' + (quiz.answer+1) + '번이에요.</div>';
+        }
+        // 해설
+        var expDiv = document.createElement('div');
+        expDiv.style.color = '#2d2540';
+        expDiv.textContent = quiz.explanation || '';
+        resultBox.appendChild(expDiv);
+        // 팁
+        if(quiz.tip) {
+          var tipDiv = document.createElement('div');
+          tipDiv.style.cssText = 'margin-top:6px;padding:6px 10px;background:' + th.header + '0d;border-radius:8px;color:' + th.header + ';font-weight:600;font-size:12px;';
+          tipDiv.textContent = '💡 ' + quiz.tip;
+          resultBox.appendChild(tipDiv);
+        }
+        bubble.appendChild(resultBox);
+
+        // 점수 배지 업데이트
+        scoreBadge.innerHTML = '<span style="background:' + th.header + '15;padding:2px 8px;border-radius:20px;">🎯 문제 ' + _exprTotal + '</span><span style="margin-left:auto;color:#9b8fc0;">점수 ' + _exprScore + '/' + _exprTotal + '</span>';
+
+        // 다음 문제 버튼
+        var nextRow2 = document.createElement('div');
+        nextRow2.style.cssText = 'display:flex;gap:8px;margin-top:10px;';
+        var nextBtn = document.createElement('button');
+        nextBtn.style.cssText = 'flex:1;padding:10px;border:none;border-radius:12px;background:linear-gradient(135deg,' + th.header + ',#2563EB);color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:"Noto Sans KR",sans-serif;';
+        nextBtn.textContent = '다음 문제 ➡️';
+        nextBtn.onclick = function() { fetchExpressionQuiz(level); };
+        var stopBtn = document.createElement('button');
+        stopBtn.style.cssText = 'padding:10px 14px;border:1.5px solid rgba(0,0,0,0.12);border-radius:12px;background:white;color:#9b8fc0;font-size:12.5px;cursor:pointer;font-family:"Noto Sans KR",sans-serif;font-weight:600;';
+        stopBtn.textContent = '그만하기';
+        stopBtn.onclick = function() {
+          var finalBubble = appendMsg('ai', '오늘 퀴즈 결과: ' + _exprScore + '/' + _exprTotal + ' 🎉\n잘했어요! 틀린 표현은 꼭 다시 공부해봐요 💪');
+          awardStar();
+        };
+        nextRow2.appendChild(nextBtn); nextRow2.appendChild(stopBtn);
+        bubble.appendChild(nextRow2);
+        c.scrollTop = c.scrollHeight;
+      };
+      choiceGrid.appendChild(choiceBtn);
+    });
+
+    bubble.appendChild(choiceGrid);
+    wrap.appendChild(name); wrap.appendChild(bubble);
+    row.appendChild(av); row.appendChild(wrap);
+    c.appendChild(row);
+    c.scrollTop = c.scrollHeight;
+  }
+
+  // ── Conversation Situation Picker ────────────────────────
+  var conversationSituations = [
+    {
+      emoji: '✈️', label: 'At the Airport',
+      desc: '공항에서',
+      prompt: "Let's practice English at the airport! Role-play as an airport staff member and I am a traveler. Start by greeting me at the check-in counter and ask about my flight and luggage. Use natural airport expressions like 'boarding pass', 'terminal', 'gate', etc. After each exchange, briefly explain one useful expression you used."
+    },
+    {
+      emoji: '🗺️', label: 'Asking Directions',
+      desc: '길 묻기',
+      prompt: "Let's practice asking and giving directions in English! Play the role of a local resident. I will be a tourist who is lost. Start by noticing I look confused and offering to help. Teach natural expressions like 'turn left', 'go straight', 'it's about 5 minutes walk', etc. After a few exchanges, highlight one useful phrase."
+    },
+    {
+      emoji: '🍽️', label: 'At a Restaurant',
+      desc: '식당에서',
+      prompt: "Let's practice English at a restaurant! You are a friendly waiter/waitress. I am a customer visiting for the first time. Start by welcoming me and handing me the menu. Use natural restaurant expressions like 'Are you ready to order?', 'How would you like your steak?', 'Here is your bill', etc. After each turn, teach one useful phrase."
+    },
+    {
+      emoji: '🛒', label: 'Shopping',
+      desc: '쇼핑할 때',
+      prompt: "Let's practice English while shopping! You are a shop assistant in a clothing store. I am a customer looking for something to buy. Start by greeting me and asking if I need help. Use natural shopping expressions like 'try it on', 'What size are you?', 'It suits you', 'Do you have this in another color?' etc. Explain one expression after each exchange."
+    },
+    {
+      emoji: '🏨', label: 'At a Hotel',
+      desc: '호텔에서',
+      prompt: "Let's practice English at a hotel! You are the front desk staff. I am a guest checking in. Start by welcoming me and asking for my reservation details. Use natural hotel expressions like 'check-in / check-out', 'room service', 'Could I see your ID?', 'Here is your key card', etc. After a few exchanges, explain one useful phrase."
+    },
+    {
+      emoji: '🏥', label: 'At the Doctor',
+      desc: '병원에서',
+      prompt: "Let's practice English at a doctor's office! You are a friendly doctor or nurse. I am a patient who doesn't feel well. Start by asking how I am feeling today. Use natural medical expressions like 'What are your symptoms?', 'How long have you had this?', 'Take this twice a day', etc. After each exchange, highlight one useful expression."
+    },
+    {
+      emoji: '🏫', label: 'At School',
+      desc: '학교에서',
+      prompt: "Let's practice everyday English conversations at school! You are a classmate or teacher. Start a natural conversation — maybe asking about homework, a class project, or what I did over the weekend. Use common school expressions like 'Did you finish the assignment?', 'What did you think of the lesson?', etc. After a few exchanges, point out one useful phrase."
+    },
+    {
+      emoji: '☎️', label: 'On the Phone',
+      desc: '전화 통화',
+      prompt: "Let's practice phone conversations in English! You are calling me — maybe to make a reservation, ask for information, or catch up with a friend. Start the call naturally. Use phone expressions like 'May I speak to...?', 'Hold on a moment', 'Could you repeat that?', 'I'll call you back', etc. After each exchange, explain one useful phone expression."
+    },
+    {
+      emoji: '🎉', label: 'Making Friends',
+      desc: '친구 사귀기',
+      prompt: "Let's practice introducing ourselves and making friends in English! You are a new student who just transferred to my school. Start by coming up to me and introducing yourself. Use natural expressions like 'Nice to meet you!', 'What do you like doing?', 'We should hang out sometime!', etc. After a few turns, point out one expression that sounds especially natural."
+    },
+    {
+      emoji: '🚇', label: 'Public Transport',
+      desc: '대중교통',
+      prompt: "Let's practice English on public transport! You are a helpful passenger or station staff member. I am a tourist trying to figure out how to get somewhere by bus or subway. Start by noticing I look confused at the ticket machine. Use natural expressions like 'Which line are you taking?', 'Transfer at the next stop', 'This is your stop!', etc. Explain one useful expression after each exchange."
+    }
+  ];
+
+  function openConversationSituationPicker() {
+    try { event.stopPropagation(); } catch(err) {}
+    cur = 'Native Talk'; hist = [];
+    try {
+      var uname = sessionStorage.getItem('sc_name') || '';
+      if(uname && window._userNameInjected !== uname) {
+        window._userName = uname;
+        window._userNameInjected = uname;
+      }
+    } catch(e2) {}
+    var th = themes['Native Talk'] || { bg:'#eef6ff', header:'#3B82F6', headerBg:'#dceeff', msgBg:'#f5faff', bubbleBg:'#3B82F6', online:'#3B82F6', iconBg:'#dceeff', sub:'AI가 함께할게 😊' };
+    var header = document.querySelector('.chat-header');
+    var messages = document.getElementById('chat-messages');
+    var handle = document.querySelector('.chat-handle');
+    var onlineDot = document.getElementById('online-dot');
+    var sendBtn = document.querySelector('.send-btn');
+    var iconBox = document.querySelector('.chat-header-emoji-box');
+    var attachBtn = document.querySelector('.chat-attach-btn');
+    var micBtn = document.querySelector('.chat-mic-btn');
+    header.style.background = th.headerBg;
+    header.style.borderBottom = 'none';
+    handle.style.background = th.header + '44';
+    messages.style.background = th.msgBg;
+    onlineDot.style.color = th.online;
+    sendBtn.style.background = th.bubbleBg;
+    iconBox.style.background = th.iconBg;
+    if(attachBtn){ attachBtn.style.background = th.bg; attachBtn.style.color = th.header; }
+    if(micBtn){ micBtn.style.background = th.bg; micBtn.style.color = th.header; }
+    document.getElementById('modal-title').textContent = 'Native Talk';
+    document.getElementById('modal-emoji').textContent = '🌍';
+    document.getElementById('chat-header-sub-text').textContent = th.sub;
+    messages.innerHTML = '';
+    var chatInputEl = document.getElementById('chat-input');
+    if(chatInputEl){ chatInputEl.value = ''; chatInputEl.style.height = 'auto'; }
+    if(recognizing && recognition){ micStoppedByUser = true; if(recognition.resetTranscript) recognition.resetTranscript(); recognition.stop(); }
+    // 웰컴 메시지
+    var welcome = document.createElement('div');
+    welcome.className = 'msg ai';
+    welcome.style.background = 'white';
+    welcome.style.border = '1.5px solid ' + th.header + '33';
+    welcome.textContent = "Hello! I'm Native Talk 🎭\n어떤 상황의 영어 회화를 연습할까요? (Choose a situation to practice!)";
+    messages.appendChild(welcome);
+    document.getElementById('modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function(){ appendConversationSituationBubble(); }, 300);
+  }
+
+  function appendConversationSituationBubble() {
+    var c = document.getElementById('chat-messages');
+    var th = themes['Native Talk'] || { header:'#3B82F6', iconBg:'#dceeff' };
+    var row = document.createElement('div');
+    row.className = 'chat-msg-row';
+    row.id = 'conv-situation-bubble';
+    var av = document.createElement('div');
+    av.className = 'chat-avatar';
+    av.style.background = th.iconBg;
+    av.textContent = '🌍';
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;gap:6px;max-width:94%;';
+    var name = document.createElement('div');
+    name.className = 'chat-msg-name';
+    name.textContent = 'Native Talk';
+    var bubble = document.createElement('div');
+    bubble.className = 'msg ai';
+    bubble.style.cssText = 'border:1.5px solid ' + th.header + '22;padding:12px 14px;';
+    var label = document.createElement('div');
+    label.style.cssText = 'font-size:12.5px;font-weight:700;color:' + th.header + ';margin-bottom:10px;font-family:"Noto Sans KR",sans-serif;';
+    label.textContent = '🎭 상황을 선택하면 롤플레이 영어 회화를 시작해요!';
+    var grid = document.createElement('div');
+    grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:7px;';
+    conversationSituations.forEach(function(sit) {
+      var btn = document.createElement('button');
+      btn.style.cssText = 'padding:9px 10px;border-radius:14px;border:1.5px solid ' + th.header + '44;background:white;color:#2d2540;font-size:12px;cursor:pointer;font-family:"Noto Sans KR",sans-serif;transition:all 0.18s;text-align:left;display:flex;flex-direction:column;gap:2px;font-weight:600;line-height:1.3;';
+      btn.innerHTML = '<span style="font-size:17px;">' + sit.emoji + ' ' + sit.label + '</span><span style="font-size:10.5px;color:#9b8fc0;font-weight:500;">' + sit.desc + '</span>';
+      btn.onmouseover = function() { btn.style.background = th.header + '11'; btn.style.borderColor = th.header; };
+      btn.onmouseout = function() { btn.style.background = 'white'; btn.style.borderColor = th.header + '44'; };
+      btn.onclick = function() {
+        grid.querySelectorAll('button').forEach(function(b){ b.disabled = true; b.style.opacity = '0.55'; });
+        btn.style.opacity = '1'; btn.style.background = th.header; btn.style.color = 'white'; btn.style.borderColor = th.header;
+        btn.querySelector('span:last-child').style.color = 'rgba(255,255,255,0.75)';
+        var selectedMsg = sit.emoji + ' ' + sit.label + ' (' + sit.desc + ')';
+        appendMsg('user', selectedMsg);
+        hist.push({ role: 'user', content: sit.prompt });
+        (async function(){
+          var ld = appendMsg('ai', '입력 중...'); ld.classList.add('loading');
+          try {
+            var base = sys['Native Talk'] || 'You are a friendly English conversation partner for Korean middle school students.';
+            var roleBase = base + '\n\n[SITUATION ROLEPLAY] You are now doing a roleplay conversation. Stay in character for the chosen situation. Use natural, practical English expressions. After every 2-3 exchanges, casually highlight one useful phrase or expression with a brief Korean explanation in parentheses — like: "Sure, let me check! (확인해 볼게요!)". Keep responses concise and always end with a question or prompt to keep the conversation going.';
+            var n = (typeof window._userName !== 'undefined' && window._userName) ? window._userName : '';
+            var given = (n.length >= 2) ? n.slice(1) : n;
+            if(n) roleBase += '\n\nStudent name: ' + n + ' (first name: ' + given + '). Use their name occasionally in a warm way.';
+            var r = await fetch('/.netlify/functions/chat', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: roleBase, messages: hist })
+            });
+            var data = await r.json();
+            var rep = (data.content && data.content[0] && data.content[0].text) || "Let's get started! Welcome!";
+            ld.innerHTML = renderMd(rep); ld.classList.remove('loading');
+            addSpeakBtn(ld, rep);
+            hist.push({ role: 'assistant', content: rep });
+            awardStar();
+          } catch(e) {
+            ld.textContent = '연결에 문제가 생겼어. 잠시 후 다시 시도해줘! 🙏';
+            ld.classList.remove('loading');
+          }
+        })();
+      };
+      grid.appendChild(btn);
+    });
+    bubble.appendChild(label);
+    bubble.appendChild(grid);
+    wrap.appendChild(name);
+    wrap.appendChild(bubble);
+    row.appendChild(av);
+    row.appendChild(wrap);
+    c.appendChild(row);
+    c.scrollTop = c.scrollHeight;
+  }
+
+  // ── Small Talk Topic Picker ──────────────────────────────
+  var smallTalkTopics = [
+    { emoji: '☀️', label: 'Daily Life',    prompt: "Let's chat about daily life in English! Start by asking me something fun about my everyday routine like what I had for breakfast or what I did today. Keep it simple and friendly!" },
+    { emoji: '🎮', label: 'Hobbies',       prompt: "Let's talk about hobbies in English! Ask me what I like to do for fun such as gaming, drawing, sports, or music. Make it casual and encouraging!" },
+    { emoji: '👫', label: 'Friends',       prompt: "Let's have a friendly small talk about friends in English! Ask me something like how many close friends I have or what we enjoy doing together. Keep the tone warm and fun!" },
+    { emoji: '👨‍👩‍👧', label: 'Family',        prompt: "Let's chat about family in English! Ask me about my family members or something we do together. Keep it light-hearted and easy to answer!" },
+    { emoji: '🏫', label: 'School Life',   prompt: "Let's talk about school life in English! Ask me about my favorite subject, a funny moment at school, or what I find challenging. Be encouraging and upbeat!" },
+    { emoji: '🎵', label: 'Music & K-pop', prompt: "Let's chat about music in English! Ask me about my favorite songs or artists especially K-pop. Share some enthusiasm and make the conversation lively!" },
+    { emoji: '🍜', label: 'Food',          prompt: "Let's talk about food in English! Ask me what my favorite food is or a dish I would love to eat. Make it yummy and fun!" },
+    { emoji: '✈️', label: 'Travel',        prompt: "Let's have a small talk about travel in English! Ask me where I would love to go or a place I have been to. Keep it dreamy and exciting!" },
+    { emoji: '🌤️', label: 'Weather',       prompt: "Let's chat about the weather in English! Ask me what the weather is like today or what my favorite season is and why. Keep it simple and friendly!" },
+    { emoji: '🎬', label: 'Movies & TV',   prompt: "Let's talk about movies and TV shows in English! Ask me about a movie or drama I have watched recently or my all-time favorite. Make it fun and conversational!" }
+  ];
+
+  function openSmallTalkTopicPicker() {
+    try { event.stopPropagation(); } catch(err) {}
+    cur = 'Native Talk'; hist = [];
+    try {
+      var uname = sessionStorage.getItem('sc_name') || '';
+      if(uname && window._userNameInjected !== uname) {
+        window._userName = uname;
+        window._userNameInjected = uname;
+      }
+    } catch(e2) {}
+    var th = themes['Native Talk'] || { bg:'#eef6ff', header:'#3B82F6', headerBg:'#dceeff', msgBg:'#f5faff', bubbleBg:'#3B82F6', online:'#3B82F6', iconBg:'#dceeff', sub:'AI가 함께할게 😊' };
+    var header = document.querySelector('.chat-header');
+    var messages = document.getElementById('chat-messages');
+    var handle = document.querySelector('.chat-handle');
+    var onlineDot = document.getElementById('online-dot');
+    var sendBtn = document.querySelector('.send-btn');
+    var iconBox = document.querySelector('.chat-header-emoji-box');
+    var attachBtn = document.querySelector('.chat-attach-btn');
+    var micBtn = document.querySelector('.chat-mic-btn');
+    header.style.background = th.headerBg;
+    header.style.borderBottom = 'none';
+    handle.style.background = th.header + '44';
+    messages.style.background = th.msgBg;
+    onlineDot.style.color = th.online;
+    sendBtn.style.background = th.bubbleBg;
+    iconBox.style.background = th.iconBg;
+    if(attachBtn){ attachBtn.style.background = th.bg; attachBtn.style.color = th.header; }
+    if(micBtn){ micBtn.style.background = th.bg; micBtn.style.color = th.header; }
+    document.getElementById('modal-title').textContent = 'Native Talk';
+    document.getElementById('modal-emoji').textContent = '🌍';
+    document.getElementById('chat-header-sub-text').textContent = th.sub;
+    messages.innerHTML = '';
+    var chatInputEl = document.getElementById('chat-input');
+    if(chatInputEl){ chatInputEl.value = ''; chatInputEl.style.height = 'auto'; }
+    if(recognizing && recognition){ micStoppedByUser = true; if(recognition.resetTranscript) recognition.resetTranscript(); recognition.stop(); }
+    // 웰컴 메시지
+    var welcome = document.createElement('div');
+    welcome.className = 'msg ai';
+    welcome.style.background = 'white';
+    welcome.style.border = '1.5px solid ' + th.header + '33';
+    welcome.textContent = 'Hello! I am Native Talk\nWhat topic shall we chat about in English?';
+    messages.appendChild(welcome);
+    // 모달 열기
+    document.getElementById('modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    // topic 선택 말풍선
+    setTimeout(function(){ appendSmallTalkTopicBubble(); }, 300);
+  }
+
+  function appendSmallTalkTopicBubble() {
+    var c = document.getElementById('chat-messages');
+    var th = themes['Native Talk'] || { header:'#3B82F6', iconBg:'#dceeff' };
+    var row = document.createElement('div');
+    row.className = 'chat-msg-row';
+    row.id = 'smalltalk-topic-bubble';
+    var av = document.createElement('div');
+    av.className = 'chat-avatar';
+    av.style.background = th.iconBg;
+    av.textContent = '🌍';
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;gap:6px;max-width:92%;';
+    var name = document.createElement('div');
+    name.className = 'chat-msg-name';
+    name.textContent = 'Native Talk';
+    var bubble = document.createElement('div');
+    bubble.className = 'msg ai';
+    bubble.style.cssText = 'border:1.5px solid ' + th.header + '22;padding:12px 14px;';
+    var label = document.createElement('div');
+    label.style.cssText = 'font-size:12.5px;font-weight:700;color:' + th.header + ';margin-bottom:10px;font-family:"Noto Sans KR",sans-serif;';
+    label.textContent = '\uD83D\uDCAC Choose a topic! \uC8FC\uC81C\uB97C \uC120\uD0DD\uD574\uC918!';
+    var grid = document.createElement('div');
+    grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:7px;';
+    smallTalkTopics.forEach(function(topic) {
+      var btn = document.createElement('button');
+      btn.style.cssText = 'padding:9px 10px;border-radius:14px;border:1.5px solid ' + th.header + '44;background:white;color:#2d2540;font-size:12.5px;cursor:pointer;font-family:"Noto Sans KR",sans-serif;transition:all 0.18s;text-align:left;display:flex;align-items:center;gap:6px;font-weight:600;line-height:1.3;';
+      btn.innerHTML = '<span style="font-size:17px;flex-shrink:0;">' + topic.emoji + '</span>' + topic.label;
+      btn.onmouseover = function() { btn.style.background = th.header + '11'; btn.style.borderColor = th.header; btn.style.color = th.header; };
+      btn.onmouseout = function() { btn.style.background = 'white'; btn.style.borderColor = th.header + '44'; btn.style.color = '#2d2540'; };
+      btn.onclick = function() {
+        grid.querySelectorAll('button').forEach(function(b){ b.disabled = true; b.style.opacity = '0.55'; });
+        btn.style.opacity = '1'; btn.style.background = th.header; btn.style.color = 'white'; btn.style.borderColor = th.header;
+        var selectedMsg = topic.emoji + ' ' + topic.label;
+        appendMsg('user', selectedMsg);
+        hist.push({ role: 'user', content: topic.prompt });
+        (async function(){
+          var ld = appendMsg('ai', '\uC785\uB825 \uC911...'); ld.classList.add('loading');
+          try {
+            var base = sys['Native Talk'] || 'You are a friendly English conversation partner for Korean middle school students. Keep it fun, simple, and encouraging. Always end each reply with one follow-up question.';
+            var n = (typeof window._userName !== 'undefined' && window._userName) ? window._userName : '';
+            var given = (n.length >= 2) ? n.slice(1) : n;
+            var sysPrompt = base + (n ? '\n\nStudent name: ' + n + ' (first name: ' + given + '). Call them by first name occasionally in a friendly way.' : '');
+            var r = await fetch('/.netlify/functions/chat', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1000, system: sysPrompt, messages: hist })
+            });
+            var data = await r.json();
+            var rep = (data.content && data.content[0] && data.content[0].text) || "Let's chat! What's on your mind?";
+            ld.innerHTML = renderMd(rep); ld.classList.remove('loading');
+            addSpeakBtn(ld, rep);
+            hist.push({ role: 'assistant', content: rep });
+            awardStar();
+          } catch(e) {
+            ld.textContent = '\uC5F0\uACB0\uC5D0 \uBB38\uC81C\uAC00 \uC0DD\uACBC\uC5B4. \uC7A0\uC2DC \uD6C4 \uB2E4\uC2DC \uC2DC\uB3C4\uD574\uC918! \uD83D\uDE4F';
+            ld.classList.remove('loading');
+          }
+        })();
+      };
+      grid.appendChild(btn);
+    });
+    bubble.appendChild(label);
+    bubble.appendChild(grid);
+    wrap.appendChild(name);
+    wrap.appendChild(bubble);
+    row.appendChild(av);
+    row.appendChild(wrap);
+    c.appendChild(row);
+    c.scrollTop = c.scrollHeight;
+  }
+
+
   function closeChat(){
     document.getElementById('modal').classList.remove('open');
     document.body.style.overflow=''; hist=[];
@@ -2722,12 +4308,68 @@ Categories to rotate randomly:
 
   function addSpeakBtn(msgDiv,text){
     if(cur!=='Native Talk') return;
+    // 발음 버튼
     var btn=document.createElement('button');
     btn.className='speak-btn';
     btn.title='발음 듣기';
     btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16.5 12c0-1.77-1-3.29-2.5-4.03v8.06c1.5-.74 2.5-2.26 2.5-4.03z"/><path d="M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
     btn.onclick=function(){ speakEnglish(text); };
     msgDiv.parentNode.appendChild(btn);
+    // 해석 버튼
+    addTranslateBtn(msgDiv, text);
+  }
+
+  function addTranslateBtn(msgDiv, text) {
+    var wrap = msgDiv.parentNode;
+    // 이미 해석 버튼 있으면 중복 방지
+    if(wrap.querySelector('.translate-btn')) return;
+    var btn = document.createElement('button');
+    btn.className = 'translate-btn';
+    btn.title = '한글 해석 보기';
+    btn.innerHTML = '🇰🇷 해석';
+    var _translated = false;
+    btn.onclick = function() {
+      if(_translated) return;
+      _translated = true;
+      btn.textContent = '⏳ 번역 중...';
+      btn.disabled = true;
+      btn.style.opacity = '0.6';
+      // 영어 텍스트에서 한글·마크다운 제거해서 번역 요청
+      var plainText = text.replace(/\*\*(.+?)\*\*/g,'$1').replace(/\*(.+?)\*/g,'$1').trim();
+      (async function(){
+        try {
+          var r = await fetch('/.netlify/functions/chat', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({
+              model: 'claude-sonnet-4-6',
+              max_tokens: 400,
+              system: '너는 영어를 자연스러운 한국어로 번역해주는 번역가야. 번역문만 출력하고, 설명이나 따옴표, 머리말 없이 번역 결과만 써줘.',
+              messages: [{ role:'user', content: '다음 영어 문장을 자연스러운 한국어로 번역해줘:
+
+' + plainText }]
+            })
+          });
+          var data = await r.json();
+          var kr = (data.content && data.content[0] && data.content[0].text) || '번역 실패';
+          // 해석 말풍선 삽입
+          var bubble = document.createElement('div');
+          bubble.className = 'translate-bubble';
+          bubble.textContent = kr.trim();
+          wrap.appendChild(bubble);
+          btn.innerHTML = '🇰🇷 해석 ✓';
+          btn.style.opacity = '1';
+          btn.style.background = 'rgba(16,185,129,0.18)';
+          var c = document.getElementById('chat-messages');
+          if(c) c.scrollTop = c.scrollHeight;
+        } catch(e) {
+          btn.textContent = '🇰🇷 해석';
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          _translated = false;
+        }
+      })();
+    };
+    wrap.appendChild(btn);
   }
 
   var _bestEnVoice = null;
