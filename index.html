@@ -4696,7 +4696,7 @@ At the very end of EVERY reply, after your English response, add a Korean transl
     btn.className='speak-btn';
     btn.title='발음 듣기';
     btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16.5 12c0-1.77-1-3.29-2.5-4.03v8.06c1.5-.74 2.5-2.26 2.5-4.03z"/><path d="M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
-    btn.onclick=function(){ speakEnglish(stripKR(text)); };
+    btn.onclick=function(){ speakEnglish(cleanTextForSpeech(text)); };
     msgDiv.parentNode.appendChild(btn);
     // 해석 버튼
     addTranslateBtn(msgDiv, text);
@@ -4764,20 +4764,31 @@ At the very end of EVERY reply, after your English response, add a Korean transl
   }
 
   function cleanTextForSpeech(text){
-    // 마크다운 제거
-    var t = text.replace(/\*\*(.+?)\*\*/g,'$1');
-    t = t.replace(/\*(.+?)\*/g,'$1');
-    t = t.replace(/`(.+?)`/g,'$1');
-    // 비영어 문자 제거 (구두점 유지)
-    t = t.replace(/[^a-zA-Z0-9.,!?'";\-:()\s]/g,' ');
-    // 줄임표를 포즈로 변환
-    t = t.replace(/\.\.\./g,'. ');
-    // 세미콜론·콜론 뒤 포즈 강화
-    t = t.replace(/([;:])/g,'$1 ');
-    // 괄호 내용 자연스럽게
-    t = t.replace(/\(([^)]+)\)/g,', $1,');
-    // 연속 공백 정리
-    t = t.replace(/\s+/g,' ').trim();
+    var t = text;
+    // [KR]...[/KR] 한글 해석 블록 제거
+    t = t.replace(/\[KR\][\s\S]*?\[\/KR\]/g, ' ');
+    // 이모지 전체 제거 (유니코드 이모지 범위)
+    t = t.replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{FE00}-\u{FEFF}\u{1F300}-\u{1FAFF}]/gu, ' ');
+    // 마크다운 볼드/이탤릭 기호 제거 → 텍스트만 남김
+    t = t.replace(/\*\*(.+?)\*\*/g, '$1');
+    t = t.replace(/\*(.+?)\*/g, '$1');
+    // 마크다운 인라인 코드 → 텍스트만
+    t = t.replace(/`(.+?)`/g, '$1');
+    // 리스트 기호 제거 (-, *, •, 번호목록)
+    t = t.replace(/^[\-\*•]\s+/gm, '');
+    t = t.replace(/^\d+\.\s+/gm, '');
+    // 괄호 안에 한글 포함된 경우 전체 제거
+    t = t.replace(/\([^)]*[\uAC00-\uD7A3][^)]*\)/g, '');
+    // 남은 괄호 안 영어는 쉼표로 자연스럽게
+    t = t.replace(/\(([^)]+)\)/g, ', $1,');
+    // 줄임표 → 짧은 포즈
+    t = t.replace(/\.\.\.+/g, '. ');
+    // 세미콜론·콜론 뒤 포즈
+    t = t.replace(/([;:])/g, '$1 ');
+    // 한글·특수문자 제거 (영문·숫자·기본구두점·공백만 남김)
+    t = t.replace(/[^a-zA-Z0-9 .,!?'"\-:;()]/g, ' ');
+    // 연속 공백·줄바꿈 정리
+    t = t.replace(/\s+/g, ' ').trim();
     return t;
   }
 
