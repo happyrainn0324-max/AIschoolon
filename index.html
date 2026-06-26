@@ -1812,7 +1812,14 @@ Categories to rotate randomly:
 
 【Rules】
 - Keep all language simple enough for middle schoolers
-- NEVER give the answer first — guide with hints only`,
+- NEVER give the answer first — guide with hints only
+
+【Korean Translation — Required Format】
+At the very end of EVERY reply, after your English response, add a Korean translation block in this exact format:
+[KR]한국어 번역 내용[/KR]
+- Translate your entire English reply naturally into Korean
+- Place it after all English content, on a new line
+- Always include this block without exception`,
 
     '스터디톡':`너는 인천공항중학교 학생의 학습 전략을 함께 찾아주는 '스터디톡'이야.
 한국어로 답변해.
@@ -2356,43 +2363,297 @@ Categories to rotate randomly:
     openChat('Native Talk','🌍',"Let's have a debate in English! Today's topic is: \"" + topic + "\" — Which side are you on? Let's discuss!");
   }
 
-  function openWordQuiz(e){
-    openChat('Native Talk',e,null);
-    var c=document.getElementById('chat-messages');
-    var th=themes['Native Talk'];
-    var row=document.createElement('div');
-    row.className='chat-msg-row';
-    var av=document.createElement('div');
-    av.className='chat-avatar';
-    av.style.background=th.iconBg;
-    av.textContent=e;
-    var wrap=document.createElement('div');
-    var name=document.createElement('div');
-    name.className='chat-msg-name';
-    name.textContent='Native Talk';
-    var d=document.createElement('div');
-    d.className='msg ai';
-    d.style.border='1.5px solid '+th.header+'22';
-    d.textContent='먼저 단어 수준을 선택해줘!';
-    var btnRow=document.createElement('div');
-    btnRow.style.cssText='display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;';
-    [['중학교','중학교 수준'],['고등학교','고등학교 수준'],['심화영단어','심화']].forEach(function(p){
-      var b=document.createElement('button');
-      b.textContent=p[0];
-      b.style.cssText='background:'+th.bubbleBg+';color:white;border:none;border-radius:12px;padding:8px 12px;font-size:12.5px;font-weight:700;cursor:pointer;';
-      b.onclick=function(){ selectQuizLevel(p[1]); };
-      btnRow.appendChild(b);
+  // ── Word Quiz 대화형 학습 ─────────────────────────────────
+  var _wordLevel = '';
+  var _wordPool = [];
+  var _wordIdx = 0;
+
+  var WORD_POOLS = {
+    '중학교': [
+      { word:'absent',     meaning:'결석한, 없는',        example:'She was absent from school yesterday.', situation:'학교나 모임에 빠졌을 때' },
+      { word:'achieve',    meaning:'달성하다, 이루다',     example:'He achieved his goal after hard work.', situation:'목표를 이루거나 성취했을 때' },
+      { word:'adventure',  meaning:'모험',                example:'The trip was a great adventure.',       situation:'새롭고 신나는 경험을 표현할 때' },
+      { word:'agree',      meaning:'동의하다',             example:'I agree with your idea.',              situation:'상대방 의견에 찬성할 때' },
+      { word:'announce',   meaning:'발표하다, 알리다',     example:'The teacher announced the test date.', situation:'공식적으로 소식을 전할 때' },
+      { word:'borrow',     meaning:'빌리다',               example:'Can I borrow your pen?',               situation:'남의 물건을 잠시 쓸 때' },
+      { word:'brave',      meaning:'용감한',               example:'The firefighter was very brave.',       situation:'위험한 상황에서 겁 없이 행동할 때' },
+      { word:'carefully',  meaning:'조심스럽게, 신중하게', example:'Please read the instructions carefully.',situation:'실수 없이 천천히 할 때' },
+      { word:'collect',    meaning:'모으다, 수집하다',     example:'She collects stamps as a hobby.',       situation:'취미로 물건을 모을 때' },
+      { word:'compare',    meaning:'비교하다',             example:'Compare these two sentences.',         situation:'두 가지를 나란히 놓고 살필 때' },
+      { word:'curious',    meaning:'호기심 많은',          example:'Children are naturally curious.',      situation:'뭔가 알고 싶어 질문할 때' },
+      { word:'decide',     meaning:'결정하다',             example:'I decided to study harder.',           situation:'여러 선택 중 하나를 고를 때' },
+      { word:'describe',   meaning:'묘사하다, 설명하다',   example:'Describe what you see in the picture.',situation:'어떤 것의 특징이나 모습을 말할 때' },
+      { word:'discover',   meaning:'발견하다',             example:'Scientists discovered a new planet.',  situation:'새로운 것을 처음 알게 됐을 때' },
+      { word:'environment',meaning:'환경',                 example:'We must protect the environment.',    situation:'자연이나 주변 생활 조건을 이야기할 때' },
+      { word:'honest',     meaning:'정직한',               example:'Always be honest with your friends.',  situation:'거짓말 없이 진실을 말할 때' },
+      { word:'improve',    meaning:'향상시키다, 나아지다', example:'Practice will improve your English.',  situation:'실력이나 상황이 더 나아질 때' },
+      { word:'include',    meaning:'포함하다',             example:'The price includes tax.',              situation:'어떤 것이 안에 들어 있을 때' },
+      { word:'moment',     meaning:'순간',                 example:'That was a special moment.',          situation:'짧고 중요한 시간을 표현할 때' },
+      { word:'nature',     meaning:'자연',                 example:'I love spending time in nature.',     situation:'산, 바다, 숲 같은 자연환경을 이야기할 때' },
+      { word:'nervous',    meaning:'긴장한, 초조한',       example:'I was nervous before the speech.',    situation:'중요한 일을 앞두고 떨릴 때' },
+      { word:'opinion',    meaning:'의견',                 example:"What's your opinion about this?",     situation:'자신의 생각이나 견해를 말할 때' },
+      { word:'possible',   meaning:'가능한',               example:'Is it possible to finish today?',     situation:'어떤 일이 될 수 있는지 물을 때' },
+      { word:'prepare',    meaning:'준비하다',             example:'Prepare for the test in advance.',    situation:'앞으로 있을 일을 미리 갖출 때' },
+      { word:'protect',    meaning:'보호하다',             example:'Sunscreen protects your skin.',       situation:'해로운 것으로부터 지킬 때' },
+      { word:'receive',    meaning:'받다',                 example:'I received a letter from my friend.', situation:'누군가로부터 무언가를 얻을 때' },
+      { word:'respect',    meaning:'존경하다, 존중',       example:'We should respect each other.',       situation:'타인을 높이 평가하고 배려할 때' },
+      { word:'solve',      meaning:'풀다, 해결하다',       example:'Can you solve this math problem?',    situation:'문제나 갈등을 해결할 때' },
+      { word:'tradition',  meaning:'전통',                 example:'This is an old Korean tradition.',    situation:'예로부터 내려오는 관습을 이야기할 때' },
+      { word:'volunteer',  meaning:'자원봉사(하다)',        example:'I volunteer at the library on weekends.',situation:'대가 없이 남을 돕는 일을 할 때' }
+    ],
+    '고등학교': [
+      { word:'abolish',       meaning:'폐지하다',              example:'They voted to abolish the old rule.',       situation:'법이나 제도를 완전히 없앨 때' },
+      { word:'accumulate',    meaning:'축적하다, 쌓다',        example:'He accumulated a lot of knowledge.',        situation:'시간이 지나면서 점점 늘어날 때' },
+      { word:'ambiguous',     meaning:'모호한, 애매한',        example:'The instructions were ambiguous.',          situation:'의미가 명확하지 않아 헷갈릴 때' },
+      { word:'anticipate',    meaning:'예상하다, 기대하다',    example:'We anticipated problems before they arose.',situation:'일어날 일을 미리 생각하거나 기대할 때' },
+      { word:'arbitrary',     meaning:'임의의, 독단적인',      example:'The decision seemed arbitrary.',            situation:'이유 없이 마음대로 결정됐을 때' },
+      { word:'beneficial',    meaning:'유익한, 이로운',        example:'Exercise is beneficial to your health.',   situation:'어떤 것이 건강이나 생활에 도움이 될 때' },
+      { word:'circumstance',  meaning:'상황, 환경',            example:'The circumstances changed our plans.',      situation:'주어진 조건이나 상황을 이야기할 때' },
+      { word:'collaborate',   meaning:'협력하다, 공동 작업하다',example:'Students collaborated on the project.',   situation:'여럿이 함께 힘을 합쳐 일할 때' },
+      { word:'comprehend',    meaning:'이해하다',              example:'I could not comprehend his argument.',      situation:'복잡한 내용을 완전히 파악하려 할 때' },
+      { word:'contradict',    meaning:'반박하다, 모순되다',    example:'His actions contradicted his words.',       situation:'말과 행동이 서로 맞지 않을 때' },
+      { word:'dedicate',      meaning:'헌신하다, 바치다',      example:'She dedicated her life to teaching.',       situation:'어떤 일이나 사람을 위해 온 힘을 쏟을 때' },
+      { word:'eliminate',     meaning:'제거하다, 없애다',      example:'We must eliminate waste in production.',   situation:'불필요한 것을 완전히 없앨 때' },
+      { word:'emphasize',     meaning:'강조하다',              example:'The teacher emphasized the key points.',   situation:'중요한 내용을 특히 두드러지게 말할 때' },
+      { word:'evidence',      meaning:'증거, 근거',            example:'There is strong evidence for this claim.', situation:'주장을 뒷받침하는 사실이나 자료를 댈 때' },
+      { word:'fundamental',   meaning:'근본적인, 핵심적인',    example:'Trust is fundamental to any relationship.',situation:'가장 기본이 되는 중요한 것을 이야기할 때' },
+      { word:'generate',      meaning:'발생시키다, 만들어내다',example:'Solar panels generate electricity.',        situation:'에너지나 결과를 만들어낼 때' },
+      { word:'inevitable',    meaning:'피할 수 없는',          example:'Change is inevitable.',                    situation:'막을 수 없는 결과나 변화를 표현할 때' },
+      { word:'interpret',     meaning:'해석하다, 통역하다',    example:'How do you interpret this poem?',          situation:'어떤 것의 의미를 설명하거나 이해할 때' },
+      { word:'justify',       meaning:'정당화하다',            example:'Can you justify your decision?',           situation:'선택이나 행동이 옳다는 것을 설명할 때' },
+      { word:'maintain',      meaning:'유지하다',              example:'It\'s hard to maintain focus all day.',     situation:'어떤 상태를 계속 이어가야 할 때' },
+      { word:'negotiate',     meaning:'협상하다',              example:'They negotiated a fair price.',             situation:'서로 다른 의견을 조율해 합의할 때' },
+      { word:'objective',     meaning:'객관적인 / 목표',       example:'Try to be objective in your judgment.',    situation:'개인 감정 없이 사실에 근거해 판단할 때' },
+      { word:'perceive',      meaning:'인식하다, 감지하다',    example:'How do you perceive this situation?',      situation:'감각이나 생각으로 어떤 것을 느끼거나 이해할 때' },
+      { word:'perspective',   meaning:'관점, 시각',            example:'Try to see it from another perspective.',  situation:'다른 사람의 입장에서 생각할 때' },
+      { word:'potential',     meaning:'잠재력, 가능성',        example:'Every student has great potential.',       situation:'아직 드러나지 않은 능력이나 가능성을 이야기할 때' },
+      { word:'prioritize',    meaning:'우선순위를 정하다',     example:'Learn to prioritize your tasks.',          situation:'여러 할 일 중 중요한 것부터 정할 때' },
+      { word:'reliable',      meaning:'믿을 수 있는',          example:'He is a very reliable friend.',            situation:'항상 약속을 지키고 믿음직할 때' },
+      { word:'significant',   meaning:'중요한, 상당한',        example:'This is a significant discovery.',         situation:'눈에 띄게 중요하거나 큰 의미가 있을 때' },
+      { word:'sufficient',    meaning:'충분한',                example:'Is there sufficient time to finish?',      situation:'필요한 양이나 정도가 딱 맞거나 그 이상일 때' },
+      { word:'transform',     meaning:'변화시키다, 탈바꿈하다',example:'Education can transform lives.',           situation:'완전히 다른 모습이나 상태로 바뀔 때' }
+    ],
+    '심화': [
+      { word:'ambivalent',    meaning:'양면적인 감정을 가진',  example:'I felt ambivalent about the decision.',    situation:'좋기도 싫기도 한 복잡한 감정일 때' },
+      { word:'anachronism',   meaning:'시대착오, 시대에 뒤떨어진 것', example:'Using a typewriter today feels like an anachronism.', situation:'현재 시대에 맞지 않는 옛 방식이 쓰일 때' },
+      { word:'articulate',    meaning:'명확히 표현하다 / 말을 잘하는', example:'She articulated her ideas clearly.', situation:'생각이나 감정을 정확하고 유창하게 전달할 때' },
+      { word:'autonomy',      meaning:'자율성, 자치',          example:'Students need autonomy to learn.',         situation:'스스로 결정하고 행동하는 권리를 이야기할 때' },
+      { word:'catalyst',      meaning:'촉매, 변화를 일으키는 것', example:'The protest was a catalyst for change.',situation:'변화나 반응을 일으키는 계기가 됐을 때' },
+      { word:'cohesive',      meaning:'결속력 있는, 응집된',   example:'A cohesive team works better.',           situation:'팀이나 집단이 잘 뭉쳐 있을 때' },
+      { word:'connotation',   meaning:'함축, 내포된 의미',     example:'"Home" has a warm connotation.',          situation:'단어나 표현에 숨겨진 감정적 의미가 있을 때' },
+      { word:'contentious',   meaning:'논쟁을 일으키는',       example:'This is a contentious political issue.',  situation:'의견이 갈려 논란이 많은 주제일 때' },
+      { word:'cynical',       meaning:'냉소적인',              example:'He became cynical after many failures.',  situation:'세상이나 사람을 불신하는 태도일 때' },
+      { word:'dichotomy',     meaning:'이분법, 두 가지 상반된 것', example:'There is a dichotomy between work and play.', situation:'두 가지가 완전히 반대되는 개념일 때' },
+      { word:'eloquent',      meaning:'유창한, 설득력 있는',   example:'She gave an eloquent speech.',            situation:'말이나 글이 막힘없이 감동적일 때' },
+      { word:'empirical',     meaning:'경험적인, 실증적인',    example:'We need empirical evidence.',             situation:'이론이 아닌 실험이나 경험으로 증명할 때' },
+      { word:'ephemeral',     meaning:'일시적인, 덧없는',      example:'Fame can be ephemeral.',                  situation:'금방 사라지거나 짧은 시간만 지속될 때' },
+      { word:'exacerbate',    meaning:'악화시키다',            example:'Stress can exacerbate health problems.',  situation:'이미 나쁜 상황을 더 심하게 만들 때' },
+      { word:'fallacy',       meaning:'오류, 잘못된 믿음',     example:'That is a common logical fallacy.',       situation:'논리적으로 잘못된 주장이나 생각일 때' },
+      { word:'fortuitous',    meaning:'우연한, 운 좋은',       example:'Our meeting was fortuitous.',             situation:'계획하지 않았는데 운 좋게 일어났을 때' },
+      { word:'hierarchy',     meaning:'계층, 위계질서',        example:'There is a clear hierarchy in the company.', situation:'조직이나 사회에 등급이나 순위가 있을 때' },
+      { word:'idiosyncrasy',  meaning:'독특한 습관, 특이성',   example:'Her humor is an idiosyncrasy.',           situation:'한 사람만의 독특하고 특이한 점을 이야기할 때' },
+      { word:'implications',  meaning:'함의, 영향',            example:'Consider the implications of your choice.', situation:'어떤 결정이 미칠 영향이나 숨은 의미가 있을 때' },
+      { word:'indigenous',    meaning:'토착의, 원주민의',      example:'They protect indigenous cultures.',       situation:'특정 지역 고유의 사람이나 문화를 이야기할 때' },
+      { word:'nuance',        meaning:'미묘한 차이',           example:'There is a nuance between these words.',  situation:'겉으로 비슷해 보이지만 미묘하게 다른 차이가 있을 때' },
+      { word:'obsolete',      meaning:'구식의, 쓸모없어진',    example:'Fax machines are almost obsolete.',      situation:'시대에 뒤처져 더 이상 사용하지 않게 됐을 때' },
+      { word:'paradox',       meaning:'역설',                  example:'It\'s a paradox that the more we want, the less we enjoy.', situation:'서로 모순되는 것 같지만 사실인 상황' },
+      { word:'pragmatic',     meaning:'실용적인',              example:'Take a pragmatic approach to the problem.', situation:'이상보다 현실적인 해결책을 선택할 때' },
+      { word:'rhetoric',      meaning:'수사학, 화술',          example:'His speech was full of empty rhetoric.',  situation:'설득력 있는 언어 기술 또는 공허한 말을 이야기할 때' },
+      { word:'scrutinize',    meaning:'면밀히 검토하다',       example:'The committee scrutinized every detail.',  situation:'아주 꼼꼼하게 살피고 검토할 때' },
+      { word:'subtle',        meaning:'미묘한, 은근한',        example:'There is a subtle difference between them.', situation:'겉으로 잘 드러나지 않는 작은 차이가 있을 때' },
+      { word:'tenacious',     meaning:'끈질긴, 완강한',        example:'She was tenacious in pursuing her goal.', situation:'어려움이 있어도 포기하지 않고 계속할 때' },
+      { word:'ubiquitous',    meaning:'어디에나 있는',         example:'Smartphones are now ubiquitous.',         situation:'어떤 것이 매우 흔하게 어디서든 보일 때' },
+      { word:'vindicate',     meaning:'정당성을 입증하다',     example:'The evidence vindicated her claim.',      situation:'의심받던 사람이나 주장이 옳았음이 밝혀질 때' }
+    ]
+  };
+
+  function openWordQuiz(e) {
+    openChat('Native Talk', e, null);
+    var c = document.getElementById('chat-messages');
+    var th = themes['Native Talk'];
+    _wordLevel = ''; _wordPool = []; _wordIdx = 0;
+
+    // 헤더 서브텍스트
+    document.getElementById('chat-header-sub-text').textContent = 'Word Learning 📖';
+
+    var row = document.createElement('div');
+    row.className = 'chat-msg-row';
+    var av = document.createElement('div');
+    av.className = 'chat-avatar';
+    av.style.background = th.iconBg;
+    av.textContent = e;
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;gap:6px;max-width:88%;';
+    var name = document.createElement('div');
+    name.className = 'chat-msg-name';
+    name.textContent = 'Native Talk';
+    var bubble = document.createElement('div');
+    bubble.className = 'msg ai';
+    bubble.style.cssText = 'border:1.5px solid ' + th.header + '22;padding:12px 14px;';
+
+    var label = document.createElement('div');
+    label.style.cssText = 'font-size:13px;font-weight:700;color:' + th.header + ';margin-bottom:10px;font-family:"Noto Sans KR",sans-serif;';
+    label.textContent = '📖 어떤 수준의 단어를 배울까요? 각 레벨 30개 단어를 대화로 익혀요!';
+
+    var btnRow = document.createElement('div');
+    btnRow.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;';
+
+    [
+      { label: '📗 중학교', desc: '중학 필수 단어', level: '중학교' },
+      { label: '📘 고등학교', desc: '고등 핵심 단어', level: '고등학교' },
+      { label: '🚀 심화', desc: '고급 어휘', level: '심화' }
+    ].forEach(function(opt) {
+      var btn = document.createElement('button');
+      btn.style.cssText = 'padding:9px 14px;border-radius:14px;border:1.5px solid ' + th.header + '44;background:white;color:#2d2540;font-size:12.5px;cursor:pointer;font-family:"Noto Sans KR",sans-serif;font-weight:700;display:flex;flex-direction:column;gap:2px;transition:all 0.15s;';
+      btn.innerHTML = '<span>' + opt.label + '</span><span style="font-size:10.5px;color:#9b8fc0;font-weight:500;">' + opt.desc + '</span>';
+      btn.onmouseover = function(){ btn.style.background = th.header + '11'; btn.style.borderColor = th.header; };
+      btn.onmouseout = function(){ btn.style.background = 'white'; btn.style.borderColor = th.header + '44'; };
+      btn.onclick = function() {
+        btnRow.querySelectorAll('button').forEach(function(b){ b.disabled=true; b.style.opacity='0.5'; });
+        btn.style.opacity='1'; btn.style.background=th.header; btn.style.color='white'; btn.style.borderColor=th.header;
+        appendMsg('user', opt.label + ' 단어로 시작할게요!');
+        startWordConversation(opt.level);
+      };
+      btnRow.appendChild(btn);
     });
-    d.appendChild(btnRow);
-    wrap.appendChild(name); wrap.appendChild(d);
+
+    bubble.appendChild(label);
+    bubble.appendChild(btnRow);
+    wrap.appendChild(name); wrap.appendChild(bubble);
     row.appendChild(av); row.appendChild(wrap);
-    c.appendChild(row); c.scrollTop=c.scrollHeight;
+    c.appendChild(row); c.scrollTop = c.scrollHeight;
   }
 
-  function selectQuizLevel(level){
-    var inp=document.getElementById('chat-input');
-    inp.value=level+' 영단어로 퀴즈를 내줘!';
-    sendMessage();
+  function shuffleWordArray(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  function startWordConversation(level) {
+    _wordLevel = level;
+    _wordPool = shuffleWordArray(WORD_POOLS[level]);
+    _wordIdx = 0;
+    hist = [];
+    askNextWord();
+  }
+
+  function buildWordSysPrompt(level) {
+    var lvDesc = { '중학교':'중학교 수준(기본 영단어)', '고등학교':'고등학교 수준(핵심 어휘)', '심화':'심화 수준(고급 어휘)' }[level];
+    return 'You are a friendly English vocabulary coach for Korean middle/high school students. You teach words through natural conversation entirely in Korean (except for the English word and examples).\n\nFor EACH word, your teaching flow is:\n1. Ask a situational question in Korean: describe a real-life scenario and ask what the student would say or do in that situation — naturally leading toward the target word. Do NOT reveal the word yet.\n2. After the student answers, introduce the word warmly: explain its meaning in Korean, give the example sentence with a Korean translation, and share a memory tip.\n3. Ask a short follow-up question so the student can try using the word themselves.\n4. Praise their effort and wrap up that word.\n\nRules:\n- Write ONLY in Korean except for the English word itself and example sentences.\n- Keep each response to 3–5 lines maximum — short and conversational.\n- Be warm and encouraging, like a cool older friend or tutor.\n- End every message with exactly ONE question.\n- When introducing a new word, do it naturally — not like a textbook.';
+  }
+
+  function askNextWord() {
+    if (_wordIdx >= _wordPool.length) {
+      appendMsg('ai', '🎉 대단해요! ' + _wordLevel + ' 단어 30개를 모두 배웠어요!\n오늘 배운 단어들을 일상에서 써보면 금방 내 것이 될 거예요 💪');
+      awardStar();
+      return;
+    }
+    var item = _wordPool[_wordIdx];
+    _wordIdx++;
+
+    var progress = _wordIdx + '/30';
+
+    // 단어 카드 먼저 표시
+    renderWordCard(item, progress);
+
+    // AI에게 상황 질문 생성 요청
+    var prompt = '[WORD ' + progress + '] 가르칠 단어: "' + item.word + '" (뜻: ' + item.meaning + ', 상황: ' + item.situation + ', 예문: ' + item.example + ')\n단어를 바로 알려주지 말고, 이 단어가 쓰이는 상황을 한국어로 자연스럽게 묘사하며 학생에게 그 상황에서 어떻게 할지 질문해줘.';
+
+    callWordAPI(prompt, true);
+  }
+
+  function renderWordCard(item, progress) {
+    var c = document.getElementById('chat-messages');
+    var th = themes['Native Talk'] || { header:'#3B82F6', iconBg:'#dceeff' };
+
+    var row = document.createElement('div');
+    row.className = 'chat-msg-row';
+    var av = document.createElement('div');
+    av.className = 'chat-avatar';
+    av.style.background = th.iconBg;
+    av.textContent = '🌍';
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;gap:4px;max-width:92%;';
+    var name = document.createElement('div');
+    name.className = 'chat-msg-name';
+    name.textContent = 'Native Talk';
+
+    var card = document.createElement('div');
+    card.style.cssText = 'background:' + th.header + '0d;border:1.5px solid ' + th.header + '33;border-radius:14px;padding:12px 14px;';
+
+    var badge = document.createElement('div');
+    badge.style.cssText = 'font-size:10.5px;font-weight:700;color:' + th.header + ';margin-bottom:8px;font-family:"Noto Sans KR",sans-serif;';
+    badge.textContent = '📖 오늘의 단어 ' + progress;
+    card.appendChild(badge);
+
+    var wordRow = document.createElement('div');
+    wordRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px;';
+    var wordText = document.createElement('div');
+    wordText.style.cssText = 'font-size:21px;font-weight:900;color:' + th.header + ';letter-spacing:0.5px;';
+    wordText.textContent = item.word;
+    var spk = document.createElement('button');
+    spk.style.cssText = 'border:none;background:' + th.header + ';color:white;border-radius:50%;width:30px;height:30px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;';
+    spk.innerHTML = '🔊';
+    spk.onclick = function(){ speakEnglish(item.word); };
+    wordRow.appendChild(wordText);
+    wordRow.appendChild(spk);
+    card.appendChild(wordRow);
+
+    var meaning = document.createElement('div');
+    meaning.style.cssText = 'font-size:12.5px;color:#5a4a7a;font-weight:600;font-family:"Noto Sans KR",sans-serif;margin-bottom:4px;';
+    meaning.textContent = '뜻: ' + item.meaning;
+    card.appendChild(meaning);
+
+    var exDiv = document.createElement('div');
+    exDiv.style.cssText = 'font-size:11.5px;color:#7a6a9a;font-family:"Noto Sans KR",sans-serif;line-height:1.5;display:flex;align-items:center;gap:6px;';
+    exDiv.innerHTML = '<span style="flex-shrink:0;font-size:13px;">💬</span><em>' + item.example + '</em>';
+    card.appendChild(exDiv);
+
+    wrap.appendChild(name);
+    wrap.appendChild(card);
+    row.appendChild(av);
+    row.appendChild(wrap);
+    c.appendChild(row);
+    c.scrollTop = c.scrollHeight;
+  }
+
+  function callWordAPI(userContent, isIntro) {
+    var ld = appendMsg('ai', '...');
+    ld.classList.add('loading');
+
+    var sysPrompt = buildWordSysPrompt(_wordLevel);
+    var apiHist = hist.slice();
+    apiHist.push({ role:'user', content: userContent });
+
+    (async function(){
+      try {
+        var r = await fetch('/.netlify/functions/chat', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:300, system: sysPrompt, messages: apiHist })
+        });
+        var data = await r.json();
+        var rep = (data.content && data.content[0] && data.content[0].text) || '다시 시도해줘! 🙏';
+        ld.textContent = rep; ld.classList.remove('loading');
+        hist.push({ role:'user', content: userContent });
+        hist.push({ role:'assistant', content: rep });
+        awardStar();
+        // 학생 답변 후(isIntro=false)에는 "다음 단어" 버튼 추가
+        if(!isIntro) {
+          var nxBtn = document.createElement('button');
+          nxBtn.style.cssText = 'margin-top:6px;padding:7px 16px;border:none;border-radius:12px;background:linear-gradient(135deg,#3B82F6,#2563EB);color:white;font-size:12px;font-weight:700;cursor:pointer;font-family:"Noto Sans KR",sans-serif;display:block;';
+          nxBtn.textContent = '다음 단어 ➡️';
+          nxBtn.onclick = function(){ nxBtn.remove(); askNextWord(); };
+          if(ld.parentNode) ld.parentNode.appendChild(nxBtn);
+        }
+      } catch(e) {
+        ld.textContent = '연결에 문제가 생겼어. 잠시 후 다시 해줘! 🙏';
+        ld.classList.remove('loading');
+      }
+    })();
   }
 
   function openChat(s,e,m){
@@ -2611,109 +2872,83 @@ Categories to rotate randomly:
   // 100개 키워드 세트 풀 (레벨별 단문/중문/장문 혼합)
   // 각 항목: { kr: "한글 해석", keywords: ["키워드1","키워드2",...], level: "short|medium|long" }
   var _writingPool = [
-    // ── SHORT (3~5 keywords) ──────────────────────────────
-    { level:"short", kr:"나는 매일 아침 일찍 일어난다.", keywords:["I","wake up","early","every morning"] },
-    { level:"short", kr:"그녀는 사과를 좋아한다.", keywords:["She","like","apples"] },
-    { level:"short", kr:"우리는 오늘 공원에 갔다.", keywords:["We","go","park","today"] },
-    { level:"short", kr:"날씨가 오늘 매우 맑다.", keywords:["weather","very","sunny","today"] },
-    { level:"short", kr:"나는 숙제를 끝냈다.", keywords:["I","finish","homework"] },
-    { level:"short", kr:"그는 빠르게 달릴 수 있다.", keywords:["He","can","run","fast"] },
-    { level:"short", kr:"고양이가 소파 위에 앉아 있다.", keywords:["cat","sit","sofa"] },
-    { level:"short", kr:"나의 가장 좋아하는 과목은 영어다.", keywords:["favorite","subject","English"] },
-    { level:"short", kr:"버스가 5분 안에 도착할 것이다.", keywords:["bus","arrive","five minutes"] },
-    { level:"short", kr:"그들은 저녁에 축구를 했다.", keywords:["They","play","soccer","evening"] },
-    { level:"short", kr:"나는 어젯밤에 영화를 봤다.", keywords:["I","watch","movie","last night"] },
-    { level:"short", kr:"그녀는 피아노를 매우 잘 친다.", keywords:["She","play","piano","very well"] },
-    { level:"short", kr:"우리 선생님은 매우 친절하시다.", keywords:["teacher","very","kind"] },
-    { level:"short", kr:"나는 오늘 새 신발을 샀다.", keywords:["I","buy","new shoes","today"] },
-    { level:"short", kr:"그 책은 정말 재미있었다.", keywords:["book","really","interesting"] },
-    { level:"short", kr:"비가 밖에 오고 있다.", keywords:["It","rain","outside"] },
-    { level:"short", kr:"나는 매일 밤 일기를 쓴다.", keywords:["I","write","diary","every night"] },
-    { level:"short", kr:"그는 도서관에서 공부하고 있다.", keywords:["He","study","library"] },
-    { level:"short", kr:"점심이 정말 맛있었다.", keywords:["lunch","really","delicious"] },
-    { level:"short", kr:"우리는 내일 소풍을 갈 것이다.", keywords:["We","go","picnic","tomorrow"] },
-    // ── MEDIUM (5~8 keywords) ─────────────────────────────
-    { level:"medium", kr:"나는 방과 후에 도서관에서 공부하는 것을 좋아한다.", keywords:["I","like","study","library","after school"] },
-    { level:"medium", kr:"그녀는 친구들과 함께 케이크를 만들었다.", keywords:["She","make","cake","with","friends"] },
-    { level:"medium", kr:"우리 가족은 매주 일요일 함께 외식을 한다.", keywords:["family","eat out","together","every Sunday"] },
-    { level:"medium", kr:"그는 영어를 잘하기 위해 매일 연습한다.", keywords:["He","practice","every day","get better","English"] },
-    { level:"medium", kr:"나는 지난 주말에 할머니 댁을 방문했다.", keywords:["I","visit","grandmother","last weekend"] },
-    { level:"medium", kr:"그 영화는 너무 무서워서 눈을 감았다.", keywords:["movie","so scary","close","eyes"] },
-    { level:"medium", kr:"나는 생일 선물로 새 스마트폰을 받았다.", keywords:["I","receive","new smartphone","birthday gift"] },
-    { level:"medium", kr:"그들은 버스를 놓쳐서 학교에 늦었다.", keywords:["They","miss","bus","be late","school"] },
-    { level:"medium", kr:"그녀는 아침마다 30분씩 운동을 한다.", keywords:["She","exercise","30 minutes","every morning"] },
-    { level:"medium", kr:"우리는 방학 동안 제주도에 여행을 갔다.", keywords:["We","travel","Jeju Island","during vacation"] },
-    { level:"medium", kr:"나는 영어 시험 준비를 위해 열심히 공부했다.", keywords:["I","study hard","prepare","English exam"] },
-    { level:"medium", kr:"그는 스트레스를 받을 때 음악을 듣는다.", keywords:["He","listen to music","when","stressed"] },
-    { level:"medium", kr:"우리 팀은 결승전에서 아깝게 졌다.", keywords:["our team","lose","final","by a small margin"] },
-    { level:"medium", kr:"그녀는 용기를 내어 처음으로 혼자 여행을 떠났다.", keywords:["She","brave","travel alone","for the first time"] },
-    { level:"medium", kr:"나는 친구에게 이메일을 써서 안부를 물었다.", keywords:["I","write email","friend","ask how","doing"] },
-    { level:"medium", kr:"오늘 수업에서 새로운 영어 표현을 배웠다.", keywords:["today","class","learn","new","English expression"] },
-    { level:"medium", kr:"그는 아르바이트를 해서 용돈을 스스로 번다.", keywords:["He","part-time job","earn","pocket money","himself"] },
-    { level:"medium", kr:"우리는 함께 프로젝트를 완성해서 뿌듯했다.", keywords:["We","complete","project","together","proud"] },
-    { level:"medium", kr:"그녀는 실수를 하고 나서 사과하는 것을 잊지 않았다.", keywords:["She","make mistake","not forget","apologize"] },
-    { level:"medium", kr:"나는 처음에는 두려웠지만 결국 발표를 해냈다.", keywords:["I","scared at first","but","give presentation","in the end"] },
-    { level:"medium", kr:"그 선수는 부상에도 불구하고 끝까지 경기를 뛰었다.", keywords:["player","despite injury","play","until the end"] },
-    { level:"medium", kr:"우리는 환경을 보호하기 위해 일회용품 사용을 줄여야 한다.", keywords:["we","should","reduce","disposable","protect environment"] },
-    { level:"medium", kr:"그녀는 낯선 사람에게 길을 물어보는 것이 부끄러웠다.", keywords:["She","embarrassed","ask","stranger","directions"] },
-    { level:"medium", kr:"나는 책을 읽으면서 모르는 단어를 노트에 적었다.", keywords:["I","while reading","write down","unknown words","notebook"] },
-    { level:"medium", kr:"그는 오랫동안 준비한 대회에서 우승을 했다.", keywords:["He","win","competition","prepared","long time"] },
-    // ── LONG (8~12 keywords) ──────────────────────────────
-    { level:"long", kr:"나는 영어 말하기 능력을 향상시키기 위해 매일 원어민 영상을 보고 따라 말하는 연습을 한다.", keywords:["I","improve","speaking","watch","native speaker","videos","every day","shadow practice"] },
-    { level:"long", kr:"그녀는 처음에는 낯선 환경에 적응하는 데 어려움을 겪었지만, 시간이 지남에 따라 친구들을 사귀고 즐거운 학교생활을 하게 되었다.", keywords:["She","at first","struggle","adapt","unfamiliar","but","over time","make friends","enjoy","school life"] },
-    { level:"long", kr:"우리 가족은 여름휴가 동안 해외 여행을 계획하고 있는데, 나는 특히 현지 음식을 먹어보는 것과 유명한 관광지를 방문하는 것이 기대된다.", keywords:["My family","plan","overseas trip","summer vacation","I","especially","excited","try local food","visit","famous places"] },
-    { level:"long", kr:"환경 오염 문제를 해결하기 위해서는 개인의 노력뿐만 아니라 정부와 기업의 적극적인 참여가 함께 이루어져야 한다고 생각한다.", keywords:["I think","solve","environmental pollution","not only","individual effort","but also","government","companies","active participation","necessary"] },
-    { level:"long", kr:"독서는 단순히 지식을 쌓는 것을 넘어 상상력을 키우고 다양한 관점에서 세상을 바라볼 수 있는 능력을 길러준다.", keywords:["Reading","beyond","gaining knowledge","develop","imagination","see the world","various perspectives","ability"] },
-    { level:"long", kr:"소셜 미디어는 사람들을 연결해주는 편리한 도구이지만, 지나친 사용은 집중력 저하와 수면 부족 등 여러 부작용을 일으킬 수 있다.", keywords:["Social media","convenient tool","connect people","however","excessive use","cause","loss of concentration","lack of sleep","side effects"] },
-    { level:"long", kr:"나는 장래에 국제적으로 활동하는 의사가 되어 의료 혜택을 받지 못하는 사람들을 돕고 싶다는 꿈을 가지고 있다.", keywords:["I","dream","become","internationally active","doctor","help","people","cannot receive","medical care","in the future"] },
-    { level:"long", kr:"학교 축제 준비 과정에서 친구들과 의견 충돌이 있었지만, 서로의 입장을 이해하고 타협하면서 더욱 끈끈한 팀워크를 발휘할 수 있었다.", keywords:["During","school festival preparation","conflict","friends","but","understand each other","compromise","stronger teamwork"] },
-    { level:"long", kr:"인공지능 기술의 발전은 우리의 생활을 편리하게 해주는 동시에 일자리 감소와 같은 사회적 문제에 대한 깊은 고민도 필요하게 만들고 있다.", keywords:["Advancement","AI technology","make life","convenient","at the same time","require","serious thought","job loss","social issues"] },
-    { level:"long", kr:"봉사 활동을 통해 나보다 어려운 처지에 있는 사람들을 돕는 경험은 감사함과 책임감을 깨닫게 해주는 소중한 기회였다.", keywords:["volunteering","experience","help","people","worse situation","teach","gratitude","sense of responsibility","precious opportunity"] },
-    { level:"long", kr:"세계화 시대에 외국어 능력은 단순한 스펙을 넘어 다양한 문화를 이해하고 소통할 수 있는 핵심 역량이 되었다.", keywords:["In the era of globalization","foreign language skills","beyond","simple spec","understand","various cultures","communicate","core competency"] },
-    { level:"long", kr:"청소년 시기에 건강한 취미 활동을 갖는 것은 스트레스 해소는 물론 자아 정체성을 확립하는 데도 매우 중요한 역할을 한다.", keywords:["Having","healthy hobbies","adolescence","not only","relieve stress","but also","establish","self-identity","very important role"] },
-    { level:"long", kr:"나는 오늘 수업에서 기후 변화에 대한 다큐멘터리를 보면서, 우리가 일상생활에서 탄소 발자국을 줄이기 위해 작은 것부터 실천해야 한다는 것을 깨달았다.", keywords:["I","today","class","watch documentary","climate change","realize","reduce","carbon footprint","daily life","start with small things"] },
-    { level:"long", kr:"진정한 리더십이란 다른 사람들 위에 군림하는 것이 아니라, 팀원들의 강점을 이끌어내고 함께 목표를 향해 나아가도록 격려하는 능력이다.", keywords:["True leadership","not","dominate others","but","draw out","team members strengths","encourage","move toward","goal","together"] },
-    { level:"long", kr:"온라인 수업이 보편화되면서 자기 주도적 학습 능력의 중요성이 더욱 부각되었고, 학생들은 스스로 계획을 세우고 실천하는 습관을 길러야 한다.", keywords:["As online classes","become common","self-directed learning","more important","students","should","set their own plan","practice","develop habit"] },
-    { level:"long", kr:"나는 꿈을 이루기 위해 지금 당장 완벽할 필요는 없지만, 포기하지 않고 꾸준히 노력하는 자세가 결국 나를 성장시킨다고 믿는다.", keywords:["I believe","achieve dream","do not need","perfect right now","but","never give up","consistent effort","eventually","help me grow"] },
-    { level:"long", kr:"다문화 사회에서 서로 다른 배경을 가진 사람들이 함께 살아가기 위해서는 상호 존중과 열린 마음으로 차이를 이해하려는 노력이 필수적이다.", keywords:["In multicultural society","people","different backgrounds","live together","mutual respect","open mind","understand differences","essential"] },
-    { level:"long", kr:"스마트폰이 우리 삶의 필수품이 된 오늘날, 디지털 기기를 현명하게 사용하는 미디어 리터러시 교육의 중요성이 어느 때보다 높아지고 있다.", keywords:["Smartphones","become essential","our lives","today","media literacy education","use digital devices","wisely","more important","than ever"] },
-    { level:"long", kr:"시험에서 좋은 결과를 얻기 위해 벼락치기보다는 매일 꾸준히 복습하고 이해한 내용을 자신의 말로 정리하는 습관이 장기적으로 훨씬 효과적이다.", keywords:["To get good results","exams","rather than cramming","review","every day","consistently","summarize","own words","more effective","long term"] },
-    { level:"long", kr:"내가 존경하는 인물은 어려운 시련 속에서도 자신의 신념을 굽히지 않고 사회 정의를 위해 평생을 헌신한 역사 속의 위인들이다.", keywords:["People I admire","despite hardships","never compromise","beliefs","dedicate their lives","social justice","great figures in history"] },
-    { level:"short", kr:"나는 오늘 학교에서 새 친구를 사귀었다.", keywords:["I","make","new friend","school","today"] },
-    { level:"short", kr:"그 노래는 매우 신나고 중독성 있다.", keywords:["song","very","exciting","addictive"] },
-    { level:"short", kr:"우리 반은 반 티를 함께 맞췄다.", keywords:["our class","matching","class T-shirt","together"] },
-    { level:"short", kr:"나는 물을 하루에 여덟 잔 마시려고 한다.", keywords:["I","try","drink","eight glasses","water","day"] },
-    { level:"short", kr:"그녀는 항상 다른 사람들에게 친절하다.", keywords:["She","always","kind","others"] },
-    { level:"short", kr:"도서관은 토요일에도 문을 연다.", keywords:["library","open","Saturday","too"] },
-    { level:"short", kr:"나는 어제 늦게까지 게임을 해서 피곤하다.", keywords:["I","tired","play games","late","yesterday"] },
-    { level:"short", kr:"그 가방은 너무 비싸서 살 수 없었다.", keywords:["bag","too expensive","could not","buy"] },
-    { level:"short", kr:"봄이 되면 꽃들이 피어난다.", keywords:["spring","comes","flowers","bloom"] },
-    { level:"short", kr:"우리는 수업 전에 교실을 청소했다.", keywords:["We","clean","classroom","before class"] },
-    { level:"medium", kr:"나는 영어 독해 실력을 키우기 위해 매일 짧은 기사를 읽는다.", keywords:["I","read","short article","every day","improve","reading skills","English"] },
-    { level:"medium", kr:"그는 할 일 목록을 만들어 매일 우선순위에 따라 실천한다.", keywords:["He","make","to-do list","follow","priority","every day"] },
-    { level:"medium", kr:"우리는 수학여행에서 역사적인 장소를 여러 곳 방문했다.", keywords:["We","visit","several","historical places","school trip"] },
-    { level:"medium", kr:"그녀는 영화 감상문을 쓰기 위해 두 번 반복해서 봤다.", keywords:["She","watch","twice","write","movie review"] },
-    { level:"medium", kr:"나는 처음으로 혼자서 요리를 해봤는데 생각보다 어렵지 않았다.", keywords:["I","cook","alone","for the first time","not as hard","as I thought"] },
-    { level:"medium", kr:"그 선수는 부상을 극복하고 다시 경기에 복귀했다.", keywords:["player","overcome","injury","return","game"] },
-    { level:"medium", kr:"우리 학교는 올해 처음으로 영어 말하기 대회를 개최했다.", keywords:["our school","hold","English speaking contest","for the first time","this year"] },
-    { level:"medium", kr:"나는 친구와 다투고 나서 진심 어린 사과 편지를 썼다.", keywords:["I","write","sincere apology letter","after","argue","friend"] },
-    { level:"medium", kr:"그녀는 꿈을 위해 매일 조금씩이라도 노력하는 자신이 자랑스럽다.", keywords:["She","proud","herself","make effort","little by little","every day","dream"] },
-    { level:"medium", kr:"기후 변화 문제는 한 나라의 노력만으로는 해결할 수 없다.", keywords:["climate change","cannot","solve","with only","one country","effort"] },
-    { level:"long", kr:"청소년 시기는 자신의 정체성을 탐색하고 미래를 위한 기초를 닦는 중요한 시간이므로, 다양한 경험을 통해 자신이 진정으로 원하는 것을 발견하는 것이 중요하다.", keywords:["adolescence","important time","explore identity","build foundation","future","through various experiences","discover","what you truly want"] },
-    { level:"long", kr:"독서를 습관화하면 어휘력과 문해력은 물론, 비판적 사고 능력과 공감 능력도 자연스럽게 향상된다는 연구 결과들이 있다.", keywords:["research shows","making reading a habit","improve","vocabulary","literacy","critical thinking","empathy","naturally"] },
-    { level:"long", kr:"팀 프로젝트를 성공적으로 마치기 위해서는 명확한 역할 분담과 원활한 소통, 그리고 서로에 대한 신뢰가 무엇보다 중요하다.", keywords:["To complete","team project","successfully","clear role division","smooth communication","trust each other","most important"] },
-    { level:"long", kr:"나는 유튜브 알고리즘이 내 취향에 맞는 영상만 추천해주는 것이 편리하지만, 동시에 다양한 시각을 접하지 못하게 될 수 있다는 점이 우려된다.", keywords:["I","YouTube algorithm","recommends videos","matching taste","convenient","but","worried","may not","encounter","diverse perspectives"] },
-    { level:"long", kr:"현대 사회에서 정신 건강은 신체 건강만큼 중요하며, 자신의 감정을 솔직하게 표현하고 필요할 때 도움을 요청하는 것이 결코 약함의 표시가 아니다.", keywords:["In modern society","mental health","as important as","physical health","express emotions honestly","ask for help","when needed","never a sign of weakness"] },
-{ level:"short", kr:"나는 수업 시간에 선생님의 말씀을 열심히 들었다.", keywords:["I","listen","teacher","carefully","class"] },
-    { level:"short", kr:"그 식당은 항상 손님으로 가득 차 있다.", keywords:["restaurant","always","full","customers"] },
-    { level:"short", kr:"나는 시험 결과에 만족했다.", keywords:["I","satisfied","exam results"] },
-    { level:"medium", kr:"나는 어릴 때부터 우주 비행사가 되고 싶었고, 지금도 그 꿈을 포기하지 않았다.", keywords:["I","since childhood","want to be","astronaut","still","not given up","dream"] },
-    { level:"medium", kr:"그녀는 온라인 수업의 장단점을 직접 경험하고 나서 자신의 의견을 글로 정리했다.", keywords:["She","experience","pros and cons","online class","write down","her opinion"] },
-    { level:"medium", kr:"우리 학교 학생들은 매달 한 번씩 지역 복지관에서 봉사 활동을 한다.", keywords:["students","our school","volunteer","community center","once a month"] },
-    { level:"long", kr:"건강한 삶을 유지하기 위해서는 균형 잡힌 식사와 규칙적인 운동뿐 아니라 충분한 수면과 긍정적인 마음가짐도 함께 필요하다.", keywords:["maintain","healthy life","balanced diet","regular exercise","sufficient sleep","positive mindset","all necessary"] },
-    { level:"long", kr:"창의적인 사고는 정해진 틀에서 벗어나 새로운 방식으로 문제를 바라보고, 다양한 해결책을 탐색하는 데서 비롯된다.", keywords:["creative thinking","stems from","breaking out of","fixed framework","look at problems","new way","explore","various solutions"] },
-    { level:"long", kr:"나는 이번 학기 동안 영어 일기 쓰기 도전을 통해 꾸준히 쓰는 습관의 힘과 표현력의 중요성을 몸소 깨달았다.", keywords:["this semester","English diary challenge","realize","power of consistency","importance of expression","through experience"] },
-    { level:"long", kr:"지속 가능한 발전을 위해 현 세대는 미래 세대의 필요를 염두에 두고 환경 자원을 책임감 있게 사용해야 할 의무가 있다.", keywords:["current generation","obligation","use environmental resources","responsibly","keep in mind","needs of future generations","sustainable development"] }
+    { level:"short", kr:"나는 매일 아침 일찍 일어난다.", keywords:["I","wake up","early","every morning"], answer:"I wake up early every morning." },
+    { level:"short", kr:"그녀는 사과를 좋아한다.", keywords:["She","like","apples"], answer:"She likes apples." },
+    { level:"short", kr:"우리는 오늘 공원에 갔다.", keywords:["We","go","park","today"], answer:"We went to the park today." },
+    { level:"short", kr:"날씨가 오늘 매우 맑다.", keywords:["weather","very","sunny","today"], answer:"The weather is very sunny today." },
+    { level:"short", kr:"나는 숙제를 끝냈다.", keywords:["I","finish","homework"], answer:"I finished my homework." },
+    { level:"short", kr:"그는 빠르게 달릴 수 있다.", keywords:["He","can","run","fast"], answer:"He can run fast." },
+    { level:"short", kr:"고양이가 소파 위에 앉아 있다.", keywords:["cat","sit","sofa"], answer:"The cat is sitting on the sofa." },
+    { level:"short", kr:"나의 가장 좋아하는 과목은 영어다.", keywords:["favorite","subject","English"], answer:"My favorite subject is English." },
+    { level:"short", kr:"버스가 5분 안에 도착할 것이다.", keywords:["bus","arrive","five minutes"], answer:"The bus will arrive in five minutes." },
+    { level:"short", kr:"그들은 저녁에 축구를 했다.", keywords:["They","play","soccer","evening"], answer:"They played soccer in the evening." },
+    { level:"short", kr:"나는 어젯밤에 영화를 봤다.", keywords:["I","watch","movie","last night"], answer:"I watched a movie last night." },
+    { level:"short", kr:"그녀는 피아노를 매우 잘 친다.", keywords:["She","play","piano","very well"], answer:"She plays the piano very well." },
+    { level:"short", kr:"우리 선생님은 매우 친절하시다.", keywords:["teacher","very","kind"], answer:"Our teacher is very kind." },
+    { level:"short", kr:"나는 오늘 새 신발을 샀다.", keywords:["I","buy","new shoes","today"], answer:"I bought new shoes today." },
+    { level:"short", kr:"그 책은 정말 재미있었다.", keywords:["book","really","interesting"], answer:"The book was really interesting." },
+    { level:"short", kr:"비가 밖에 오고 있다.", keywords:["It","rain","outside"], answer:"It is raining outside." },
+    { level:"short", kr:"나는 매일 밤 일기를 쓴다.", keywords:["I","write","diary","every night"], answer:"I write a diary every night." },
+    { level:"short", kr:"그는 도서관에서 공부하고 있다.", keywords:["He","study","library"], answer:"He is studying in the library." },
+    { level:"short", kr:"점심이 정말 맛있었다.", keywords:["lunch","really","delicious"], answer:"Lunch was really delicious." },
+    { level:"short", kr:"우리는 내일 소풍을 갈 것이다.", keywords:["We","go","picnic","tomorrow"], answer:"We will go on a picnic tomorrow." },
+    { level:"short", kr:"나는 오늘 학교에서 새 친구를 사귀었다.", keywords:["I","make","new friend","school","today"], answer:"I made a new friend at school today." },
+    { level:"short", kr:"그 노래는 매우 신나고 중독성 있다.", keywords:["song","very","exciting","addictive"], answer:"The song is very exciting and addictive." },
+    { level:"short", kr:"나는 물을 하루에 여덟 잔 마시려고 한다.", keywords:["I","try","drink","eight glasses","water","day"], answer:"I try to drink eight glasses of water a day." },
+    { level:"short", kr:"그녀는 항상 다른 사람들에게 친절하다.", keywords:["She","always","kind","others"], answer:"She is always kind to others." },
+    { level:"short", kr:"도서관은 토요일에도 문을 연다.", keywords:["library","open","Saturday","too"], answer:"The library is open on Saturdays too." },
+    { level:"short", kr:"나는 어제 늦게까지 게임을 해서 피곤하다.", keywords:["I","tired","play games","late","yesterday"], answer:"I am tired because I played games late yesterday." },
+    { level:"short", kr:"그 가방은 너무 비싸서 살 수 없었다.", keywords:["bag","too expensive","could not","buy"], answer:"The bag was too expensive, so I could not buy it." },
+    { level:"short", kr:"봄이 되면 꽃들이 피어난다.", keywords:["spring","comes","flowers","bloom"], answer:"When spring comes, flowers bloom." },
+    { level:"short", kr:"우리는 수업 전에 교실을 청소했다.", keywords:["We","clean","classroom","before class"], answer:"We cleaned the classroom before class." },
+    { level:"short", kr:"나는 수업 시간에 선생님의 말씀을 열심히 들었다.", keywords:["I","listen","teacher","carefully","class"], answer:"I listened to the teacher carefully in class." },
+    { level:"medium", kr:"나는 방과 후에 도서관에서 공부하는 것을 좋아한다.", keywords:["I","like","study","library","after school"], answer:"I like to study in the library after school." },
+    { level:"medium", kr:"그녀는 친구들과 함께 케이크를 만들었다.", keywords:["She","make","cake","with","friends"], answer:"She made a cake with her friends." },
+    { level:"medium", kr:"우리 가족은 매주 일요일 함께 외식을 한다.", keywords:["family","eat out","together","every Sunday"], answer:"My family eats out together every Sunday." },
+    { level:"medium", kr:"그는 영어를 잘하기 위해 매일 연습한다.", keywords:["He","practice","every day","get better","English"], answer:"He practices every day to get better at English." },
+    { level:"medium", kr:"나는 지난 주말에 할머니 댁을 방문했다.", keywords:["I","visit","grandmother","last weekend"], answer:"I visited my grandmother last weekend." },
+    { level:"medium", kr:"그 영화는 너무 무서워서 눈을 감았다.", keywords:["movie","so scary","close","eyes"], answer:"The movie was so scary that I closed my eyes." },
+    { level:"medium", kr:"나는 생일 선물로 새 스마트폰을 받았다.", keywords:["I","receive","new smartphone","birthday gift"], answer:"I received a new smartphone as a birthday gift." },
+    { level:"medium", kr:"그들은 버스를 놓쳐서 학교에 늦었다.", keywords:["They","miss","bus","be late","school"], answer:"They missed the bus and were late for school." },
+    { level:"medium", kr:"그녀는 아침마다 30분씩 운동을 한다.", keywords:["She","exercise","30 minutes","every morning"], answer:"She exercises for 30 minutes every morning." },
+    { level:"medium", kr:"우리는 방학 동안 제주도에 여행을 갔다.", keywords:["We","travel","Jeju Island","during vacation"], answer:"We traveled to Jeju Island during vacation." },
+    { level:"medium", kr:"나는 영어 시험 준비를 위해 열심히 공부했다.", keywords:["I","study hard","prepare","English exam"], answer:"I studied hard to prepare for the English exam." },
+    { level:"medium", kr:"그는 스트레스를 받을 때 음악을 듣는다.", keywords:["He","listen to music","when","stressed"], answer:"He listens to music when he is stressed." },
+    { level:"medium", kr:"우리 팀은 결승전에서 아깝게 졌다.", keywords:["our team","lose","final","by a small margin"], answer:"Our team lost the final by a small margin." },
+    { level:"medium", kr:"그녀는 용기를 내어 처음으로 혼자 여행을 떠났다.", keywords:["She","brave","travel alone","for the first time"], answer:"She was brave enough to travel alone for the first time." },
+    { level:"medium", kr:"나는 친구에게 이메일을 써서 안부를 물었다.", keywords:["I","write email","friend","ask how","doing"], answer:"I wrote an email to my friend to ask how she was doing." },
+    { level:"medium", kr:"오늘 수업에서 새로운 영어 표현을 배웠다.", keywords:["today","class","learn","new","English expression"], answer:"I learned a new English expression in class today." },
+    { level:"medium", kr:"그는 아르바이트를 해서 용돈을 스스로 번다.", keywords:["He","part-time job","earn","pocket money","himself"], answer:"He earns his own pocket money by doing a part-time job." },
+    { level:"medium", kr:"우리는 함께 프로젝트를 완성해서 뿌듯했다.", keywords:["We","complete","project","together","proud"], answer:"We were proud to complete the project together." },
+    { level:"medium", kr:"그녀는 실수를 하고 나서 사과하는 것을 잊지 않았다.", keywords:["She","make mistake","not forget","apologize"], answer:"She did not forget to apologize after making a mistake." },
+    { level:"medium", kr:"나는 처음에는 두려웠지만 결국 발표를 해냈다.", keywords:["I","scared at first","but","give presentation","in the end"], answer:"I was scared at first, but I gave the presentation in the end." },
+    { level:"medium", kr:"나는 영어 독해 실력을 키우기 위해 매일 짧은 기사를 읽는다.", keywords:["I","read","short article","every day","improve","reading skills","English"], answer:"I read a short article every day to improve my English reading skills." },
+    { level:"medium", kr:"그는 할 일 목록을 만들어 매일 우선순위에 따라 실천한다.", keywords:["He","make","to-do list","follow","priority","every day"], answer:"He makes a to-do list and follows it by priority every day." },
+    { level:"medium", kr:"우리는 수학여행에서 역사적인 장소를 여러 곳 방문했다.", keywords:["We","visit","several","historical places","school trip"], answer:"We visited several historical places on our school trip." },
+    { level:"medium", kr:"나는 처음으로 혼자서 요리를 해봤는데 생각보다 어렵지 않았다.", keywords:["I","cook","alone","for the first time","not as hard","as I thought"], answer:"I cooked alone for the first time and it was not as hard as I thought." },
+    { level:"medium", kr:"그 선수는 부상을 극복하고 다시 경기에 복귀했다.", keywords:["player","overcome","injury","return","game"], answer:"The player overcame his injury and returned to the game." },
+    { level:"medium", kr:"우리 학교는 올해 처음으로 영어 말하기 대회를 개최했다.", keywords:["our school","hold","English speaking contest","for the first time","this year"], answer:"Our school held an English speaking contest for the first time this year." },
+    { level:"medium", kr:"나는 친구와 다투고 나서 진심 어린 사과 편지를 썼다.", keywords:["I","write","sincere apology letter","after","argue","friend"], answer:"I wrote a sincere apology letter after arguing with my friend." },
+    { level:"medium", kr:"기후 변화 문제는 한 나라의 노력만으로는 해결할 수 없다.", keywords:["climate change","cannot","solve","with only","one country","effort"], answer:"The problem of climate change cannot be solved with only one country's effort." },
+    { level:"long", kr:"나는 영어 말하기 능력을 향상시키기 위해 매일 원어민 영상을 보고 따라 말하는 연습을 한다.", keywords:["I","improve","speaking","watch","native speaker","videos","every day","shadow practice"], answer:"I watch native speaker videos every day and practice shadow speaking to improve my English speaking ability." },
+    { level:"long", kr:"그녀는 처음에는 낯선 환경에 적응하는 데 어려움을 겪었지만, 시간이 지남에 따라 친구들을 사귀고 즐거운 학교생활을 하게 되었다.", keywords:["She","at first","struggle","adapt","unfamiliar","but","over time","make friends","enjoy","school life"], answer:"At first, she struggled to adapt to the unfamiliar environment, but over time she made friends and began to enjoy school life." },
+    { level:"long", kr:"우리 가족은 여름휴가 동안 해외 여행을 계획하고 있는데, 나는 특히 현지 음식을 먹어보는 것과 유명한 관광지를 방문하는 것이 기대된다.", keywords:["My family","plan","overseas trip","summer vacation","I","especially","excited","try local food","visit","famous places"], answer:"My family is planning an overseas trip during summer vacation, and I am especially excited to try local food and visit famous places." },
+    { level:"long", kr:"환경 오염 문제를 해결하기 위해서는 개인의 노력뿐만 아니라 정부와 기업의 적극적인 참여가 함께 이루어져야 한다고 생각한다.", keywords:["I think","solve","environmental pollution","not only","individual effort","but also","government","companies","active participation","necessary"], answer:"I think that to solve environmental pollution, not only individual effort but also active participation from the government and companies is necessary." },
+    { level:"long", kr:"독서는 단순히 지식을 쌓는 것을 넘어 상상력을 키우고 다양한 관점에서 세상을 바라볼 수 있는 능력을 길러준다.", keywords:["Reading","beyond","gaining knowledge","develop","imagination","see the world","various perspectives","ability"], answer:"Reading goes beyond simply gaining knowledge; it develops imagination and the ability to see the world from various perspectives." },
+    { level:"long", kr:"소셜 미디어는 사람들을 연결해주는 편리한 도구이지만, 지나친 사용은 집중력 저하와 수면 부족 등 여러 부작용을 일으킬 수 있다.", keywords:["Social media","convenient tool","connect people","however","excessive use","cause","loss of concentration","lack of sleep","side effects"], answer:"Social media is a convenient tool that connects people; however, excessive use can cause side effects such as loss of concentration and lack of sleep." },
+    { level:"long", kr:"나는 장래에 국제적으로 활동하는 의사가 되어 의료 혜택을 받지 못하는 사람들을 돕고 싶다는 꿈을 가지고 있다.", keywords:["I","dream","become","internationally active","doctor","help","people","cannot receive","medical care","in the future"], answer:"I have a dream to become an internationally active doctor in the future and help people who cannot receive proper medical care." },
+    { level:"long", kr:"학교 축제 준비 과정에서 친구들과 의견 충돌이 있었지만, 서로의 입장을 이해하고 타협하면서 더욱 끈끈한 팀워크를 발휘할 수 있었다.", keywords:["During","school festival preparation","conflict","friends","but","understand each other","compromise","stronger teamwork"], answer:"During the school festival preparation, we had conflicts with friends, but by understanding each other and compromising, we were able to show stronger teamwork." },
+    { level:"long", kr:"인공지능 기술의 발전은 우리의 생활을 편리하게 해주는 동시에 일자리 감소와 같은 사회적 문제에 대한 깊은 고민도 필요하게 만들고 있다.", keywords:["Advancement","AI technology","make life","convenient","at the same time","require","serious thought","job loss","social issues"], answer:"The advancement of AI technology makes our lives convenient, but at the same time it requires serious thought about social issues such as job loss." },
+    { level:"long", kr:"봉사 활동을 통해 나보다 어려운 처지에 있는 사람들을 돕는 경험은 감사함과 책임감을 깨닫게 해주는 소중한 기회였다.", keywords:["volunteering","experience","help","people","worse situation","teach","gratitude","sense of responsibility","precious opportunity"], answer:"Volunteering and helping people in a worse situation than mine was a precious opportunity that taught me gratitude and a sense of responsibility." },
+    { level:"long", kr:"세계화 시대에 외국어 능력은 단순한 스펙을 넘어 다양한 문화를 이해하고 소통할 수 있는 핵심 역량이 되었다.", keywords:["In the era of globalization","foreign language skills","beyond","simple spec","understand","various cultures","communicate","core competency"], answer:"In the era of globalization, foreign language skills have become a core competency that goes beyond a simple spec, allowing us to understand various cultures and communicate." },
+    { level:"long", kr:"청소년 시기에 건강한 취미 활동을 갖는 것은 스트레스 해소는 물론 자아 정체성을 확립하는 데도 매우 중요한 역할을 한다.", keywords:["Having","healthy hobbies","adolescence","not only","relieve stress","but also","establish","self-identity","very important role"], answer:"Having healthy hobbies during adolescence plays a very important role not only in relieving stress but also in establishing self-identity." },
+    { level:"long", kr:"나는 꿈을 이루기 위해 지금 당장 완벽할 필요는 없지만, 포기하지 않고 꾸준히 노력하는 자세가 결국 나를 성장시킨다고 믿는다.", keywords:["I believe","achieve dream","do not need","perfect right now","but","never give up","consistent effort","eventually","help me grow"], answer:"I believe that to achieve my dream, I do not need to be perfect right now, but a consistent effort without giving up will eventually help me grow." },
+    { level:"long", kr:"다문화 사회에서 서로 다른 배경을 가진 사람들이 함께 살아가기 위해서는 상호 존중과 열린 마음으로 차이를 이해하려는 노력이 필수적이다.", keywords:["In multicultural society","people","different backgrounds","live together","mutual respect","open mind","understand differences","essential"], answer:"In a multicultural society, mutual respect and an open mind to understand differences are essential for people of different backgrounds to live together." },
+    { level:"long", kr:"나는 오늘 수업에서 기후 변화에 대한 다큐멘터리를 보면서, 우리가 일상생활에서 탄소 발자국을 줄이기 위해 작은 것부터 실천해야 한다는 것을 깨달았다.", keywords:["I","today","class","watch documentary","climate change","realize","reduce","carbon footprint","daily life","start with small things"], answer:"Watching a documentary about climate change in class today, I realized that we should start with small things in our daily lives to reduce our carbon footprint." },
+    { level:"long", kr:"진정한 리더십이란 다른 사람들 위에 군림하는 것이 아니라, 팀원들의 강점을 이끌어내고 함께 목표를 향해 나아가도록 격려하는 능력이다.", keywords:["True leadership","not","dominate others","but","draw out","team members strengths","encourage","move toward","goal","together"], answer:"True leadership is not about dominating others, but the ability to draw out team members' strengths and encourage them to move toward a goal together." },
+    { level:"long", kr:"건강한 삶을 유지하기 위해서는 균형 잡힌 식사와 규칙적인 운동뿐 아니라 충분한 수면과 긍정적인 마음가짐도 함께 필요하다.", keywords:["maintain","healthy life","balanced diet","regular exercise","sufficient sleep","positive mindset","all necessary"], answer:"To maintain a healthy life, a balanced diet and regular exercise are necessary, but sufficient sleep and a positive mindset are also needed." },
+    { level:"long", kr:"나는 이번 학기 동안 영어 일기 쓰기 도전을 통해 꾸준히 쓰는 습관의 힘과 표현력의 중요성을 몸소 깨달았다.", keywords:["this semester","English diary challenge","realize","power of consistency","importance of expression","through experience"], answer:"Through the English diary challenge this semester, I personally realized the power of consistency and the importance of expression." },
+    { level:"long", kr:"지속 가능한 발전을 위해 현 세대는 미래 세대의 필요를 염두에 두고 환경 자원을 책임감 있게 사용해야 할 의무가 있다.", keywords:["current generation","obligation","use environmental resources","responsibly","keep in mind","needs of future generations","sustainable development"], answer:"For sustainable development, the current generation has an obligation to use environmental resources responsibly, keeping in mind the needs of future generations." }
   ];
 
   var _writingCurrent = null;
@@ -2918,56 +3153,72 @@ Categories to rotate randomly:
   function requestWritingFeedback(item, written) {
     var c  = document.getElementById("chat-messages");
     var th = themes["Native Talk"] || { header:"#3B82F6", iconBg:"#dceeff" };
+
+    // ── 학생 답안 표시 ──
+    var answer = item.answer || "";
+
     var row = document.createElement("div");
     row.className = "chat-msg-row";
     var av = document.createElement("div");
     av.className = "chat-avatar"; av.style.background = th.iconBg; av.textContent = "🌍";
     var wrap = document.createElement("div");
-    wrap.style.cssText = "display:flex;flex-direction:column;gap:4px;";
+    wrap.style.cssText = "display:flex;flex-direction:column;gap:6px;max-width:96%;";
     var name = document.createElement("div");
     name.className = "chat-msg-name"; name.textContent = "Native Talk";
-    var ld = document.createElement("div");
-    ld.className = "msg ai loading"; ld.textContent = "영작 분석 중...";
-    wrap.appendChild(name); wrap.appendChild(ld);
+
+    var bubble = document.createElement("div");
+    bubble.className = "msg ai";
+    bubble.style.cssText = "border:1.5px solid " + th.header + "22;padding:14px;";
+
+    // 모범 답안 라벨
+    var label = document.createElement("div");
+    label.style.cssText = "font-size:11.5px;font-weight:700;color:" + th.header + ";margin-bottom:8px;font-family:'Noto Sans KR',sans-serif;";
+    label.textContent = "✅ 모범 답안";
+    bubble.appendChild(label);
+
+    // 모범 답안 박스
+    var answerBox = document.createElement("div");
+    answerBox.style.cssText = "background:" + th.header + "0d;border-left:3px solid " + th.header + ";border-radius:0 10px 10px 0;padding:10px 12px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:8px;";
+    var answerText = document.createElement("div");
+    answerText.style.cssText = "font-size:14px;font-weight:700;color:#2d2540;line-height:1.6;flex:1;";
+    answerText.textContent = answer;
+    var spkBtn = document.createElement("button");
+    spkBtn.style.cssText = "border:none;background:" + th.header + ";color:white;border-radius:50%;width:30px;height:30px;font-size:13px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;";
+    spkBtn.innerHTML = "🔊";
+    spkBtn.onclick = function(){ speakEnglish(answer); };
+    answerBox.appendChild(answerText);
+    answerBox.appendChild(spkBtn);
+    bubble.appendChild(answerBox);
+
+    // 비교 안내
+    var tip = document.createElement("div");
+    tip.style.cssText = "font-size:12px;color:#9b8fc0;font-family:'Noto Sans KR',sans-serif;margin-bottom:12px;line-height:1.6;";
+    tip.textContent = "💡 내가 쓴 문장과 비교해보고 차이점을 확인해봐요!";
+    bubble.appendChild(tip);
+
+    // 액션 버튼
+    var btnRow = document.createElement("div");
+    btnRow.style.cssText = "display:flex;gap:8px;flex-wrap:wrap;";
+
+    var againBtn = document.createElement("button");
+    againBtn.style.cssText = "flex:1;min-width:120px;padding:10px;border:none;border-radius:12px;background:linear-gradient(135deg," + th.header + ",#2563EB);color:white;font-size:12.5px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;";
+    againBtn.textContent = "✍️ 같은 문장 다시 도전";
+    againBtn.onclick = function(){ showWritingCard(_writingCurrent.level); };
+
+    var newBtn = document.createElement("button");
+    newBtn.style.cssText = "flex:1;min-width:120px;padding:10px;border:1.5px solid " + th.header + "44;border-radius:12px;background:white;color:" + th.header + ";font-size:12.5px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;";
+    newBtn.textContent = "🔄 새 문제 풀기";
+    newBtn.onclick = function(){ appendWritingLevelPicker(); };
+
+    btnRow.appendChild(againBtn);
+    btnRow.appendChild(newBtn);
+    bubble.appendChild(btnRow);
+
+    wrap.appendChild(name); wrap.appendChild(bubble);
     row.appendChild(av); row.appendChild(wrap);
-    c.appendChild(row); c.scrollTop = c.scrollHeight;
-
-    var sysPrompt = "You are a warm and encouraging English writing coach for Korean middle school students. Give feedback in Korean with English examples inline. Be specific, kind, and educational.";
-    var userMsg = "Korean meaning the student was trying to express:\n[" + item.kr + "]\n\nKeywords provided:\n[" + item.keywords.join(", ") + "]\n\nThe student wrote:\n[" + written + "]\n\nPlease provide feedback in Korean using this structure:\n\n1. **전체 평가** — 한 두 문장으로 따뜻하게 총평해줘. 잘한 점을 먼저 언급해줘.\n2. **오류 분석** — 문법, 어휘, 어순, 키워드 활용 측면에서 오류를 짚어줘. 오류가 없으면 '오류 없음 — 완벽해요!'라고 써줘. 각 오류마다: 오류 → 올바른 표현 → 한 줄 이유 형식으로.\n3. **모범 답안** — 자연스러운 영어 문장을 제시해줘 (여러 표현이 가능하면 2개까지).\n4. **이번에 배운 포인트** — 오늘 이 문장에서 꼭 기억해야 할 문법 또는 표현 한 가지를 설명해줘.\n5. **응원 한마디** — 짧고 따뜻하게 마무리해줘.";
-
-    hist = [];
-    hist.push({ role:"user", content: userMsg });
-    (async function(){
-      try {
-        var r = await fetch("/.netlify/functions/chat", {
-          method:"POST", headers:{"Content-Type":"application/json"},
-          body: JSON.stringify({ model:"claude-sonnet-4-6", max_tokens:800, system: sysPrompt, messages: hist })
-        });
-        var data = await r.json();
-        var rep = (data.content && data.content[0] && data.content[0].text) || "피드백을 가져오지 못했어요. 다시 시도해줘!";
-        ld.innerHTML = renderMd(rep); ld.classList.remove("loading");
-        hist.push({ role:"assistant", content: rep });
-        awardStar();
-
-        // 다음 액션 버튼
-        var nextRow = document.createElement("div");
-        nextRow.style.cssText = "display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;";
-        var againBtn = document.createElement("button");
-        againBtn.style.cssText = "flex:1;min-width:120px;padding:10px;border:none;border-radius:12px;background:linear-gradient(135deg," + th.header + ",#2563EB);color:white;font-size:12.5px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;";
-        againBtn.textContent = "✍️ 같은 문장 다시 도전";
-        againBtn.onclick = function(){ showWritingCard(_writingCurrent.level); };
-        var newBtn = document.createElement("button");
-        newBtn.style.cssText = "flex:1;min-width:120px;padding:10px;border:1.5px solid " + th.header + "44;border-radius:12px;background:white;color:" + th.header + ";font-size:12.5px;font-weight:700;cursor:pointer;font-family:'Noto Sans KR',sans-serif;";
-        newBtn.textContent = "🔄 새 문제 풀기";
-        newBtn.onclick = function(){ appendWritingLevelPicker(); };
-        nextRow.appendChild(againBtn); nextRow.appendChild(newBtn);
-        ld.appendChild(nextRow);
-        c.scrollTop = c.scrollHeight;
-      } catch(e) {
-        ld.textContent = "연결에 문제가 생겼어. 잠시 후 다시 시도해줘! 🙏";
-        ld.classList.remove("loading");
-      }
-    })();
+    c.appendChild(row);
+    c.scrollTop = c.scrollHeight;
+    awardStar();
   }
 
 
@@ -3529,27 +3780,19 @@ Categories to rotate randomly:
     grid.style.cssText = "display:grid;grid-template-columns:1fr 1fr;gap:7px;";
     aboutMeTopics.forEach(function(topic) {
       var btn = document.createElement("button");
-      btn.style.cssText = "padding:9px 10px;border-radius:14px;border:1.5px solid " + th.header + "44;background:white;color:#2d2540;font-size:12px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.18s;text-align:left;display:flex;flex-direction:column;gap:2px;font-weight:600;line-height:1.3;";
-      var topicSpan = document.createElement("span");
-      topicSpan.style.fontSize = "15px";
-      topicSpan.textContent = topic.emoji + " " + topic.label;
-      var krSpan = document.createElement("span");
-      krSpan.style.cssText = "font-size:10.5px;color:#9b8fc0;font-weight:500;";
-      krSpan.textContent = topic.kr;
-      btn.appendChild(topicSpan);
-      btn.appendChild(krSpan);
-      btn.onmouseover = function(){ btn.style.background = th.header + "11"; btn.style.borderColor = th.header; };
-      btn.onmouseout  = function(){ btn.style.background = "white"; btn.style.borderColor = th.header + "44"; };
+      btn.style.cssText = "padding:9px 10px;border-radius:14px;border:1.5px solid " + th.header + "44;background:white;color:#2d2540;font-size:12.5px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;transition:all 0.18s;text-align:left;display:flex;align-items:center;gap:6px;font-weight:600;line-height:1.3;";
+      btn.innerHTML = '<span style="font-size:17px;flex-shrink:0;">' + topic.emoji + '</span>' + topic.label;
+      btn.onmouseover = function(){ btn.style.background = th.header + "11"; btn.style.borderColor = th.header; btn.style.color = th.header; };
+      btn.onmouseout  = function(){ btn.style.background = "white"; btn.style.borderColor = th.header + "44"; btn.style.color = "#2d2540"; };
       btn.onclick = function() {
         grid.querySelectorAll("button").forEach(function(b){ b.disabled = true; b.style.opacity = "0.5"; });
         btn.style.opacity = "1";
         btn.style.background = th.header;
         btn.style.color = "white";
         btn.style.borderColor = th.header;
-        krSpan.style.color = "rgba(255,255,255,0.75)";
         var styleIdx = Math.floor(Math.random() * topic.styles.length);
         var chosenStyle = topic.styles[styleIdx];
-        appendMsg("user", topic.emoji + " " + topic.label + "  (" + topic.kr + ")");
+        appendMsg("user", topic.emoji + " " + topic.label);
         var sysBase = sys["Native Talk"] || "You are a friendly English conversation partner for Korean middle school students.";
         var n = (typeof window._userName !== "undefined" && window._userName) ? window._userName : "";
         var given = (n.length >= 2) ? n.slice(1) : n;
@@ -3568,7 +3811,7 @@ Categories to rotate randomly:
             var rep = (data.content && data.content[0] && data.content[0].text) || "Tell me about yourself!";
             ld.innerHTML = renderMd(rep); ld.classList.remove("loading");
             addSpeakBtn(ld, rep);
-            hist.push({ role: "assistant", content: rep });
+            hist.push({ role: "assistant", content: stripKR(rep) });
             awardStar();
           } catch(e) {
             ld.textContent = "연결에 문제가 생겼어. 잠시 후 다시 시도해줘! 🙏";
@@ -3590,58 +3833,118 @@ Categories to rotate randomly:
 
 
   // ── Expression Quiz ──────────────────────────────────────
-  var _exprQuizActive = false;   // 퀴즈 진행 중 여부
-  var _exprScore = 0;
-  var _exprTotal = 0;
-  var _usedExpressions = [];   // 이미 출제된 표현 이력
+  // ── Expression 대화형 학습 ────────────────────────────────
+  var _exprLevel = '';
+  var _exprPool = [];       // 현재 레벨 셔플된 30개 표현
+  var _exprIdx = 0;         // 현재 몇 번째 표현인지
+
+  var EXPR_POOLS = {
+    beginner: [
+      { expr: "What's up?",        meaning: "무슨 일이야? / 어떻게 지내?",    situation: "친구를 만났을 때 가볍게 인사할 때" },
+      { expr: "Break a leg!",      meaning: "잘 해봐! / 행운을 빌어!",        situation: "친구가 발표나 공연을 앞두고 있을 때" },
+      { expr: "I'm all ears.",     meaning: "다 듣고 있어. / 말해봐.",         situation: "상대방 말을 집중해서 들을 준비가 됐을 때" },
+      { expr: "Keep it up!",       meaning: "계속 잘 해봐! / 파이팅!",        situation: "잘 하고 있는 친구를 격려할 때" },
+      { expr: "No pain, no gain.", meaning: "고통 없이 얻는 것도 없다.",       situation: "힘들어하는 친구를 응원할 때" },
+      { expr: "Hit the road.",     meaning: "이제 출발하자. / 가야겠어.",      situation: "자리에서 일어나 떠나야 할 때" },
+      { expr: "Long time no see!", meaning: "오랜만이야!",                    situation: "오랫동안 못 봤던 사람을 다시 만났을 때" },
+      { expr: "Hang in there.",    meaning: "조금만 버텨. / 힘내.",            situation: "어려운 상황에 있는 친구를 격려할 때" },
+      { expr: "My bad.",           meaning: "내 잘못이야. / 미안.",            situation: "실수를 가볍게 인정할 때" },
+      { expr: "Sounds good!",      meaning: "좋아! / 그러자!",                situation: "상대방 제안에 동의할 때" },
+      { expr: "Never mind.",       meaning: "괜찮아. / 신경 쓰지 마.",         situation: "별거 아닌 일을 넘어갈 때" },
+      { expr: "Way to go!",        meaning: "잘했어! / 최고야!",              situation: "친구가 뭔가 잘 해냈을 때 칭찬할 때" },
+      { expr: "No worries.",       meaning: "걱정 마. / 괜찮아.",              situation: "상대방이 미안하다고 할 때" },
+      { expr: "What a day!",       meaning: "정말 힘든 하루였어!",             situation: "지치고 힘든 하루를 보낸 후" },
+      { expr: "I'm serious.",      meaning: "나 진짜야. / 농담 아니야.",        situation: "상대방이 믿지 않을 때 진심임을 강조할 때" },
+      { expr: "Take it easy.",     meaning: "진정해. / 쉬엄쉬엄 해.",          situation: "흥분하거나 너무 열심히 하는 친구에게" },
+      { expr: "That's too bad.",   meaning: "안됐다. / 유감이야.",             situation: "나쁜 소식을 들었을 때 공감할 때" },
+      { expr: "Good luck!",        meaning: "행운을 빌어!",                   situation: "시험이나 중요한 일을 앞둔 친구에게" },
+      { expr: "Good job!",         meaning: "잘했어!",                        situation: "뭔가 잘 해낸 사람을 칭찬할 때" },
+      { expr: "You're welcome.",   meaning: "천만에요. / 별말씀을요.",          situation: "감사 인사를 받았을 때" },
+      { expr: "No big deal.",      meaning: "별거 아니야. / 대수롭지 않아.",    situation: "상대가 지나치게 미안해할 때" },
+      { expr: "I got it.",         meaning: "알겠어. / 이해했어.",             situation: "설명을 들은 후 이해했음을 표현할 때" },
+      { expr: "Cheer up!",         meaning: "힘내! / 기운 내!",               situation: "슬프거나 우울해하는 친구에게" },
+      { expr: "Catch you later.",  meaning: "나중에 봐!",                     situation: "헤어질 때 가볍게 인사할 때" },
+      { expr: "I mean it.",        meaning: "진심이야. / 정말이야.",            situation: "자신의 말이 진심임을 강조할 때" },
+      { expr: "Same here.",        meaning: "나도 그래. / 동감이야.",           situation: "상대방과 같은 생각이나 상황일 때" },
+      { expr: "Come on!",          meaning: "어서! / 그러지 마!",              situation: "재촉하거나 상대방 행동에 실망했을 때" },
+      { expr: "No doubt.",         meaning: "당연하지. / 의심할 여지 없어.",    situation: "어떤 사실이 확실할 때" },
+      { expr: "Just kidding!",     meaning: "농담이야!",                      situation: "방금 한 말이 농담임을 밝힐 때" },
+      { expr: "You got this!",     meaning: "넌 할 수 있어! / 파이팅!",        situation: "도전을 앞둔 친구를 응원할 때" }
+    ],
+    intermediate: [
+      { expr: "Hit the books.",        meaning: "공부 시작하다.",              situation: "공부하러 가거나 열심히 공부해야 할 때" },
+      { expr: "Under the weather.",    meaning: "몸이 좀 안 좋다.",            situation: "아프거나 컨디션이 좋지 않을 때" },
+      { expr: "Spill the beans.",      meaning: "비밀을 털어놓다.",             situation: "비밀이나 숨긴 정보를 말해버릴 때" },
+      { expr: "Call it a day.",        meaning: "오늘은 여기서 끝내자.",        situation: "하루 일이나 작업을 마무리할 때" },
+      { expr: "Give it a shot.",       meaning: "한번 해봐. / 시도해봐.",       situation: "새로운 것을 시도하도록 권유할 때" },
+      { expr: "Figure out.",           meaning: "알아내다. / 이해하다.",        situation: "문제나 상황을 파악하거나 해결할 때" },
+      { expr: "Run out of.",           meaning: "~이 다 떨어지다.",            situation: "뭔가가 완전히 소진됐을 때" },
+      { expr: "Look forward to.",      meaning: "기대하다. / 고대하다.",        situation: "앞으로 있을 일을 즐거운 마음으로 기다릴 때" },
+      { expr: "Make up one's mind.",   meaning: "결심하다. / 마음을 정하다.",   situation: "오랜 고민 끝에 결정을 내릴 때" },
+      { expr: "Come up with.",         meaning: "생각해내다. / 고안하다.",      situation: "아이디어나 해결책을 떠올렸을 때" },
+      { expr: "Catch up.",             meaning: "따라잡다. / 근황을 나누다.",   situation: "뒤처진 것을 따라가거나 오랜 친구와 이야기 나눌 때" },
+      { expr: "Show off.",             meaning: "자랑하다. / 뽐내다.",          situation: "누군가 자신의 능력이나 소유물을 과시할 때" },
+      { expr: "Get along with.",       meaning: "~와 잘 지내다.",              situation: "누군가와 사이좋게 지낼 때" },
+      { expr: "Run into.",             meaning: "우연히 마주치다.",             situation: "예상치 못한 곳에서 아는 사람을 만났을 때" },
+      { expr: "Pick up.",              meaning: "집어 들다 / 배우다 / 데리러 가다.", situation: "뭔가를 집거나, 새 기술을 익히거나, 차로 데리러 갈 때" },
+      { expr: "Keep an eye on.",       meaning: "주시하다. / 지켜보다.",        situation: "누군가나 무언가를 계속 살필 때" },
+      { expr: "Turn down.",            meaning: "거절하다. / 소리를 줄이다.",   situation: "제안을 거절하거나 볼륨을 낮출 때" },
+      { expr: "Bring up.",             meaning: "화제를 꺼내다. / 키우다.",     situation: "대화 중 새로운 주제를 꺼낼 때" },
+      { expr: "Go over.",              meaning: "검토하다. / 살펴보다.",        situation: "내용을 다시 확인하거나 검토할 때" },
+      { expr: "Hang out.",             meaning: "놀다. / 어울리다.",            situation: "친구들과 특별한 목적 없이 시간을 보낼 때" },
+      { expr: "Pull off.",             meaning: "해내다. / 성공하다.",          situation: "어려운 일을 성공적으로 해냈을 때" },
+      { expr: "Stand out.",            meaning: "두드러지다. / 눈에 띄다.",     situation: "무리 중에서 특별히 눈에 띄거나 뛰어날 때" },
+      { expr: "Take off.",             meaning: "이륙하다 / 빠르게 성장하다 / 벗다.", situation: "비행기가 뜨거나, 사업이 급성장하거나, 옷을 벗을 때" },
+      { expr: "Work out.",             meaning: "운동하다 / 잘 풀리다.",        situation: "헬스장에 가거나, 일이 잘 해결됐을 때" },
+      { expr: "Put off.",              meaning: "미루다. / 연기하다.",          situation: "해야 할 일을 나중으로 미룰 때" },
+      { expr: "Cut back on.",          meaning: "줄이다. / 절약하다.",          situation: "소비나 습관을 줄여야 할 때" },
+      { expr: "Break down.",           meaning: "고장나다 / 감정이 무너지다.",  situation: "기계가 작동을 멈추거나 감정적으로 힘들 때" },
+      { expr: "Get over.",             meaning: "극복하다. / 회복하다.",        situation: "슬픔이나 병, 어려움에서 벗어날 때" },
+      { expr: "Look up to.",           meaning: "존경하다. / 우러러보다.",      situation: "누군가를 존경하고 본받고 싶을 때" },
+      { expr: "End up.",               meaning: "결국 ~하게 되다.",            situation: "예상치 않았던 결과가 생겼을 때" }
+    ],
+    advanced: [
+      { expr: "Bite the bullet.",              meaning: "이를 악물고 참다.",          situation: "힘들지만 어쩔 수 없이 견뎌야 할 때" },
+      { expr: "Cost an arm and a leg.",        meaning: "엄청나게 비싸다.",           situation: "물건이나 서비스 가격이 너무 비쌀 때" },
+      { expr: "Beat around the bush.",         meaning: "빙빙 돌려 말하다.",          situation: "직접 말하지 않고 에둘러 이야기할 때" },
+      { expr: "Once in a blue moon.",          meaning: "매우 드물게. / 가끔씩.",     situation: "좀처럼 일어나지 않는 일을 표현할 때" },
+      { expr: "Hit the nail on the head.",     meaning: "정확히 맞추다. / 핵심을 찌르다.", situation: "누군가 정확한 말을 했을 때" },
+      { expr: "Burn the midnight oil.",        meaning: "밤새 공부하다 / 일하다.",    situation: "시험 전날 밤새워 공부할 때" },
+      { expr: "The ball is in your court.",    meaning: "이제 네 차례야. / 결정은 네가 해.", situation: "결정권이 상대방에게 넘어갔을 때" },
+      { expr: "Under the radar.",              meaning: "눈에 띄지 않게. / 몰래.",    situation: "남의 주목을 피해 조용히 무언가를 할 때" },
+      { expr: "Cut corners.",                  meaning: "편법을 쓰다. / 대충 하다.",  situation: "질을 떨어뜨리면서까지 시간·돈을 아낄 때" },
+      { expr: "The tip of the iceberg.",       meaning: "빙산의 일각.",               situation: "문제의 아주 작은 부분만 드러났을 때" },
+      { expr: "A blessing in disguise.",       meaning: "전화위복. / 겉보기엔 나쁘지만 사실은 좋은 일.", situation: "처음엔 나빠 보였던 일이 결국 좋게 됐을 때" },
+      { expr: "Break the ice.",                meaning: "어색한 분위기를 깨다.",       situation: "처음 만나 어색할 때 대화를 시작할 때" },
+      { expr: "Miss the boat.",                meaning: "기회를 놓치다.",              situation: "좋은 기회를 살리지 못했을 때" },
+      { expr: "Let the cat out of the bag.",   meaning: "비밀을 누설하다.",           situation: "실수로 비밀을 말해버렸을 때" },
+      { expr: "Back to square one.",           meaning: "원점으로 돌아가다.",          situation: "모든 노력이 실패해서 처음부터 다시 해야 할 때" },
+      { expr: "Kill two birds with one stone.","meaning": "일석이조. / 한 번에 두 가지를 해결하다.", situation: "한 가지 행동으로 두 가지 목표를 달성할 때" },
+      { expr: "Jump on the bandwagon.",        meaning: "유행을 따르다. / 대세에 편승하다.", situation: "무언가가 유행하자 너도 나도 따라할 때" },
+      { expr: "Steal the show.",               meaning: "주목을 한 몸에 받다.",        situation: "여럿 중 혼자 단연 돋보이는 활약을 했을 때" },
+      { expr: "Bite off more than you can chew.", meaning: "감당할 수 없는 것을 욕심내다.", situation: "자신의 능력보다 너무 많은 것을 맡으려 할 때" },
+      { expr: "Piece of cake.",                meaning: "누워서 떡 먹기. / 아주 쉽다.", situation: "어떤 일이 매우 쉽다고 느낄 때" },
+      { expr: "Spill the tea.",                meaning: "비밀이나 가십을 털어놓다.",   situation: "흥미로운 소문이나 이야기를 나눌 때" },
+      { expr: "On the fence.",                 meaning: "결정을 못 내리다. / 중립이다.", situation: "두 가지 사이에서 결정을 못 하고 있을 때" },
+      { expr: "Read between the lines.",       meaning: "행간을 읽다. / 숨겨진 의미를 파악하다.", situation: "직접 말하지 않은 의미를 이해해야 할 때" },
+      { expr: "Go the extra mile.",            meaning: "남들보다 한 발 더 노력하다.",  situation: "기대 이상으로 더 열심히 할 때" },
+      { expr: "Throw in the towel.",           meaning: "포기하다. / 손을 들다.",      situation: "더 이상 버티지 못하고 포기할 때" },
+      { expr: "On thin ice.",                  meaning: "위험한 상황에 처해 있다.",     situation: "뭔가 잘못하면 큰일 날 위험한 상황일 때" },
+      { expr: "Pull someone's leg.",           meaning: "농담하다. / 놀리다.",         situation: "상대방을 가볍게 놀리거나 농담할 때" },
+      { expr: "See eye to eye.",               meaning: "의견이 일치하다.",             situation: "두 사람이 같은 의견을 가지고 있을 때" },
+      { expr: "Sit on the fence.",             meaning: "중립을 지키다. / 어느 편도 들지 않다.", situation: "논쟁에서 어느 쪽도 지지하지 않을 때" },
+      { expr: "Bite the dust.",                meaning: "실패하다. / 쓰러지다.",        situation: "일이나 계획이 완전히 실패했을 때" }
+    ]
+  };
 
   function openExpressionQuiz() {
-    try { event.stopPropagation(); } catch(err) {}
-    cur = 'Native Talk'; hist = [];
-    _exprQuizActive = true; _exprScore = 0; _exprTotal = 0;
-    try {
-      var uname = sessionStorage.getItem('sc_name') || '';
-      if(uname && window._userNameInjected !== uname) { window._userName = uname; window._userNameInjected = uname; }
-    } catch(e2) {}
-    var th = themes['Native Talk'] || { bg:'#eef6ff', header:'#3B82F6', headerBg:'#dceeff', msgBg:'#f5faff', bubbleBg:'#3B82F6', online:'#3B82F6', iconBg:'#dceeff', sub:'AI가 함께할게 😊' };
-    var header = document.querySelector('.chat-header');
-    var messages = document.getElementById('chat-messages');
-    var handle = document.querySelector('.chat-handle');
-    var onlineDot = document.getElementById('online-dot');
-    var sendBtn = document.querySelector('.send-btn');
-    var iconBox = document.querySelector('.chat-header-emoji-box');
-    var attachBtn = document.querySelector('.chat-attach-btn');
-    var micBtn = document.querySelector('.chat-mic-btn');
-    header.style.background = th.headerBg; header.style.borderBottom = 'none';
-    handle.style.background = th.header + '44';
-    messages.style.background = th.msgBg;
-    onlineDot.style.color = th.online;
-    sendBtn.style.background = th.bubbleBg;
-    iconBox.style.background = th.iconBg;
-    if(attachBtn){ attachBtn.style.background = th.bg; attachBtn.style.color = th.header; }
-    if(micBtn){ micBtn.style.background = th.bg; micBtn.style.color = th.header; }
-    document.getElementById('modal-title').textContent = 'Native Talk';
-    document.getElementById('modal-emoji').textContent = '🌍';
-    document.getElementById('chat-header-sub-text').textContent = '영어 표현 퀴즈 🎯';
-    messages.innerHTML = '';
-    var chatInputEl = document.getElementById('chat-input');
-    if(chatInputEl){ chatInputEl.value = ''; chatInputEl.style.height = 'auto'; }
-    if(recognizing && recognition){ micStoppedByUser = true; if(recognition.resetTranscript) recognition.resetTranscript(); recognition.stop(); }
-
-    // 웰컴
-    var welcome = document.createElement('div');
-    welcome.className = 'msg ai';
-    welcome.style.cssText = 'background:white;border:1.5px solid #3B82F622;';
-    welcome.textContent = 'Hello! 영어 표현 퀴즈 시간이에요 🎯\n수준을 선택하면 바로 시작할게요!';
-    messages.appendChild(welcome);
-    document.getElementById('modal').classList.add('open');
-    document.body.style.overflow = 'hidden';
-    setTimeout(function(){ appendExprLevelPicker(); }, 300);
-  }
-
-  function appendExprLevelPicker() {
+    openChat('Native Talk', '🌍', null);
     var c = document.getElementById('chat-messages');
-    var th = themes['Native Talk'] || { header:'#3B82F6', iconBg:'#dceeff', bubbleBg:'#3B82F6' };
+    var th = themes['Native Talk'];
+    _exprLevel = ''; _exprPool = []; _exprIdx = 0;
+
+    document.getElementById('chat-header-sub-text').textContent = 'Expression 💬';
+
     var row = document.createElement('div');
     row.className = 'chat-msg-row';
     var av = document.createElement('div');
@@ -3656,30 +3959,33 @@ Categories to rotate randomly:
     var bubble = document.createElement('div');
     bubble.className = 'msg ai';
     bubble.style.cssText = 'border:1.5px solid ' + th.header + '22;padding:12px 14px;';
+
     var label = document.createElement('div');
-    label.style.cssText = 'font-size:12.5px;font-weight:700;color:' + th.header + ';margin-bottom:10px;font-family:"Noto Sans KR",sans-serif;';
-    label.textContent = '🎯 퀴즈 수준을 선택해줘!';
+    label.style.cssText = 'font-size:13px;font-weight:700;color:' + th.header + ';margin-bottom:10px;font-family:"Noto Sans KR",sans-serif;';
+    label.textContent = '💬 어떤 수준의 표현을 배울까요? 각 레벨 30개 표현을 대화로 익혀요!';
+
     var btnRow = document.createElement('div');
     btnRow.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;';
+
     [
-      { label: '🌱 초급', desc: '중학교 기초 표현', level: 'beginner' },
-      { label: '📘 중급', desc: '중학교 실용 표현', level: 'intermediate' },
-      { label: '🚀 고급', desc: '고등/원어민 표현', level: 'advanced' }
+      { label: '🌱 초급', desc: '기초 일상 표현', level: 'beginner' },
+      { label: '📘 중급', desc: '구동사·실용 표현', level: 'intermediate' },
+      { label: '🚀 고급', desc: '원어민 관용 표현', level: 'advanced' }
     ].forEach(function(opt) {
       var btn = document.createElement('button');
       btn.style.cssText = 'padding:9px 14px;border-radius:14px;border:1.5px solid ' + th.header + '44;background:white;color:#2d2540;font-size:12.5px;cursor:pointer;font-family:"Noto Sans KR",sans-serif;font-weight:700;display:flex;flex-direction:column;gap:2px;transition:all 0.15s;';
       btn.innerHTML = '<span>' + opt.label + '</span><span style="font-size:10.5px;color:#9b8fc0;font-weight:500;">' + opt.desc + '</span>';
       btn.onmouseover = function(){ btn.style.background = th.header + '11'; btn.style.borderColor = th.header; };
-      btn.onmouseout = function(){ btn.style.background = 'white'; btn.style.borderColor = th.header + '44'; };
-      btn.onclick = function(){
+      btn.onmouseout  = function(){ btn.style.background = 'white'; btn.style.borderColor = th.header + '44'; };
+      btn.onclick = function() {
         btnRow.querySelectorAll('button').forEach(function(b){ b.disabled=true; b.style.opacity='0.5'; });
         btn.style.opacity='1'; btn.style.background=th.header; btn.style.color='white'; btn.style.borderColor=th.header;
-        appendMsg('user', opt.label + ' (' + opt.desc + ') 로 퀴즈 시작!');
-        _exprScore = 0; _exprTotal = 0; _usedExpressions = [];
-        fetchExpressionQuiz(opt.level);
+        appendMsg('user', opt.label + ' (' + opt.desc + ') 로 시작할게요!');
+        startExprConversation(opt.level);
       };
       btnRow.appendChild(btn);
     });
+
     bubble.appendChild(label);
     bubble.appendChild(btnRow);
     wrap.appendChild(name); wrap.appendChild(bubble);
@@ -3687,71 +3993,49 @@ Categories to rotate randomly:
     c.appendChild(row); c.scrollTop = c.scrollHeight;
   }
 
-  function fetchExpressionQuiz(level) {
-    var c = document.getElementById('chat-messages');
-    var th = themes['Native Talk'] || { header:'#3B82F6', iconBg:'#dceeff', bubbleBg:'#3B82F6' };
-
-    // 로딩 말풍선
-    var loadRow = document.createElement('div');
-    loadRow.className = 'chat-msg-row';
-    loadRow.id = 'expr-loading';
-    var loadAv = document.createElement('div');
-    loadAv.className = 'chat-avatar';
-    loadAv.style.background = th.iconBg;
-    loadAv.textContent = '🌍';
-    var loadWrap = document.createElement('div');
-    loadWrap.style.cssText = 'display:flex;flex-direction:column;gap:4px;';
-    var loadName = document.createElement('div');
-    loadName.className = 'chat-msg-name';
-    loadName.textContent = 'Native Talk';
-    var loadBubble = document.createElement('div');
-    loadBubble.className = 'msg ai loading';
-    loadBubble.textContent = '퀴즈 만드는 중... ✨';
-    loadWrap.appendChild(loadName); loadWrap.appendChild(loadBubble);
-    loadRow.appendChild(loadAv); loadRow.appendChild(loadWrap);
-    c.appendChild(loadRow); c.scrollTop = c.scrollHeight;
-
-    var levelDesc = {
-      beginner:     "beginner level: common everyday English expressions and idioms that Korean middle school students (age 13-15) encounter. Choose from expressions like: What's up, Break a leg, I'm all ears, Keep it up, No pain no gain, Hit the road, You're welcome, Long time no see, Hang in there, Good luck, Take it easy, That's too bad, My bad, Sounds good, Never mind, Good job, Way to go, No worries, What a day, I'm serious",
-      intermediate: "intermediate level: practical English expressions, phrasal verbs, and idioms for daily life and school. Choose from expressions like: Hit the books, Under the weather, Hang in there, Spill the beans, Call it a day, Give it a shot, Keep an eye on, Figure out, Run out of, Look forward to, Make up one's mind, Turn down, Bring up, Go over, Come up with, Catch up, Show off, Get along with, Run into, Pick up",
-      advanced:     "advanced level: native-speaker idioms, slang, and figurative expressions. Choose from expressions like: Bite the bullet, Cost an arm and a leg, Beat around the bush, Once in a blue moon, Hit the nail on the head, Burn the midnight oil, The ball is in your court, Under the radar, Cut corners, Bite off more than you can chew, Jump on the bandwagon, The tip of the iceberg, A blessing in disguise, Break the ice, Miss the boat, Let the cat out of the bag, Piece of cake, Back to square one, Steal the show, Kill two birds with one stone"
-    };
-
-    var alreadyUsed = _usedExpressions.length > 0 ? " IMPORTANT: Do NOT use any of these expressions that were already used: [" + _usedExpressions.join(", ") + "]. Pick a completely different expression." : "";
-    var sysPrompt = "You are an English expression quiz generator for Korean middle school students. Always respond ONLY with valid JSON. No markdown fences, no extra text, no explanation outside the JSON.";
-    var userPrompt = "Generate ONE English expression multiple-choice quiz at " + levelDesc[level] + "." + alreadyUsed + " Return ONLY a raw JSON object (no markdown, no backticks). Schema: {expression: string, question: string, choices: [string,string,string,string], answer: number, explanation: string, tip: string}. Rules: expression must be a natural English idiom or common expression — never repeat ones already used. question asks what it means in Korean. choices are 4 Korean meanings only (no English). answer is 0-indexed correct choice index. explanation is a friendly Korean explanation with an example. tip is a short Korean usage tip.";
-
-    (async function(){
-      try {
-        var r = await fetch('/.netlify/functions/chat', {
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:600, system: sysPrompt, messages:[{role:'user', content: userPrompt}] })
-        });
-        var data = await r.json();
-        var raw = (data.content && data.content[0] && data.content[0].text) || '{}';
-        // JSON 파싱
-        var clean = raw.replace(/```json|```/g,'').trim();
-        var quiz = JSON.parse(clean);
-        // 로딩 제거 후 퀴즈 카드 렌더
-        var loadEl = document.getElementById('expr-loading');
-        if(loadEl) loadEl.remove();
-        renderExprQuizCard(quiz, level);
-      } catch(e) {
-        var loadEl = document.getElementById('expr-loading');
-        if(loadEl) loadEl.remove();
-        var errBubble = appendMsg('ai', '퀴즈를 불러오는 데 문제가 생겼어. 다시 시도해줘! 🙏');
-      }
-    })();
+  function shuffleArray(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
   }
 
-  function renderExprQuizCard(quiz, level) {
-    var c = document.getElementById('chat-messages');
-    var th = themes['Native Talk'] || { header:'#3B82F6', iconBg:'#dceeff', bubbleBg:'#3B82F6' };
-    _exprTotal++;
-    // 출제 이력에 추가 (중복 방지)
-    if(quiz.expression && _usedExpressions.indexOf(quiz.expression) === -1) {
-      _usedExpressions.push(quiz.expression);
+  function startExprConversation(level) {
+    _exprLevel = level;
+    _exprPool = shuffleArray(EXPR_POOLS[level]);
+    _exprIdx = 0;
+    hist = [];
+    askNextExpression();
+  }
+
+  function buildExprSysPrompt(level) {
+    var levelDesc = { beginner:'초급(기초 일상 표현)', intermediate:'중급(구동사·실용 표현)', advanced:'고급(원어민 관용 표현)' }[level];
+    return 'You are a fun and friendly English expression coach for Korean middle school students. You teach English expressions through natural conversation entirely in Korean (except the English expression itself and examples).\n\nFor EACH expression, your teaching flow is:\n1. Ask a situational question in Korean: describe a real-life scenario and ask what the student would say in that situation — naturally leading toward the target expression. Do NOT reveal the expression yet.\n2. After the student answers, introduce the expression warmly: explain its meaning in Korean, give 1-2 example sentences with Korean translations.\n3. Ask a short follow-up question so the student can try using it.\n4. Praise their effort and wrap up.\n\nRules:\n- Write ONLY in Korean except for the English expression and examples.\n- Keep each response to 3–5 lines maximum — short and conversational.\n- Be warm and encouraging, like a cool older friend.\n- End every message with exactly ONE question.';
+  }
+
+  function askNextExpression() {
+    if (_exprIdx >= _exprPool.length) {
+      appendMsg('ai', '🎉 대단해요! 오늘 30개 표현을 모두 배웠어요!\n배운 표현들을 실제 대화에서 써보면 금방 내 것이 될 거예요 💪');
+      awardStar();
+      return;
     }
+    var item = _exprPool[_exprIdx];
+    _exprIdx++;
+    var progress = _exprIdx + '/30';
+
+    // 표현 카드 먼저 표시
+    renderExprCard(item, progress);
+
+    // AI에게 상황 질문 생성 요청
+    var prompt = '[EXPRESSION ' + progress + '] 가르칠 표현: "' + item.expr + '" (뜻: ' + item.meaning + ', 상황: ' + item.situation + ')\n표현을 바로 알려주지 말고, 이 표현이 쓰이는 상황을 한국어로 자연스럽게 묘사하며 학생에게 그 상황에서 어떻게 말할지 질문해줘.';
+    callExprAPI(prompt, true);
+  }
+
+  function renderExprCard(item, progress) {
+    var c = document.getElementById('chat-messages');
+    var th = themes['Native Talk'] || { header:'#3B82F6', iconBg:'#dceeff' };
 
     var row = document.createElement('div');
     row.className = 'chat-msg-row';
@@ -3760,180 +4044,128 @@ Categories to rotate randomly:
     av.style.background = th.iconBg;
     av.textContent = '🌍';
     var wrap = document.createElement('div');
-    wrap.style.cssText = 'display:flex;flex-direction:column;gap:6px;max-width:96%;width:100%;';
+    wrap.style.cssText = 'display:flex;flex-direction:column;gap:4px;max-width:92%;';
     var name = document.createElement('div');
     name.className = 'chat-msg-name';
     name.textContent = 'Native Talk';
 
-    // 퀴즈 카드 버블
-    var bubble = document.createElement('div');
-    bubble.className = 'msg ai';
-    bubble.style.cssText = 'border:1.5px solid ' + th.header + '22;padding:14px 14px 12px;width:100%;max-width:340px;';
+    var card = document.createElement('div');
+    card.style.cssText = 'background:' + th.header + '0d;border:1.5px solid ' + th.header + '33;border-radius:14px;padding:12px 14px;';
 
-    // 점수 배지
-    var scoreBadge = document.createElement('div');
-    scoreBadge.style.cssText = 'font-size:11px;color:' + th.header + ';font-weight:700;margin-bottom:8px;font-family:"Noto Sans KR",sans-serif;display:flex;align-items:center;gap:6px;';
-    scoreBadge.innerHTML = '<span style="background:' + th.header + '15;padding:2px 8px;border-radius:20px;">🎯 문제 ' + _exprTotal + '</span><span style="margin-left:auto;color:#9b8fc0;">점수 ' + _exprScore + '/' + (_exprTotal-1) + '</span>';
-    bubble.appendChild(scoreBadge);
+    var badge = document.createElement('div');
+    badge.style.cssText = 'font-size:10.5px;font-weight:700;color:' + th.header + ';margin-bottom:8px;font-family:"Noto Sans KR",sans-serif;';
+    badge.textContent = '📌 오늘의 표현 ' + progress;
+    card.appendChild(badge);
 
-    // 영어 표현 + 발음 버튼
-    var exprBox = document.createElement('div');
-    exprBox.style.cssText = 'background:' + th.header + '0d;border:1.5px solid ' + th.header + '33;border-radius:12px;padding:12px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:8px;';
+    var exprRow = document.createElement('div');
+    exprRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:5px;';
     var exprText = document.createElement('div');
-    exprText.style.cssText = 'font-size:18px;font-weight:900;color:' + th.header + ';font-family:"Noto Sans KR",sans-serif;letter-spacing:0.3px;';
-    exprText.textContent = quiz.expression;
-    var speakBtn = document.createElement('button');
-    speakBtn.style.cssText = 'border:none;background:' + th.header + ';color:white;border-radius:50%;width:32px;height:32px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;';
-    speakBtn.innerHTML = '🔊';
-    speakBtn.title = '영어 발음 듣기';
-    speakBtn.onclick = function(){ speakEnglish(quiz.expression); };
-    exprBox.appendChild(exprText);
-    exprBox.appendChild(speakBtn);
-    bubble.appendChild(exprBox);
+    exprText.style.cssText = 'font-size:19px;font-weight:900;color:' + th.header + ';letter-spacing:0.3px;';
+    exprText.textContent = item.expr;
+    var spk = document.createElement('button');
+    spk.style.cssText = 'border:none;background:' + th.header + ';color:white;border-radius:50%;width:30px;height:30px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;';
+    spk.innerHTML = '🔊';
+    spk.onclick = function(){ speakEnglish(item.expr); };
+    exprRow.appendChild(exprText);
+    exprRow.appendChild(spk);
+    card.appendChild(exprRow);
 
-    // 질문
-    var qText = document.createElement('div');
-    qText.style.cssText = 'font-size:13px;font-weight:700;color:#2d2540;margin-bottom:10px;font-family:"Noto Sans KR",sans-serif;line-height:1.5;';
-    qText.textContent = quiz.question || '"' + quiz.expression + '"의 뜻은 무엇일까요?';
-    bubble.appendChild(qText);
+    var meaning = document.createElement('div');
+    meaning.style.cssText = 'font-size:12.5px;color:#5a4a7a;font-weight:600;font-family:"Noto Sans KR",sans-serif;margin-bottom:3px;';
+    meaning.textContent = '뜻: ' + item.meaning;
+    card.appendChild(meaning);
 
-    // 선택지 그리드
-    var choiceGrid = document.createElement('div');
-    choiceGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:4px;';
-    var answered = false;
+    var sitDiv = document.createElement('div');
+    sitDiv.style.cssText = 'font-size:11.5px;color:#9b8fc0;font-family:"Noto Sans KR",sans-serif;';
+    sitDiv.textContent = '📍 ' + item.situation;
+    card.appendChild(sitDiv);
 
-    quiz.choices.forEach(function(choice, idx) {
-      var choiceBtn = document.createElement('button');
-      var labels = ['①','②','③','④'];
-      choiceBtn.style.cssText = 'padding:9px 8px;border-radius:12px;border:1.5px solid rgba(0,0,0,0.1);background:white;color:#2d2540;font-size:12.5px;cursor:pointer;font-family:"Noto Sans KR",sans-serif;font-weight:600;line-height:1.4;text-align:left;display:flex;align-items:flex-start;gap:5px;transition:all 0.15s;';
-      choiceBtn.innerHTML = '<span style="flex-shrink:0;color:' + th.header + ';font-weight:800;">' + labels[idx] + '</span><span>' + choice + '</span>';
-      choiceBtn.onmouseover = function(){ if(!answered) choiceBtn.style.background = th.header + '11'; };
-      choiceBtn.onmouseout = function(){ if(!answered && choiceBtn.style.background !== 'rgb(255,255,255)') choiceBtn.style.background = 'white'; };
-
-      choiceBtn.onclick = function() {
-        if(answered) return;
-        answered = true;
-        var correct = (idx === quiz.answer);
-        if(correct) _exprScore++;
-
-        // 모든 버튼 결과 표시
-        choiceGrid.querySelectorAll('button').forEach(function(b, i) {
-          b.disabled = true;
-          if(i === quiz.answer) {
-            b.style.background = '#d6f5e8'; b.style.borderColor = '#1AAD72'; b.style.color = '#0a6e48';
-          } else if(i === idx && !correct) {
-            b.style.background = '#ffe0e8'; b.style.borderColor = '#E83E8C'; b.style.color = '#a0103e';
-          } else {
-            b.style.opacity = '0.5';
-          }
-        });
-
-        // 결과 + 해설 표시
-        var resultBox = document.createElement('div');
-        resultBox.style.cssText = 'margin-top:10px;padding:10px 12px;border-radius:12px;font-family:"Noto Sans KR",sans-serif;font-size:12.5px;line-height:1.6;';
-        if(correct) {
-          resultBox.style.background = '#d6f5e8'; resultBox.style.border = '1.5px solid #1AAD7244';
-          resultBox.innerHTML = '<div style="font-weight:800;color:#0a6e48;margin-bottom:4px;">🎉 정답이에요!</div>';
-        } else {
-          resultBox.style.background = '#fff0f5'; resultBox.style.border = '1.5px solid #E83E8C44';
-          resultBox.innerHTML = '<div style="font-weight:800;color:#a0103e;margin-bottom:4px;">😅 아쉬워요! 정답은 ' + (quiz.answer+1) + '번이에요.</div>';
-        }
-        // 해설
-        var expDiv = document.createElement('div');
-        expDiv.style.color = '#2d2540';
-        expDiv.textContent = quiz.explanation || '';
-        resultBox.appendChild(expDiv);
-        // 팁
-        if(quiz.tip) {
-          var tipDiv = document.createElement('div');
-          tipDiv.style.cssText = 'margin-top:6px;padding:6px 10px;background:' + th.header + '0d;border-radius:8px;color:' + th.header + ';font-weight:600;font-size:12px;';
-          tipDiv.textContent = '💡 ' + quiz.tip;
-          resultBox.appendChild(tipDiv);
-        }
-        bubble.appendChild(resultBox);
-
-        // 점수 배지 업데이트
-        scoreBadge.innerHTML = '<span style="background:' + th.header + '15;padding:2px 8px;border-radius:20px;">🎯 문제 ' + _exprTotal + '</span><span style="margin-left:auto;color:#9b8fc0;">점수 ' + _exprScore + '/' + _exprTotal + '</span>';
-
-        // 다음 문제 버튼
-        var nextRow2 = document.createElement('div');
-        nextRow2.style.cssText = 'display:flex;gap:8px;margin-top:10px;';
-        var nextBtn = document.createElement('button');
-        nextBtn.style.cssText = 'flex:1;padding:10px;border:none;border-radius:12px;background:linear-gradient(135deg,' + th.header + ',#2563EB);color:white;font-size:13px;font-weight:700;cursor:pointer;font-family:"Noto Sans KR",sans-serif;';
-        nextBtn.textContent = '다음 문제 ➡️';
-        nextBtn.onclick = function() { fetchExpressionQuiz(level); };
-        var stopBtn = document.createElement('button');
-        stopBtn.style.cssText = 'padding:10px 14px;border:1.5px solid rgba(0,0,0,0.12);border-radius:12px;background:white;color:#9b8fc0;font-size:12.5px;cursor:pointer;font-family:"Noto Sans KR",sans-serif;font-weight:600;';
-        stopBtn.textContent = '그만하기';
-        stopBtn.onclick = function() {
-          var finalBubble = appendMsg('ai', '오늘 퀴즈 결과: ' + _exprScore + '/' + _exprTotal + ' 🎉\n잘했어요! 틀린 표현은 꼭 다시 공부해봐요 💪');
-          awardStar();
-        };
-        nextRow2.appendChild(nextBtn); nextRow2.appendChild(stopBtn);
-        bubble.appendChild(nextRow2);
-        c.scrollTop = c.scrollHeight;
-      };
-      choiceGrid.appendChild(choiceBtn);
-    });
-
-    bubble.appendChild(choiceGrid);
-    wrap.appendChild(name); wrap.appendChild(bubble);
-    row.appendChild(av); row.appendChild(wrap);
+    wrap.appendChild(name);
+    wrap.appendChild(card);
+    row.appendChild(av);
+    row.appendChild(wrap);
     c.appendChild(row);
     c.scrollTop = c.scrollHeight;
   }
 
-  // ── Conversation Situation Picker ────────────────────────
+  function callExprAPI(userContent, isIntro) {
+    var ld = appendMsg('ai', '...');
+    ld.classList.add('loading');
+
+    var sysPrompt = buildExprSysPrompt(_exprLevel);
+    var apiHist = hist.slice();
+    apiHist.push({ role:'user', content: userContent });
+
+    (async function(){
+      try {
+        var r = await fetch('/.netlify/functions/chat', {
+          method:'POST', headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ model:'claude-sonnet-4-6', max_tokens:300, system: sysPrompt, messages: apiHist })
+        });
+        var data = await r.json();
+        var rep = (data.content && data.content[0] && data.content[0].text) || '다시 시도해줘! 🙏';
+        ld.textContent = rep; ld.classList.remove('loading');
+        hist.push({ role:'user', content: userContent });
+        hist.push({ role:'assistant', content: rep });
+        awardStar();
+        if (!isIntro) {
+          var nxBtn = document.createElement('button');
+          nxBtn.style.cssText = 'margin-top:6px;padding:7px 16px;border:none;border-radius:12px;background:linear-gradient(135deg,#3B82F6,#2563EB);color:white;font-size:12px;font-weight:700;cursor:pointer;font-family:"Noto Sans KR",sans-serif;display:block;';
+          nxBtn.textContent = '다음 표현 ➡️';
+          nxBtn.onclick = function(){ nxBtn.remove(); askNextExpression(); };
+          if(ld.parentNode) ld.parentNode.appendChild(nxBtn);
+          if(_exprIdx >= _exprPool.length) {
+            setTimeout(function(){ askNextExpression(); }, 800);
+          }
+        }
+      } catch(e) {
+        ld.textContent = '연결에 문제가 생겼어. 잠시 후 다시 해줘! 🙏';
+        ld.classList.remove('loading');
+      }
+    })();
+  }
+
+
   var conversationSituations = [
     {
-      emoji: '✈️', label: 'At the Airport',
-      desc: '공항에서',
-      prompt: "Let's practice English at the airport! Role-play as an airport staff member and I am a traveler. Start by greeting me at the check-in counter and ask about my flight and luggage. Use natural airport expressions like 'boarding pass', 'terminal', 'gate', etc. After each exchange, briefly explain one useful expression you used."
+      emoji: '👋', label: 'Greetings',
+      prompt: "Let's practice greetings in English! You are meeting me for the first time — maybe in the hallway, at a party, or on the street. Start with a warm natural greeting and small talk opener. Use expressions like 'How's it going?', 'Long time no see!', 'Nice to finally meet you!', 'What have you been up to?' etc. After a few exchanges, highlight one expression that sounds especially natural."
     },
     {
-      emoji: '🗺️', label: 'Asking Directions',
-      desc: '길 묻기',
-      prompt: "Let's practice asking and giving directions in English! Play the role of a local resident. I will be a tourist who is lost. Start by noticing I look confused and offering to help. Teach natural expressions like 'turn left', 'go straight', 'it's about 5 minutes walk', etc. After a few exchanges, highlight one useful phrase."
+      emoji: '🙋', label: 'Introductions',
+      prompt: "Let's practice self-introductions in English! You are someone I just met — a classmate, a new neighbor, or someone at an event. Start by introducing yourself and invite me to share about myself too. Use natural expressions like 'I'm originally from...', 'I'm into...', 'What do you do for fun?', 'What brings you here?' etc. After each exchange, point out one useful phrase."
     },
     {
-      emoji: '🍽️', label: 'At a Restaurant',
-      desc: '식당에서',
-      prompt: "Let's practice English at a restaurant! You are a friendly waiter/waitress. I am a customer visiting for the first time. Start by welcoming me and handing me the menu. Use natural restaurant expressions like 'Are you ready to order?', 'How would you like your steak?', 'Here is your bill', etc. After each turn, teach one useful phrase."
+      emoji: '🏫', label: 'School',
+      prompt: "Let's practice everyday English conversations at school! You are a classmate or teacher. Start a natural conversation — maybe asking about homework, a class project, or what I did over the weekend. Use common school expressions like 'Did you finish the assignment?', 'What did you think of the lesson?', 'Can I borrow your notes?' etc. After a few exchanges, point out one useful phrase."
     },
     {
-      emoji: '🛒', label: 'Shopping',
-      desc: '쇼핑할 때',
-      prompt: "Let's practice English while shopping! You are a shop assistant in a clothing store. I am a customer looking for something to buy. Start by greeting me and asking if I need help. Use natural shopping expressions like 'try it on', 'What size are you?', 'It suits you', 'Do you have this in another color?' etc. Explain one expression after each exchange."
+      emoji: '👥', label: 'Friends',
+      prompt: "Let's practice chatting with friends in English! You are my close friend catching up with me. Start with something casual — ask what I've been up to, share something funny that happened, or make plans together. Use natural friendly expressions like 'You won't believe what happened!', 'We should totally hang out!', 'I'm so done with...', 'That sounds like so much fun!' etc. After a few turns, highlight one natural expression."
     },
     {
-      emoji: '🏨', label: 'At a Hotel',
-      desc: '호텔에서',
-      prompt: "Let's practice English at a hotel! You are the front desk staff. I am a guest checking in. Start by welcoming me and asking for my reservation details. Use natural hotel expressions like 'check-in / check-out', 'room service', 'Could I see your ID?', 'Here is your key card', etc. After a few exchanges, explain one useful phrase."
+      emoji: '🍽️', label: 'Restaurant',
+      prompt: "Let's practice English at a restaurant! You are a friendly waiter or waitress. I am a customer visiting for the first time. Start by welcoming me and handing me the menu. Use natural restaurant expressions like 'Are you ready to order?', 'How would you like that cooked?', 'Here is your bill', 'Enjoy your meal!' etc. After each turn, teach one useful phrase."
     },
     {
-      emoji: '🏥', label: 'At the Doctor',
-      desc: '병원에서',
-      prompt: "Let's practice English at a doctor's office! You are a friendly doctor or nurse. I am a patient who doesn't feel well. Start by asking how I am feeling today. Use natural medical expressions like 'What are your symptoms?', 'How long have you had this?', 'Take this twice a day', etc. After each exchange, highlight one useful expression."
+      emoji: '📰', label: 'News',
+      prompt: "Let's practice talking about news and current events in English! You are a curious friend who enjoys discussing what's happening in the world. Start by bringing up an interesting topic — maybe about science, technology, environment, or pop culture — and ask for my opinion. Use natural expressions like 'Did you hear about...?', 'What do you think of...?', 'That's such a big deal because...', 'I read that...' etc. After a few exchanges, highlight one useful expression."
     },
     {
-      emoji: '🏫', label: 'At School',
-      desc: '학교에서',
-      prompt: "Let's practice everyday English conversations at school! You are a classmate or teacher. Start a natural conversation — maybe asking about homework, a class project, or what I did over the weekend. Use common school expressions like 'Did you finish the assignment?', 'What did you think of the lesson?', etc. After a few exchanges, point out one useful phrase."
+      emoji: '🚌', label: 'Transportation',
+      prompt: "Let's practice English related to getting around! You are a helpful passenger, bus driver, or station staff member. I am a tourist trying to figure out how to get somewhere by bus or subway. Start by noticing I look confused and offering help. Use natural expressions like 'Which line are you taking?', 'Transfer at the next stop', 'Get off at the third stop', 'You can tap your card here' etc. Explain one useful expression after each exchange."
     },
     {
-      emoji: '☎️', label: 'On the Phone',
-      desc: '전화 통화',
-      prompt: "Let's practice phone conversations in English! You are calling me — maybe to make a reservation, ask for information, or catch up with a friend. Start the call naturally. Use phone expressions like 'May I speak to...?', 'Hold on a moment', 'Could you repeat that?', 'I'll call you back', etc. After each exchange, explain one useful phone expression."
+      emoji: '✈️', label: 'Travel',
+      prompt: "Let's practice travel English! Role-play as an airport check-in staff or a hotel receptionist. I am a traveler arriving for the first time. Start by greeting me and asking for my details. Use natural travel expressions like 'Here is your boarding pass', 'Your room is on the 5th floor', 'What's the purpose of your visit?', 'Enjoy your stay!' etc. After each exchange, briefly explain one useful expression."
     },
     {
-      emoji: '🎉', label: 'Making Friends',
-      desc: '친구 사귀기',
-      prompt: "Let's practice introducing ourselves and making friends in English! You are a new student who just transferred to my school. Start by coming up to me and introducing yourself. Use natural expressions like 'Nice to meet you!', 'What do you like doing?', 'We should hang out sometime!', etc. After a few turns, point out one expression that sounds especially natural."
+      emoji: '🏥', label: 'Hospital',
+      prompt: "Let's practice English at a hospital or clinic! You are a friendly doctor or nurse. I am a patient who doesn't feel well. Start by asking how I am feeling today. Use natural medical expressions like 'What are your symptoms?', 'How long have you had this?', 'Take this twice a day', 'You should get some rest' etc. After each exchange, highlight one useful expression."
     },
     {
-      emoji: '🚇', label: 'Public Transport',
-      desc: '대중교통',
-      prompt: "Let's practice English on public transport! You are a helpful passenger or station staff member. I am a tourist trying to figure out how to get somewhere by bus or subway. Start by noticing I look confused at the ticket machine. Use natural expressions like 'Which line are you taking?', 'Transfer at the next stop', 'This is your stop!', etc. Explain one useful expression after each exchange."
+      emoji: '🎉', label: 'Leisure',
+      prompt: "Let's chat about hobbies and free time in English! You are a friend or acquaintance curious about what I do for fun. Start by asking about my weekend plans or a recent hobby. Use natural leisure expressions like 'What do you do to unwind?', 'I'm really into... lately', 'We should try that together!', 'Have you ever been to...?' etc. After a few turns, point out one expression that sounds especially natural."
     }
   ];
 
@@ -4009,15 +4241,14 @@ Categories to rotate randomly:
     grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:7px;';
     conversationSituations.forEach(function(sit) {
       var btn = document.createElement('button');
-      btn.style.cssText = 'padding:9px 10px;border-radius:14px;border:1.5px solid ' + th.header + '44;background:white;color:#2d2540;font-size:12px;cursor:pointer;font-family:"Noto Sans KR",sans-serif;transition:all 0.18s;text-align:left;display:flex;flex-direction:column;gap:2px;font-weight:600;line-height:1.3;';
-      btn.innerHTML = '<span style="font-size:17px;">' + sit.emoji + ' ' + sit.label + '</span><span style="font-size:10.5px;color:#9b8fc0;font-weight:500;">' + sit.desc + '</span>';
-      btn.onmouseover = function() { btn.style.background = th.header + '11'; btn.style.borderColor = th.header; };
-      btn.onmouseout = function() { btn.style.background = 'white'; btn.style.borderColor = th.header + '44'; };
+      btn.style.cssText = 'padding:9px 10px;border-radius:14px;border:1.5px solid ' + th.header + '44;background:white;color:#2d2540;font-size:12.5px;cursor:pointer;font-family:"Noto Sans KR",sans-serif;transition:all 0.18s;text-align:left;display:flex;align-items:center;gap:6px;font-weight:600;line-height:1.3;';
+      btn.innerHTML = '<span style="font-size:17px;flex-shrink:0;">' + sit.emoji + '</span>' + sit.label;
+      btn.onmouseover = function() { btn.style.background = th.header + '11'; btn.style.borderColor = th.header; btn.style.color = th.header; };
+      btn.onmouseout = function() { btn.style.background = 'white'; btn.style.borderColor = th.header + '44'; btn.style.color = '#2d2540'; };
       btn.onclick = function() {
         grid.querySelectorAll('button').forEach(function(b){ b.disabled = true; b.style.opacity = '0.55'; });
         btn.style.opacity = '1'; btn.style.background = th.header; btn.style.color = 'white'; btn.style.borderColor = th.header;
-        btn.querySelector('span:last-child').style.color = 'rgba(255,255,255,0.75)';
-        var selectedMsg = sit.emoji + ' ' + sit.label + ' (' + sit.desc + ')';
+        var selectedMsg = sit.emoji + ' ' + sit.label;
         appendMsg('user', selectedMsg);
         hist.push({ role: 'user', content: sit.prompt });
         (async function(){
@@ -4036,7 +4267,7 @@ Categories to rotate randomly:
             var rep = (data.content && data.content[0] && data.content[0].text) || "Let's get started! Welcome!";
             ld.innerHTML = renderMd(rep); ld.classList.remove('loading');
             addSpeakBtn(ld, rep);
-            hist.push({ role: 'assistant', content: rep });
+            hist.push({ role: 'assistant', content: stripKR(rep) });
             awardStar();
           } catch(e) {
             ld.textContent = '연결에 문제가 생겼어. 잠시 후 다시 시도해줘! 🙏';
@@ -4169,7 +4400,7 @@ Categories to rotate randomly:
             var rep = (data.content && data.content[0] && data.content[0].text) || "Let's chat! What's on your mind?";
             ld.innerHTML = renderMd(rep); ld.classList.remove('loading');
             addSpeakBtn(ld, rep);
-            hist.push({ role: 'assistant', content: rep });
+            hist.push({ role: 'assistant', content: stripKR(rep) });
             awardStar();
           } catch(e) {
             ld.textContent = '\uC5F0\uACB0\uC5D0 \uBB38\uC81C\uAC00 \uC0DD\uACBC\uC5B4. \uC7A0\uC2DC \uD6C4 \uB2E4\uC2DC \uC2DC\uB3C4\uD574\uC918! \uD83D\uDE4F';
@@ -4199,8 +4430,16 @@ Categories to rotate randomly:
 
   function handleOverlayClick(e){if(e.target===document.getElementById('modal'))closeChat();}
 
+  function extractKR(t){
+    var m = t.match(/\[KR\]([\s\S]*?)\[\/KR\]/);
+    return m ? m[1].trim() : '';
+  }
+  function stripKR(t){
+    return t.replace(/\[KR\][\s\S]*?\[\/KR\]/g,'').trim();
+  }
   function renderMd(t){
-    var esc=t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    var clean = stripKR(t);
+    var esc=clean.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
     return esc.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
   }
 
@@ -4242,6 +4481,38 @@ Categories to rotate randomly:
     if(!t && !hasImages)return;
     inp.value=''; inp.style.height='auto';
     if(recognizing && recognition){ micStoppedByUser = true; if(recognition.resetTranscript) recognition.resetTranscript(); recognition.stop(); }
+
+    // ── Word Learning 대화형 모드 ──
+    var subText = document.getElementById('chat-header-sub-text');
+    if(cur === 'Native Talk' && subText && subText.textContent.indexOf('Word Learning') !== -1 && _wordPool.length > 0) {
+      if(!t) return;
+      // "다음" 키워드면 다음 단어로
+      var nextKw = ['다음', 'next', '넘어가', '다음 단어'];
+      if(nextKw.some(function(k){ return t.trim().toLowerCase().indexOf(k) !== -1; })) {
+        appendMsg('user', t);
+        callWordAPI('학생이 다음 단어로 넘어가고 싶어해. 현재 단어를 한 줄로 격려하며 마무리해줘.', false);
+        setTimeout(function(){ askNextWord(); }, 1600);
+        return;
+      }
+      appendMsg('user', t);
+      callWordAPI(t, false);
+      return;
+    }
+
+    // ── Expression 대화형 모드 ──
+    if(cur === 'Native Talk' && subText && subText.textContent.indexOf('Expression') !== -1 && _exprPool.length > 0) {
+      if(!t) return;
+      var nextKw = ['다음', 'next', '넘어가', '다음 표현'];
+      if(nextKw.some(function(k){ return t.trim().toLowerCase().indexOf(k) !== -1; })) {
+        appendMsg('user', t);
+        callExprAPI('학생이 다음 표현으로 넘어가고 싶어해. 현재 표현을 한 줄로 격려하며 마무리해줘.', false);
+        setTimeout(function(){ askNextExpression(); }, 1600);
+        return;
+      }
+      appendMsg('user', t);
+      callExprAPI(t, false);
+      return;
+    }
 
     // 사용자 메시지 표시 (텍스트 + 이미지 썸네일)
     if(hasImages){
@@ -4306,7 +4577,7 @@ Categories to rotate randomly:
       var rep=(data.content&&data.content[0]&&data.content[0].text)||'죄송해, 다시 한번 말해줄래?';
       ld.innerHTML=renderMd(rep); ld.classList.remove('loading');
       addSpeakBtn(ld,rep);
-      hist.push({role:'assistant',content:rep});
+      hist.push({role:'assistant',content:stripKR(rep)});
       awardStar();
     }catch(e){
       ld.textContent='연결에 문제가 생겼어. 잠시 후 다시 시도해줘! 🙏';
@@ -4321,7 +4592,7 @@ Categories to rotate randomly:
     btn.className='speak-btn';
     btn.title='발음 듣기';
     btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3z"/><path d="M16.5 12c0-1.77-1-3.29-2.5-4.03v8.06c1.5-.74 2.5-2.26 2.5-4.03z"/><path d="M14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>';
-    btn.onclick=function(){ speakEnglish(text); };
+    btn.onclick=function(){ speakEnglish(stripKR(text)); };
     msgDiv.parentNode.appendChild(btn);
     // 해석 버튼
     addTranslateBtn(msgDiv, text);
@@ -4329,53 +4600,34 @@ Categories to rotate randomly:
 
   function addTranslateBtn(msgDiv, text) {
     var wrap = msgDiv.parentNode;
-    // 이미 해석 버튼 있으면 중복 방지
     if(wrap.querySelector('.translate-btn')) return;
+    var krText = extractKR(text);
+    if(!krText) return; // [KR] 태그 없으면 버튼 안 만듦
     var btn = document.createElement('button');
     btn.className = 'translate-btn';
     btn.title = '한글 해석 보기';
     btn.innerHTML = '🇰🇷 해석';
-    var _translated = false;
+    var bubble = document.createElement('div');
+    bubble.className = 'translate-bubble';
+    bubble.textContent = krText;
+    bubble.style.display = 'none';
+    var _shown = false;
     btn.onclick = function() {
-      if(_translated) return;
-      _translated = true;
-      btn.textContent = '⏳ 번역 중...';
-      btn.disabled = true;
-      btn.style.opacity = '0.6';
-      // 영어 텍스트에서 한글·마크다운 제거해서 번역 요청
-      var plainText = text.replace(/\*\*(.+?)\*\*/g,'$1').replace(/\*(.+?)\*/g,'$1').trim();
-      (async function(){
-        try {
-          var r = await fetch('/.netlify/functions/chat', {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({
-              model: 'claude-sonnet-4-6',
-              max_tokens: 400,
-              system: '너는 영어를 자연스러운 한국어로 번역해주는 번역가야. 번역문만 출력하고, 설명이나 따옴표, 머리말 없이 번역 결과만 써줘.',
-              messages: [{ role:'user', content: '다음 영어 문장을 자연스러운 한국어로 번역해줘: ' + plainText }]
-            })
-          });
-          var data = await r.json();
-          var kr = (data.content && data.content[0] && data.content[0].text) || '번역 실패';
-          // 해석 말풍선 삽입
-          var bubble = document.createElement('div');
-          bubble.className = 'translate-bubble';
-          bubble.textContent = kr.trim();
-          wrap.appendChild(bubble);
-          btn.innerHTML = '🇰🇷 해석 ✓';
-          btn.style.opacity = '1';
-          btn.style.background = 'rgba(16,185,129,0.18)';
-          var c = document.getElementById('chat-messages');
-          if(c) c.scrollTop = c.scrollHeight;
-        } catch(e) {
-          btn.textContent = '🇰🇷 해석';
-          btn.disabled = false;
-          btn.style.opacity = '1';
-          _translated = false;
-        }
-      })();
+      _shown = !_shown;
+      if(_shown){
+        bubble.style.display = 'block';
+        btn.innerHTML = '🇰🇷 해석 ✓';
+        btn.style.background = 'rgba(16,185,129,0.18)';
+      } else {
+        bubble.style.display = 'none';
+        btn.innerHTML = '🇰🇷 해석';
+        btn.style.background = '';
+      }
+      var c = document.getElementById('chat-messages');
+      if(c) c.scrollTop = c.scrollHeight;
     };
     wrap.appendChild(btn);
+    wrap.appendChild(bubble);
   }
 
   var _bestEnVoice = null;
