@@ -833,7 +833,7 @@ function openIntroAuth() {
             <button class="starter-btn" onclick="openAboutMePicker()"><span class="starter-icon">🙋</span>About Me</button>
             <button class="starter-btn" onclick="openChat('Native Talk','🌍','What slang do teenagers use in English?')"><span class="starter-icon">😎</span>Teen Slang</button>
             <button class="starter-btn" onclick="openPronunciationPicker()"><span class="starter-icon">🎯</span>Pronunciation</button>
-            <button class="starter-btn" onclick="openWritingSkills()"><span class="starter-icon">📝</span>Writing Skills</button>
+            <button class="starter-btn" onclick="openTEDPicker()"><span class="starter-icon">🎬</span>TED Talks</button>
             <button class="starter-btn" onclick="openDebateWithRandomTopic()"><span class="starter-icon">🗣️</span>Debate</button>
             <button class="starter-btn" onclick="openWordQuiz('🌍')"><span class="starter-icon">🧩</span>Word Quiz</button>
             <button class="starter-btn" onclick="openChat('Native Talk','🌍','내가 쓴 영어 글을 첨삭해줘. 문법, 표현, 자연스러움을 봐줘.')"><span class="starter-icon">✏️</span>Writing Check</button>
@@ -2951,7 +2951,142 @@ At the very end of EVERY reply, after your English response, add a Korean transl
     { level:"long", kr:"지속 가능한 발전을 위해 현 세대는 미래 세대의 필요를 염두에 두고 환경 자원을 책임감 있게 사용해야 할 의무가 있다.", keywords:["current generation","obligation","use environmental resources","responsibly","keep in mind","needs of future generations","sustainable development"], answer:"For sustainable development, the current generation has an obligation to use environmental resources responsibly, keeping in mind the needs of future generations." }
   ];
 
-  var _writingCurrent = null;
+  // ── TED Picker ────────────────────────────────────────────
+  function openTEDPicker() {
+    try { event.stopPropagation(); } catch(err) {}
+    cur = 'Native Talk'; hist = [];
+    var th = themes['Native Talk'] || { bg:'#eef6ff', header:'#3B82F6', headerBg:'#dceeff', msgBg:'#f5faff', bubbleBg:'#3B82F6', online:'#3B82F6', iconBg:'#dceeff' };
+    var header = document.querySelector('.chat-header');
+    var messages = document.getElementById('chat-messages');
+    var handle = document.querySelector('.chat-handle');
+    var onlineDot = document.getElementById('online-dot');
+    var sendBtn = document.querySelector('.send-btn');
+    var iconBox = document.querySelector('.chat-header-emoji-box');
+    var attachBtn = document.querySelector('.chat-attach-btn');
+    var micBtn = document.querySelector('.chat-mic-btn');
+    header.style.background = th.headerBg; header.style.borderBottom = 'none';
+    handle.style.background = th.header + '44';
+    messages.style.background = th.msgBg;
+    onlineDot.style.color = th.online;
+    sendBtn.style.background = th.bubbleBg;
+    iconBox.style.background = th.iconBg;
+    if(attachBtn){ attachBtn.style.background = th.bg; attachBtn.style.color = th.header; }
+    if(micBtn){ micBtn.style.background = th.bg; micBtn.style.color = th.header; }
+    document.getElementById('modal-title').textContent = 'Native Talk';
+    document.getElementById('modal-emoji').textContent = '🌍';
+    document.getElementById('chat-header-sub-text').textContent = 'TED 🎬';
+    messages.innerHTML = '';
+    var chatInputEl = document.getElementById('chat-input');
+    if(chatInputEl){ chatInputEl.value = ''; chatInputEl.style.height = 'auto'; }
+    document.getElementById('modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    var welcome = document.createElement('div');
+    welcome.className = 'msg ai';
+    welcome.style.cssText = 'background:white;border:1.5px solid #3B82F633;';
+    welcome.textContent = '🎬 TED 영상으로 영어를 배워봐요!\n채널을 선택하면 바로 유튜브로 연결돼요.';
+    messages.appendChild(welcome);
+
+    setTimeout(function(){
+      var c = document.getElementById('chat-messages');
+      var row = document.createElement('div');
+      row.className = 'chat-msg-row';
+      var av = document.createElement('div');
+      av.className = 'chat-avatar'; av.style.background = th.iconBg; av.textContent = '🌍';
+      var wrap = document.createElement('div');
+      wrap.style.cssText = 'display:flex;flex-direction:column;gap:6px;max-width:94%;';
+      var name = document.createElement('div');
+      name.className = 'chat-msg-name'; name.textContent = 'Native Talk';
+      var bubble = document.createElement('div');
+      bubble.className = 'msg ai';
+      bubble.style.cssText = 'border:1.5px solid ' + th.header + '22;padding:14px;';
+
+      var label = document.createElement('div');
+      label.style.cssText = 'font-size:13px;font-weight:700;color:' + th.header + ';margin-bottom:12px;font-family:"Noto Sans KR",sans-serif;';
+      label.textContent = '📺 어떤 TED 채널로 갈까요?';
+      bubble.appendChild(label);
+
+      var btnRow = document.createElement('div');
+      btnRow.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;';
+
+      [
+        { label: '📗 TED-Ed', sub: '중·고 | 짧은 교육 영상', url: 'https://www.youtube.com/@TEDEd' },
+        { label: '🚀 TED',    sub: '심화 | 명사들의 강연',   url: 'https://www.youtube.com/@TED'   }
+      ].forEach(function(opt) {
+        var btn = document.createElement('button');
+        btn.style.cssText = 'flex:1;padding:12px 10px;border-radius:16px;border:2px solid ' + th.header + '44;background:white;cursor:pointer;font-family:"Noto Sans KR",sans-serif;transition:all 0.18s;text-align:center;display:flex;flex-direction:column;align-items:center;gap:5px;min-width:120px;';
+        var lbl = document.createElement('span');
+        lbl.style.cssText = 'font-size:15px;font-weight:800;color:#2d2540;';
+        lbl.textContent = opt.label;
+        var sub = document.createElement('span');
+        sub.style.cssText = 'font-size:11px;color:#9b8fc0;font-weight:500;line-height:1.5;';
+        sub.textContent = opt.sub;
+        var go = document.createElement('span');
+        go.style.cssText = 'margin-top:4px;font-size:11.5px;font-weight:700;color:white;background:#E62B1E;border-radius:8px;padding:3px 10px;';
+        go.textContent = '▶ YouTube로 이동';
+        btn.appendChild(lbl); btn.appendChild(sub); btn.appendChild(go);
+        btn.onmouseover = function(){ btn.style.borderColor = '#E62B1E'; btn.style.background = '#fff5f5'; };
+        btn.onmouseout  = function(){ btn.style.borderColor = th.header + '44'; btn.style.background = 'white'; };
+        (function(opt){ btn.onclick = function() {
+          appendMsg('user', opt.label + ' 채널 열기!');
+          openTEDFrame(opt.label, opt.url);
+        }; })(opt);
+        btnRow.appendChild(btn);
+      });
+
+      bubble.appendChild(btnRow);
+      wrap.appendChild(name); wrap.appendChild(bubble);
+      row.appendChild(av); row.appendChild(wrap);
+      c.appendChild(row); c.scrollTop = c.scrollHeight;
+    }, 300);
+  }
+
+  function openTEDFrame(label, url) {
+    var c = document.getElementById('chat-messages');
+    var th = themes['Native Talk'] || { header:'#3B82F6', iconBg:'#dceeff' };
+
+    var row = document.createElement('div');
+    row.className = 'chat-msg-row';
+    var av = document.createElement('div');
+    av.className = 'chat-avatar'; av.style.background = th.iconBg; av.textContent = '🌍';
+    var wrap = document.createElement('div');
+    wrap.style.cssText = 'display:flex;flex-direction:column;gap:6px;max-width:98%;width:100%;';
+    var name = document.createElement('div');
+    name.className = 'chat-msg-name'; name.textContent = 'Native Talk';
+
+    var card = document.createElement('div');
+    card.style.cssText = 'background:white;border:2px solid #E62B1E44;border-radius:16px;overflow:hidden;width:100%;';
+
+    var cardHead = document.createElement('div');
+    cardHead.style.cssText = 'background:#E62B1E;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;';
+    var headLabel = document.createElement('span');
+    headLabel.style.cssText = 'color:white;font-weight:800;font-size:14px;font-family:"Noto Sans KR",sans-serif;';
+    headLabel.textContent = '🎬 ' + label;
+    var openBtn = document.createElement('a');
+    openBtn.href = url;
+    openBtn.target = '_blank';
+    openBtn.rel = 'noopener noreferrer';
+    openBtn.style.cssText = 'color:white;font-size:11.5px;font-weight:700;background:rgba(255,255,255,0.25);border-radius:8px;padding:4px 10px;text-decoration:none;white-space:nowrap;flex-shrink:0;';
+    openBtn.textContent = '↗ 새 탭으로 열기';
+    cardHead.appendChild(headLabel); cardHead.appendChild(openBtn);
+    card.appendChild(cardHead);
+
+    var fallback = document.createElement('div');
+    fallback.style.cssText = 'padding:28px 20px;text-align:center;font-family:"Noto Sans KR",sans-serif;';
+    fallback.innerHTML = '<div style="font-size:36px;margin-bottom:12px;">🎬</div>'
+      + '<p style="color:#6b5fa0;font-size:13px;font-weight:700;margin-bottom:6px;">' + label + '</p>'
+      + '<p style="color:#9b8fc0;font-size:12px;margin-bottom:16px;">YouTube는 보안 정책으로 임베드가 제한돼요.<br>아래 버튼으로 열어줘요!</p>'
+      + '<a href="' + url + '" target="_blank" rel="noopener noreferrer" '
+      + 'style="display:inline-block;background:#E62B1E;color:white;border-radius:14px;padding:12px 24px;font-weight:800;font-size:14px;text-decoration:none;box-shadow:0 4px 14px rgba(230,43,30,0.35);">'
+      + '▶ ' + label + ' YouTube 바로가기</a>';
+    card.appendChild(fallback);
+
+    wrap.appendChild(name); wrap.appendChild(card);
+    row.appendChild(av); row.appendChild(wrap);
+    c.appendChild(row); c.scrollTop = c.scrollHeight;
+  }
+
+    var _writingCurrent = null;
 
   function openWritingSkills() {
     try { event.stopPropagation(); } catch(err) {}
