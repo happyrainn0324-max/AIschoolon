@@ -1360,7 +1360,7 @@ function openIntroAuth() {
 <div class="modal-overlay" id="modal" onclick="handleOverlayClick(event)">
   <div class="chat-modal">
     <div class="chat-handle"></div>
-    <div class="chat-header" style="align-items:flex-start;">
+    <div class="chat-header" style="align-items:center;">
       <div class="chat-header-info" style="align-items:flex-start;">
         <div class="chat-header-emoji-box" style="margin-top:1px;"><span id="modal-emoji">💗</span></div>
         <div style="min-width:0;">
@@ -1372,11 +1372,9 @@ function openIntroAuth() {
           <div class="chat-header-sub" id="chat-header-sub-text">AI가 함께할게 😊</div>
         </div>
       </div>
-      <div style="display:flex;align-items:flex-start;gap:8px;flex-shrink:0;">
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;">
-          <button id="copy-btn" title="대화 복사하기" onclick="copyChatText()" style="border:none;background:#e6f7ee;color:#0d9488;width:auto;border-radius:14px;padding:3px 9px;font-size:12px;font-weight:700;font-family:'Stylish','Noto Sans KR',sans-serif;cursor:pointer;display:flex;align-items:center;gap:3px;">📋복사</button>
-          <button id="history-btn" title="지난 대화 보기" onclick="showChatHistory()" style="border:none;background:#fff3d6;color:#b45309;width:auto;border-radius:14px;padding:3px 9px;font-size:12px;font-weight:700;font-family:'Stylish','Noto Sans KR',sans-serif;cursor:pointer;display:flex;align-items:center;gap:3px;">📅지난대화</button>
-        </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+        <button id="copy-btn" title="대화 복사하기" onclick="copyChatText()" style="border:none;background:#e6f7ee;color:#0d9488;width:auto;border-radius:14px;padding:3px 9px;font-size:12px;font-weight:700;font-family:'Stylish','Noto Sans KR',sans-serif;cursor:pointer;display:flex;align-items:center;gap:3px;">📋복사</button>
+        <button id="history-btn" title="지난 대화 보기" onclick="showChatHistory()" style="border:none;background:#fff3d6;color:#b45309;width:auto;border-radius:14px;padding:3px 9px;font-size:12px;font-weight:700;font-family:'Stylish','Noto Sans KR',sans-serif;cursor:pointer;display:flex;align-items:center;gap:3px;">📅지난대화</button>
         <button class="close-btn" onclick="closeChat()" style="width:28px;height:28px;font-size:14px;flex-shrink:0;">✕</button>
       </div>
     </div>
