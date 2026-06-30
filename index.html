@@ -1373,7 +1373,7 @@ function openIntroAuth() {
           <span id="online-dot" style="color:#1AAD72;font-size:10px;">●</span>
           <span id="online-text" style="color:#888;font-weight:600;">온라인</span>
         </div>
-        <button class="close-btn" id="history-btn" title="지난 대화 보기" onclick="showChatHistory()" style="font-size:15px;">🕘</button>
+        <button class="close-btn" id="history-btn" title="지난 대화 보기" onclick="showChatHistory()" style="font-size:18px;background:#fff3d6;">📅</button>
         <button class="close-btn" onclick="closeChat()">✕</button>
       </div>
     </div>
@@ -1413,7 +1413,7 @@ function openIntroAuth() {
 </div>
 
 <script>
-  var cur='', hist=[];
+  var cur='', hist=[], curSessionId='';
 
   // ── 다문화 언어 선택 ──────────────────────────────
   var _multiLang = 'ko';
@@ -2660,7 +2660,7 @@ At the very end of EVERY reply, after your English response, add a Korean transl
 
   function openChat(s,e,m){
     try { event.stopPropagation(); } catch(err) {}
-    cur=s; hist=[];
+    cur=s; hist=[]; curSessionId=Date.now()+'_'+Math.random().toString(36).slice(2);
     // 이름(닉네임) 가져오기
     try{
       var uname=sessionStorage.getItem('sc_name')||'';
@@ -2695,7 +2695,7 @@ At the very end of EVERY reply, after your English response, add a Korean transl
     document.getElementById('chat-header-sub-text').textContent=th.sub;
     messages.innerHTML='';
     var chatInputEl=document.getElementById('chat-input');
-    if(chatInputEl){ chatInputEl.value=''; chatInputEl.style.height='auto'; }
+    if(chatInputEl){ chatInputEl.value=''; chatInputEl.style.height='auto'; chatInputEl.disabled=false; chatInputEl.placeholder='메시지를 입력해줘...'; }
     if(recognizing && recognition){ micStoppedByUser = true; if(recognition.resetTranscript) recognition.resetTranscript(); recognition.stop(); }
     // 웰컴 메시지
     var welcome=document.createElement('div');
@@ -2731,6 +2731,7 @@ At the very end of EVERY reply, after your English response, add a Korean transl
           ld.innerHTML=renderMd(rep); ld.classList.remove('loading');
           addSpeakBtn(ld,rep);
           hist.push({role:'assistant',content:rep});
+          saveChatSession();
           awardStar();
           // 첫 AI 응답 후 → 언어 선택 말풍선 자동 삽입 (English Talk 제외)
           if(cur !== 'English Talk') appendLangPickerBubble();
@@ -2845,6 +2846,7 @@ At the very end of EVERY reply, after your English response, add a Korean transl
             addSpeakBtn(ld3,rep2);
             hist.push({role:'user',content:startMsg});
             hist.push({role:'assistant',content:rep2});
+            saveChatSession();
           }catch(e2){
             ld3.textContent='연결 오류가 생겼어. 잠시 후 다시 시도해줘! 🙏';
             ld3.classList.remove('loading');
@@ -4544,7 +4546,17 @@ At the very end of EVERY reply, after your English response, add a Korean transl
       var key='chatlog_'+cur;
       var sessions=[];
       try{ sessions=JSON.parse(localStorage.getItem(key))||[]; }catch(e){}
-      sessions.unshift({ts:Date.now(), msgs:hist.slice(-30)});
+      var idx=-1;
+      if(curSessionId){
+        for(var i=0;i<sessions.length;i++){ if(sessions[i].id===curSessionId){ idx=i; break; } }
+      }
+      var entry={id:curSessionId, ts:Date.now(), msgs:hist.slice(-30)};
+      if(idx>=0){
+        sessions[idx]=entry;
+      } else {
+        sessions.unshift(entry);
+      }
+      sessions.sort(function(a,b){return b.ts-a.ts;});
       sessions=sessions.slice(0,5);
       localStorage.setItem(key, JSON.stringify(sessions));
     }catch(e){}
@@ -4559,8 +4571,8 @@ At the very end of EVERY reply, after your English response, add a Korean transl
     c.innerHTML='';
     var back=document.createElement('div');
     back.style.cssText='padding:10px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;color:'+th.header+';font-weight:700;font-size:14px;';
-    back.innerHTML='← 새 대화로 돌아가기';
-    back.onclick=function(){ returnToNewChat(); };
+    back.innerHTML='← 멘토로 돌아가기';
+    back.onclick=function(){ closeChat(); };
     c.appendChild(back);
     if(sessions.length===0){
       var empty=document.createElement('div');
@@ -4587,8 +4599,8 @@ At the very end of EVERY reply, after your English response, add a Korean transl
     c.innerHTML='';
     var back=document.createElement('div');
     back.style.cssText='padding:10px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;color:'+th.header+';font-weight:700;font-size:14px;';
-    back.innerHTML='← 새 대화로 돌아가기';
-    back.onclick=function(){ returnToNewChat(); };
+    back.innerHTML='← 멘토로 돌아가기';
+    back.onclick=function(){ closeChat(); };
     c.appendChild(back);
     var note=document.createElement('div');
     note.style.cssText='text-align:center;color:#aaa;font-size:12px;margin:4px 0 10px;';
@@ -4599,13 +4611,6 @@ At the very end of EVERY reply, after your English response, add a Korean transl
     });
     var inp=document.getElementById('chat-input');
     if(inp){ inp.disabled=true; inp.placeholder='지난 대화는 읽기만 가능해요'; }
-  }
-
-  function returnToNewChat(){
-    var inp=document.getElementById('chat-input');
-    if(inp){ inp.disabled=false; inp.placeholder='메시지를 입력해줘...'; }
-    var e=document.getElementById('modal-emoji').textContent;
-    openChat(cur, e, null);
   }
 
   function handleOverlayClick(e){if(e.target===document.getElementById('modal'))closeChat();}
@@ -4758,6 +4763,7 @@ At the very end of EVERY reply, after your English response, add a Korean transl
       ld.innerHTML=renderMd(rep); ld.classList.remove('loading');
       addSpeakBtn(ld,rep);
       hist.push({role:'assistant',content:stripKR(rep)});
+      saveChatSession();
       awardStar();
     }catch(e){
       ld.textContent='연결에 문제가 생겼어. 잠시 후 다시 시도해줘! 🙏';
