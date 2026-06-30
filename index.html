@@ -1373,6 +1373,7 @@ function openIntroAuth() {
           <span id="online-dot" style="color:#1AAD72;font-size:10px;">●</span>
           <span id="online-text" style="color:#888;font-weight:600;">온라인</span>
         </div>
+        <button class="close-btn" id="history-btn" title="지난 대화 보기" onclick="showChatHistory()" style="font-size:15px;">🕘</button>
         <button class="close-btn" onclick="closeChat()">✕</button>
       </div>
     </div>
@@ -4529,10 +4530,82 @@ At the very end of EVERY reply, after your English response, add a Korean transl
 
 
   function closeChat(){
+    saveChatSession();
     document.getElementById('modal').classList.remove('open');
     document.body.style.overflow=''; hist=[];
     attachedImages=[]; renderImagePreviews();
     if(recognizing && recognition){ micStoppedByUser = true; if(recognition.resetTranscript) recognition.resetTranscript(); recognition.stop(); }
+  }
+
+  // ── 지난 대화 보기 ──────────────────────────────
+  function saveChatSession(){
+    try{
+      if(!cur || !hist || hist.length===0) return;
+      var key='chatlog_'+cur;
+      var sessions=[];
+      try{ sessions=JSON.parse(localStorage.getItem(key))||[]; }catch(e){}
+      sessions.unshift({ts:Date.now(), msgs:hist.slice(-30)});
+      sessions=sessions.slice(0,5);
+      localStorage.setItem(key, JSON.stringify(sessions));
+    }catch(e){}
+  }
+
+  function showChatHistory(){
+    if(!cur) return;
+    var key='chatlog_'+cur;
+    var sessions=[]; try{ sessions=JSON.parse(localStorage.getItem(key))||[]; }catch(e){}
+    var th=themes[cur]||{header:'#7B5CF5',iconBg:'#ede8ff'};
+    var c=document.getElementById('chat-messages');
+    c.innerHTML='';
+    var back=document.createElement('div');
+    back.style.cssText='padding:10px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;color:'+th.header+';font-weight:700;font-size:14px;';
+    back.innerHTML='← 새 대화로 돌아가기';
+    back.onclick=function(){ returnToNewChat(); };
+    c.appendChild(back);
+    if(sessions.length===0){
+      var empty=document.createElement('div');
+      empty.style.cssText='text-align:center;color:#999;padding:40px 20px;font-size:14px;';
+      empty.textContent='아직 지난 대화가 없어요 🙂';
+      c.appendChild(empty);
+      return;
+    }
+    sessions.forEach(function(s){
+      var dt=new Date(s.ts);
+      var preview = (s.msgs[0] && s.msgs[0].content) ? s.msgs[0].content.slice(0,42) : '';
+      var item=document.createElement('div');
+      item.style.cssText='margin:6px 12px;padding:14px;background:white;border-radius:14px;border:1.5px solid '+th.header+'22;cursor:pointer;';
+      item.innerHTML='<div style="font-weight:700;font-size:13px;color:'+th.header+';">'+(dt.getMonth()+1)+'월 '+dt.getDate()+'일 '+dt.getHours()+':'+String(dt.getMinutes()).padStart(2,'0')+'</div>'+
+        '<div style="font-size:13px;color:#888;margin-top:4px;">'+preview+(preview.length>=42?'...':'')+'</div>';
+      item.onclick=function(){ loadHistorySession(s); };
+      c.appendChild(item);
+    });
+  }
+
+  function loadHistorySession(s){
+    var th=themes[cur]||{header:'#7B5CF5',iconBg:'#ede8ff'};
+    var c=document.getElementById('chat-messages');
+    c.innerHTML='';
+    var back=document.createElement('div');
+    back.style.cssText='padding:10px 14px;display:flex;align-items:center;gap:8px;cursor:pointer;color:'+th.header+';font-weight:700;font-size:14px;';
+    back.innerHTML='← 새 대화로 돌아가기';
+    back.onclick=function(){ returnToNewChat(); };
+    c.appendChild(back);
+    var note=document.createElement('div');
+    note.style.cssText='text-align:center;color:#aaa;font-size:12px;margin:4px 0 10px;';
+    note.textContent='지난 대화 (읽기 전용)';
+    c.appendChild(note);
+    (s.msgs||[]).forEach(function(m){
+      appendMsg(m.role==='user'?'user':'ai', m.content);
+    });
+    var inp=document.getElementById('chat-input');
+    if(inp){ inp.disabled=true; inp.placeholder='지난 대화는 읽기만 가능해요'; }
+  }
+
+  function returnToNewChat(){
+    var inp=document.getElementById('chat-input');
+    if(inp){ inp.disabled=false; inp.placeholder='메시지를 입력해줘...'; }
+    var e=document.getElementById('modal-emoji').textContent;
+    openChat(cur, e, null);
   }
 
   function handleOverlayClick(e){if(e.target===document.getElementById('modal'))closeChat();}
