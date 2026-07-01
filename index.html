@@ -346,26 +346,26 @@
   }
   .qsuggest-standalone-panel.open { display: block; }
   .qsuggest-desc-text {
-    font-size: 13px; color: var(--text-muted); text-align: center; margin: -2px 0 10px;
+    font-size: 15px; color: var(--text-muted); text-align: center; margin: -2px 0 10px;
   }
   .qsuggest-topic-badge2 {
     display: inline-block; background: var(--purple); color: #fff;
-    border-radius: 100px; padding: 5px 16px; font-size: 13px; font-weight: 700;
+    border-radius: 100px; padding: 6px 18px; font-size: 15px; font-weight: 700;
     margin: 0 0 8px; max-width: 100%; overflow: hidden; text-overflow: ellipsis;
   }
   .qsuggest-input-row {
     display: flex; justify-content: center; gap: 8px; margin-bottom: 10px;
   }
   #qSuggestTopicInput2 {
-    flex: 1; padding: 10px 14px; border: 1.5px solid var(--purple-light); border-radius: 100px;
-    font-size: 13.5px; font-family: inherit; outline: none; color: #111827;
+    flex: 1; padding: 11px 16px; border: 1.5px solid var(--purple-light); border-radius: 100px;
+    font-size: 15.5px; font-family: inherit; outline: none; color: #111827;
     background: white; text-align: center;
   }
   #qSuggestTopicInput2:focus { border-color: var(--purple); }
   #qGenerateBtn2 {
-    width: 100%; padding: 11px; border: none; border-radius: 12px;
+    width: 100%; padding: 12px; border: none; border-radius: 12px;
     background: var(--purple-bg); color: var(--purple);
-    font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Stylish','Noto Sans KR',sans-serif;
+    font-size: 16px; font-weight: 700; cursor: pointer; font-family: 'Stylish','Noto Sans KR',sans-serif;
     margin-bottom: 12px; transition: background .15s;
   }
   #qGenerateBtn2:hover { background: #d4c8ff; }
@@ -386,22 +386,22 @@
   }
   .qsuggest-badge2 {
     display: inline-flex; align-items: center; justify-content: center; gap: 4px;
-    font-size: 12px; font-weight: 800; color: #fff;
+    font-size: 14px; font-weight: 800; color: #fff;
     background: var(--qc-color, #4f46e5);
-    border-radius: 100px; padding: 4px 10px; margin: 0 auto 6px;
+    border-radius: 100px; padding: 5px 12px; margin: 0 auto 6px;
   }
   .qsuggest-card2-desc {
-    font-size: 11.5px; color: var(--text-muted); margin-bottom: 6px; line-height: 1.4; text-align: center;
+    font-size: 13.5px; color: var(--text-muted); margin-bottom: 6px; line-height: 1.4; text-align: center;
   }
   .qsuggest-q-text2 {
-    font-size: 12.5px; color: var(--text-muted); line-height: 1.6;
+    font-size: 14.5px; color: var(--text-muted); line-height: 1.6;
     font-family: 'Noto Sans KR', sans-serif;
     background: white; border-radius: 10px; padding: 10px 12px;
     border-left: 3px solid var(--qc-color, #4f46e5);
     min-height: 70px; display: flex; align-items: center; justify-content: center;
     word-break: keep-all; overflow-wrap: break-word; text-align: center;
   }
-  .qs-placeholder2 { color: var(--text-muted); font-size: 12.5px; font-family: 'Noto Sans KR', sans-serif; font-style: normal; }
+  .qs-placeholder2 { color: var(--text-muted); font-size: 14.5px; font-family: 'Noto Sans KR', sans-serif; font-style: normal; }
   .qsuggest-q-text2.loading2 {
     background: linear-gradient(90deg, #f0f0f8 25%, #e4e4f0 50%, #f0f0f8 75%);
     background-size: 200% 100%; animation: qshimmer2 1.4s infinite; color: transparent;
@@ -2635,7 +2635,7 @@ JSON 형식으로만 반환:
     });
 
     setTimeout(function(){
-      document.getElementById('qsuggestDesc2').textContent = '각 유형이 서로 다른 사고 방식으로 설계된 질문이에요. 마음에 드는 질문을 골라보세요!';
+      document.getElementById('qsuggestDesc2').innerHTML = '각 유형이 서로 다른 사고 방식으로 설계된 질문이에요.<br>질문을 배우고 탐구를 시작해보세요.';
       btn.disabled = false;
       btn.innerHTML = '✦ 다시 생성하기';
       addQGoodStars(3);
