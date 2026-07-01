@@ -346,7 +346,7 @@
   }
   .qsuggest-standalone-panel.open { display: block; }
   .qsuggest-desc-text {
-    font-size: 15px; color: var(--text-muted); text-align: center; margin: -2px 0 10px;
+    font-size: 14px; color: var(--text-muted); text-align: center; margin: -2px 0 10px;
   }
   .qsuggest-topic-badge2 {
     display: inline-block; background: var(--purple); color: #fff;
@@ -358,9 +358,10 @@
   }
   #qSuggestTopicInput2 {
     flex: 1; padding: 11px 16px; border: 1.5px solid var(--purple-light); border-radius: 100px;
-    font-size: 15.5px; font-family: inherit; outline: none; color: #111827;
+    font-size: 14.5px; font-family: 'Noto Sans KR', sans-serif; font-style: normal; outline: none; color: var(--text-muted);
     background: white; text-align: center;
   }
+  #qSuggestTopicInput2::placeholder { color: var(--text-muted); font-size: 14.5px; font-family: 'Noto Sans KR', sans-serif; font-style: normal; }
   #qSuggestTopicInput2:focus { border-color: var(--purple); }
   #qGenerateBtn2 {
     width: 100%; padding: 12px; border: none; border-radius: 12px;
@@ -374,7 +375,6 @@
   .qsuggest-grid2 {
     display: grid; grid-template-columns: 1fr; gap: 10px;
   }
-  @media (min-width: 600px) { .qsuggest-grid2 { grid-template-columns: repeat(3,1fr); } }
   .qsuggest-card2 {
     background: var(--bg); border: 1.5px solid var(--line, #eee); border-radius: 14px;
     padding: 12px; position: relative; overflow: hidden;
@@ -386,22 +386,22 @@
   }
   .qsuggest-badge2 {
     display: inline-flex; align-items: center; justify-content: center; gap: 4px;
-    font-size: 14px; font-weight: 800; color: #fff;
+    font-size: 12.5px; font-weight: 800; color: var(--qc-text, #fff);
     background: var(--qc-color, #4f46e5);
     border-radius: 100px; padding: 5px 12px; margin: 0 auto 6px;
   }
   .qsuggest-card2-desc {
-    font-size: 13.5px; color: var(--text-muted); margin-bottom: 6px; line-height: 1.4; text-align: center;
+    font-size: 12px; color: var(--text-muted); margin-bottom: 6px; line-height: 1.4; text-align: center;
   }
   .qsuggest-q-text2 {
-    font-size: 14.5px; color: var(--text-muted); line-height: 1.6;
+    font-size: 13px; color: var(--text-muted); line-height: 1.55;
     font-family: 'Noto Sans KR', sans-serif;
     background: white; border-radius: 10px; padding: 10px 12px;
     border-left: 3px solid var(--qc-color, #4f46e5);
     min-height: 70px; display: flex; align-items: center; justify-content: center;
     word-break: keep-all; overflow-wrap: break-word; text-align: center;
   }
-  .qs-placeholder2 { color: var(--text-muted); font-size: 14.5px; font-family: 'Noto Sans KR', sans-serif; font-style: normal; }
+  .qs-placeholder2 { color: var(--text-muted); font-size: 13px; font-family: 'Noto Sans KR', sans-serif; font-style: normal; }
   .qsuggest-q-text2.loading2 {
     background: linear-gradient(90deg, #f0f0f8 25%, #e4e4f0 50%, #f0f0f8 75%);
     background-size: 200% 100%; animation: qshimmer2 1.4s infinite; color: transparent;
@@ -1409,20 +1409,20 @@ function openIntroAuth() {
           </div>
           <button id="qGenerateBtn2" onclick="onClickGenerateBtn2()">✦ 좋은 질문 생성하기</button>
           <div class="qsuggest-grid2">
-            <div class="qsuggest-card2" style="--qc-color:#d97706">
+            <div class="qsuggest-card2" style="--qc-color:#eab308; --qc-text:#fff">
               <div class="qsuggest-badge2">🔍 사실적 질문</div>
               <div class="qsuggest-card2-desc">시간·장소에 한정된 확인 가능한 사실을 묻는 질문</div>
-              <div class="qsuggest-q-text2" id="qs2-factual"><span class="qs-placeholder2">탐구 주제 좋은 질문이 여기에 나타납니다</span></div>
+              <div class="qsuggest-q-text2" id="qs2-factual"><span class="qs-placeholder2">탐구를 위한 좋은 질문이 여기에 나타납니다</span></div>
             </div>
             <div class="qsuggest-card2" style="--qc-color:#1AAD72">
               <div class="qsuggest-badge2">🧩 개념적 질문</div>
               <div class="qsuggest-card2-desc">연결·패턴을 탐구해 다른 상황에도 전이되는 질문</div>
-              <div class="qsuggest-q-text2" id="qs2-conceptual"><span class="qs-placeholder2">탐구 주제 좋은 질문이 여기에 나타납니다</span></div>
+              <div class="qsuggest-q-text2" id="qs2-conceptual"><span class="qs-placeholder2">탐구를 위한 좋은 질문이 여기에 나타납니다</span></div>
             </div>
             <div class="qsuggest-card2" style="--qc-color:#7B5CF5">
               <div class="qsuggest-badge2">⚖️ 논쟁적 질문</div>
               <div class="qsuggest-card2-desc">정답이 하나가 아니며 근거를 들어 토론하는 질문</div>
-              <div class="qsuggest-q-text2" id="qs2-debatable"><span class="qs-placeholder2">탐구 주제 좋은 질문이 여기에 나타납니다</span></div>
+              <div class="qsuggest-q-text2" id="qs2-debatable"><span class="qs-placeholder2">탐구를 위한 좋은 질문이 여기에 나타납니다</span></div>
             </div>
           </div>
         </div>
