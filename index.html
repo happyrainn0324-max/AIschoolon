@@ -275,6 +275,139 @@
     font-weight: 600; text-align: center; letter-spacing: 0.3px;
   }
   .mic-status.active { display: block; }
+
+  /* ── 좋은 질문 배우기 (버튼 + 패널) ── */
+  .qsuggest-hero-wrap { position: relative; margin-bottom: 10px; }
+  .qsuggest-hero-btn {
+    position: relative; overflow: hidden; isolation: isolate;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width: 100%; padding: 15px 16px;
+    background: linear-gradient(120deg, #7B5CF5 0%, #a78bfa 35%, #f472b6 65%, #fbbf24 100%);
+    background-size: 220% 220%;
+    animation: qgoodGradient 6s ease infinite;
+    color: #fff; border: none; border-radius: 16px;
+    font-size: 15px; font-weight: 800;
+    font-family: 'Jua', 'Noto Sans KR', sans-serif; cursor: pointer;
+    box-shadow: 0 6px 18px rgba(123,92,245,.4), 0 0 0 3px rgba(255,255,255,.5) inset;
+    transition: transform .15s;
+  }
+  .qsuggest-hero-btn:active { transform: scale(.98); }
+  @keyframes qgoodGradient {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+  .qsuggest-hero-shine {
+    position: absolute; top: 0; left: -60%; width: 40%; height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,.55), transparent);
+    transform: skewX(-20deg);
+    animation: qgoodShine 3.2s ease-in-out infinite;
+  }
+  @keyframes qgoodShine {
+    0%   { left: -60%; }
+    45%  { left: 130%; }
+    100% { left: 130%; }
+  }
+  .qsuggest-hero-sparkle {
+    position: absolute; color: #fff; opacity: .85; font-size: 12px;
+    animation: qgoodTwinkle 1.8s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .s1 { top: 8px;  left: 14px;  animation-delay: 0s; }
+  .s2 { bottom: 9px; right: 20px; font-size: 10px; animation-delay: .6s; }
+  .s3 { top: 12px; right: 42px; font-size: 9px;  animation-delay: 1.1s; }
+  @keyframes qgoodTwinkle {
+    0%, 100% { transform: scale(.6) rotate(0deg); opacity: .3; }
+    50%      { transform: scale(1.2) rotate(20deg); opacity: 1; }
+  }
+  .qsuggest-hero-label { position: relative; z-index: 1; }
+  .qsuggest-standalone-arrow {
+    position: relative; z-index: 1;
+    font-size: 16px; font-weight: 300; opacity: .9; transition: transform .2s;
+  }
+  .qsuggest-standalone-arrow.open { transform: rotate(90deg); }
+  .qsuggest-star-badge {
+    position: absolute; top: -10px; right: 10px; z-index: 2;
+    display: inline-flex; align-items: center; gap: 3px;
+    background: #fff; color: #e0a800; border-radius: 100px;
+    padding: 4px 10px 4px 8px; font-size: 12.5px; font-weight: 900;
+    font-family: 'Jua', 'Noto Sans KR', sans-serif;
+    box-shadow: 0 3px 8px rgba(0,0,0,.15); border: 2px solid #fff;
+    transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+  }
+  .qsuggest-star-badge.pop { transform: scale(1.35) rotate(-6deg); }
+  .qgood-star-icon { font-size: 13px; }
+  .qsuggest-standalone-panel {
+    display: none; margin-top: 8px; padding: 14px;
+    background: white; border-radius: 16px;
+    border: 1.5px solid var(--purple-light);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+    text-align: center;
+  }
+  .qsuggest-standalone-panel.open { display: block; }
+  .qsuggest-desc-text {
+    font-size: 13px; color: var(--text-muted); text-align: center; margin: -2px 0 10px;
+  }
+  .qsuggest-topic-badge2 {
+    display: inline-block; background: var(--purple); color: #fff;
+    border-radius: 100px; padding: 5px 16px; font-size: 13px; font-weight: 700;
+    margin: 0 0 8px; max-width: 100%; overflow: hidden; text-overflow: ellipsis;
+  }
+  .qsuggest-input-row {
+    display: flex; justify-content: center; gap: 8px; margin-bottom: 10px;
+  }
+  #qSuggestTopicInput2 {
+    flex: 1; padding: 10px 14px; border: 1.5px solid var(--purple-light); border-radius: 100px;
+    font-size: 13.5px; font-family: inherit; outline: none; color: #111827;
+    background: white; text-align: center;
+  }
+  #qSuggestTopicInput2:focus { border-color: var(--purple); }
+  #qGenerateBtn2 {
+    width: 100%; padding: 11px; border: none; border-radius: 12px;
+    background: var(--purple-bg); color: var(--purple);
+    font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Stylish','Noto Sans KR',sans-serif;
+    margin-bottom: 12px; transition: background .15s;
+  }
+  #qGenerateBtn2:hover { background: #d4c8ff; }
+  #qGenerateBtn2:disabled { opacity: .6; cursor: not-allowed; }
+  #qGenerateBtn2:active { transform: scale(.98); }
+  .qsuggest-grid2 {
+    display: grid; grid-template-columns: 1fr; gap: 10px;
+  }
+  @media (min-width: 600px) { .qsuggest-grid2 { grid-template-columns: repeat(3,1fr); } }
+  .qsuggest-card2 {
+    background: var(--bg); border: 1.5px solid var(--line, #eee); border-radius: 14px;
+    padding: 12px; position: relative; overflow: hidden;
+    text-align: center;
+  }
+  .qsuggest-card2::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:4px;
+    background: var(--qc-color, #4f46e5);
+  }
+  .qsuggest-badge2 {
+    display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+    font-size: 12px; font-weight: 800; color: #fff;
+    background: var(--qc-color, #4f46e5);
+    border-radius: 100px; padding: 4px 10px; margin: 0 auto 6px;
+  }
+  .qsuggest-card2-desc {
+    font-size: 11.5px; color: var(--text-muted); margin-bottom: 6px; line-height: 1.4; text-align: center;
+  }
+  .qsuggest-q-text2 {
+    font-size: 12.5px; color: var(--text-muted); line-height: 1.6;
+    font-family: 'Noto Sans KR', sans-serif;
+    background: white; border-radius: 10px; padding: 10px 12px;
+    border-left: 3px solid var(--qc-color, #4f46e5);
+    min-height: 70px; display: flex; align-items: center; justify-content: center;
+    word-break: keep-all; overflow-wrap: break-word; text-align: center;
+  }
+  .qs-placeholder2 { color: var(--text-muted); font-size: 12.5px; font-family: 'Noto Sans KR', sans-serif; font-style: normal; }
+  .qsuggest-q-text2.loading2 {
+    background: linear-gradient(90deg, #f0f0f8 25%, #e4e4f0 50%, #f0f0f8 75%);
+    background-size: 200% 100%; animation: qshimmer2 1.4s infinite; color: transparent;
+  }
+  @keyframes qshimmer2 { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+  @keyframes qspin2 { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 </style>
 </head>
 <body>
@@ -1251,6 +1384,47 @@ function openIntroAuth() {
 
           </div>
           <button class="recommend-btn" style="margin-top:10px;" onclick="openChat('쓰고톡','✏️','내 나이와 관심사에 맞는 글쓰기 주제를 추천해줘! 먼저 내가 좋아하는 것들을 물어봐줘.')">✨ AI 쓰기 주제 추천받기</button>
+        </div>
+      </div>
+
+      <!-- 🌟 좋은 질문 배우기 (별도 섹션, 쓰고톡 하단) -->
+      <div class="qsuggest-hero-wrap">
+        <button class="qsuggest-hero-btn" onclick="toggleQSuggestPanel()">
+          <span class="qsuggest-hero-shine"></span>
+          <span class="qsuggest-hero-sparkle s1">✦</span>
+          <span class="qsuggest-hero-sparkle s2">✦</span>
+          <span class="qsuggest-hero-sparkle s3">✦</span>
+          <span class="qsuggest-hero-label">🌟 좋은 질문 배우기</span>
+          <span class="qsuggest-standalone-arrow" id="qgood-arrow">›</span>
+        </button>
+        <div class="qsuggest-star-badge" id="qgoodStarBadge">
+          <span class="qgood-star-icon">⭐</span> <span id="qgoodStarCount">0</span>
+        </div>
+        <div id="qSuggestPanel" class="qsuggest-standalone-panel">
+          <p class="qsuggest-desc-text" id="qsuggestDesc2">탐구 주제를 입력하고 사실적·개념적·논쟁적 질문을 배워보세요.</p>
+          <div id="qsuggestTopicBadge2" class="qsuggest-topic-badge2" style="display:none;"></div>
+          <div class="qsuggest-input-row">
+            <input id="qSuggestTopicInput2" type="text" placeholder="탐구 주제를 입력하세요 (예: 광합성, 독립운동...)"
+              onkeydown="if(event.key==='Enter')onClickGenerateBtn2()" />
+          </div>
+          <button id="qGenerateBtn2" onclick="onClickGenerateBtn2()">✦ 좋은 질문 생성하기</button>
+          <div class="qsuggest-grid2">
+            <div class="qsuggest-card2" style="--qc-color:#d97706">
+              <div class="qsuggest-badge2">🔍 사실적 질문</div>
+              <div class="qsuggest-card2-desc">시간·장소에 한정된 확인 가능한 사실을 묻는 질문</div>
+              <div class="qsuggest-q-text2" id="qs2-factual"><span class="qs-placeholder2">탐구 주제 좋은 질문이 여기에 나타납니다</span></div>
+            </div>
+            <div class="qsuggest-card2" style="--qc-color:#1AAD72">
+              <div class="qsuggest-badge2">🧩 개념적 질문</div>
+              <div class="qsuggest-card2-desc">연결·패턴을 탐구해 다른 상황에도 전이되는 질문</div>
+              <div class="qsuggest-q-text2" id="qs2-conceptual"><span class="qs-placeholder2">탐구 주제 좋은 질문이 여기에 나타납니다</span></div>
+            </div>
+            <div class="qsuggest-card2" style="--qc-color:#7B5CF5">
+              <div class="qsuggest-badge2">⚖️ 논쟁적 질문</div>
+              <div class="qsuggest-card2-desc">정답이 하나가 아니며 근거를 들어 토론하는 질문</div>
+              <div class="qsuggest-q-text2" id="qs2-debatable"><span class="qs-placeholder2">탐구 주제 좋은 질문이 여기에 나타납니다</span></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -2293,6 +2467,11 @@ At the very end of EVERY reply, after your English response, add a Korean transl
     updateTodayCount();
     refreshAuthUI();
     document.getElementById('logo-img').style.display='none';
+    // 좋은 질문 배우기 - 저장된 별 개수 복원
+    try {
+      var qgoodEl = document.getElementById('qgoodStarCount');
+      if (qgoodEl) qgoodEl.textContent = parseInt(localStorage.getItem('qgood_star_count') || '0', 10);
+    } catch(e) {}
     // 저장된 언어 설정 복원
     try {
       var savedLang = localStorage.getItem('edutalk_lang');
@@ -2310,6 +2489,173 @@ At the very end of EVERY reply, after your English response, add a Korean transl
     document.querySelectorAll('.starters-panel').forEach(x=>x.classList.remove('open'));
     document.querySelectorAll('.card-arrow').forEach(x=>x.classList.remove('open'));
     if(!o){p.classList.add('open');if(a)a.classList.add('open');}
+  }
+
+  // ══════════════════════════════
+  // 🌟 좋은 질문 배우기 (IB 3가지 질문: 사실적/개념적/논쟁적)
+  // ══════════════════════════════
+  function toggleQSuggestPanel(){
+    var panel = document.getElementById('qSuggestPanel');
+    var arrow = document.getElementById('qgood-arrow');
+    if(!panel) return;
+    panel.classList.toggle('open');
+    if(arrow) arrow.classList.toggle('open');
+    if(panel.classList.contains('open')){
+      var inp = document.getElementById('qSuggestTopicInput2');
+      if(inp) setTimeout(()=>inp.focus(), 150);
+    }
+  }
+
+  var qsuggestTypeKeys2 = ['factual','conceptual','debatable'];
+
+  function buildQuestions2(topic){
+    var core = topic;
+    function pick(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+    return {
+      factual: pick([
+        core + '의 정의(또는 핵심 개념)는 무엇이며, 이를 설명하는 핵심 용어는 무엇인가요?',
+        core + '와(과) 관련해 가장 먼저 확인해야 할 사실이나 정보는 무엇인가요?',
+        core + '이(가) 언제, 어디서, 누구에 의해 나타나거나 사용되나요?',
+        core + '을(를) 구성하는 구체적인 요소나 단계는 무엇인가요?'
+      ]),
+      conceptual: pick([
+        core + '와(과) 다른 개념·분야 사이에는 어떤 공통된 패턴이나 원리가 작동하고 있나요?',
+        core + '이(가) 작동하는 방식은 비슷한 다른 상황에도 똑같이 적용될 수 있나요? 그 이유는 무엇인가요?',
+        core + '의 변화가 일어나는 원인과 결과 사이에는 어떤 일반적인 관계가 성립하나요?',
+        core + '을(를) 이해하면 전혀 다른 주제나 문제를 바라보는 방식이 어떻게 달라지나요?'
+      ]),
+      debatable: pick([
+        core + '은(는) 항상 옳다고(또는 바람직하다고) 할 수 있을까요? 그렇게 생각하는 근거는 무엇인가요?',
+        core + '에 대해 서로 다른 입장을 가진 사람들은 각각 어떤 근거로 자신의 주장을 펼칠까요?',
+        core + '을(를) 둘러싼 가장 첨예한 논쟁은 무엇이며, 당신은 어느 입장을 지지하나요? 그 이유는 무엇인가요?',
+        core + '이(가) 우리 삶(또는 사회)에 가져오는 이익과 위험 중 무엇이 더 크다고 생각하나요? 근거를 들어 주장해보세요.'
+      ])
+    };
+  }
+
+  function onClickGenerateBtn2(){
+    var inputEl = document.getElementById('qSuggestTopicInput2');
+    var topic = inputEl ? inputEl.value.trim() : '';
+    if(!topic){
+      if(inputEl){
+        inputEl.focus();
+        inputEl.style.borderColor = '#f43f5e';
+        inputEl.placeholder = '탐구 주제를 입력해주세요!';
+        setTimeout(()=>{ inputEl.style.borderColor='#e5e7eb'; inputEl.placeholder='탐구 주제를 입력하세요 (예: 광합성, 독립운동...)'; }, 2000);
+      }
+      return;
+    }
+    generateQSuggestions2(topic);
+  }
+
+  async function generateQSuggestions2(topic){
+    var btn = document.getElementById('qGenerateBtn2');
+    btn.disabled = true;
+    btn.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:qspin2 1s linear infinite"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg> AI가 질문을 생성 중...</span>';
+
+    var badge = document.getElementById('qsuggestTopicBadge2');
+    badge.textContent = '📚 ' + topic;
+    badge.style.display = 'inline-block';
+    document.getElementById('qsuggestDesc2').textContent = 'AI가 주제를 분석해 사실적·개념적·논쟁적 질문을 만들고 있어요...';
+
+    qsuggestTypeKeys2.forEach(function(k){
+      var el = document.getElementById('qs2-' + k);
+      el.classList.add('loading2');
+      el.innerHTML = '';
+    });
+
+    var systemPrompt = `당신은 IB(국제 바칼로레아) 탐구 기반 교육과정의 질문 설계 코치입니다.
+
+학생이 동일한 주제를 IB 탐구학습에서 강조하는 3가지 질문 유형으로 깊이 있게 탐구할 수 있도록 질문을 설계하세요.
+
+【사실적 질문 - factual】
+- 정의: 특정 시간·장소·상황에 한정된, 확인 가능한 사실이나 정보를 묻는 질문 (Who, What, When, Where)
+- 너무 단순한 "~이란 무엇인가요?" 식 정의 질문만 반복하지 않는다
+
+【개념적 질문 - conceptual】
+- 정의: 사실들 사이의 연결·패턴·원리를 탐구하며 다른 상황에도 전이 가능한 이해를 묻는 질문 (How, Why)
+- 특정 시간·장소에 묶이지 않고, 다른 맥락에도 적용해볼 수 있어야 한다
+
+【논쟁적 질문 - debatable】
+- 정의: 정답이 하나로 정해지지 않으며, 서로 다른 관점에서 근거를 들어 토론할 수 있는 질문
+- 단순 찬반(예/아니오)으로 끝나지 않고, "왜 그렇게 생각하는가"에 대한 근거를 요구해야 한다
+
+규칙:
+- 3개 질문 모두 문장 구조와 사고 방향이 달라야 한다
+- 중학생이 실제로 탐구할 수 있는 수준으로 구체적으로 작성한다
+- 반드시 순수 JSON만 반환한다 (마크다운 없이)`;
+
+    var userPrompt = `다음 주제를 바탕으로 IB 탐구학습의 3가지 질문 유형(사실적/개념적/논쟁적)을 설계해주세요.
+
+주제: ${topic}
+
+JSON 형식으로만 반환:
+{
+  "factual": "사실적 질문",
+  "conceptual": "개념적 질문",
+  "debatable": "논쟁적 질문"
+}`;
+
+    var generated = null;
+    function tryParseJSON2(raw){
+      try { return JSON.parse(raw); } catch(e) {}
+      var stripped = raw.replace(/```[\w]*/g,'').replace(/```/g,'').trim();
+      try { return JSON.parse(stripped); } catch(e) {}
+      var match = raw.match(/\{[\s\S]*\}/);
+      if (match) { try { return JSON.parse(match[0]); } catch(e) {} }
+      return null;
+    }
+
+    try {
+      var res = await fetch('/.netlify/functions/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 1000,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: userPrompt }]
+        })
+      });
+      var data = await res.json();
+      var rawText = (data.content || []).map(function(i){ return i.text || ''; }).join('');
+      generated = tryParseJSON2(rawText);
+      if (!generated || !generated.factual) throw new Error('파싱 실패');
+    } catch(e) {
+      console.warn('[좋은 질문 배우기 - 로컬 폴백 사용]', e.message);
+      generated = buildQuestions2(topic);
+    }
+
+    qsuggestTypeKeys2.forEach(function(k, i){
+      setTimeout(function(){
+        var el = document.getElementById('qs2-' + k);
+        el.classList.remove('loading2');
+        el.textContent = generated[k] || '';
+      }, 200 + i * 180);
+    });
+
+    setTimeout(function(){
+      document.getElementById('qsuggestDesc2').textContent = '각 유형이 서로 다른 사고 방식으로 설계된 질문이에요. 마음에 드는 질문을 골라보세요!';
+      btn.disabled = false;
+      btn.innerHTML = '✦ 다시 생성하기';
+      addQGoodStars(3);
+    }, 200 + qsuggestTypeKeys2.length * 180 + 100);
+  }
+
+  // 좋은 질문 배우기 - 생성할 때마다 별 3개 적립
+  function addQGoodStars(n){
+    var el = document.getElementById('qgoodStarCount');
+    var badge = document.getElementById('qgoodStarBadge');
+    var cur = parseInt(localStorage.getItem('qgood_star_count') || '0', 10);
+    var next = cur + n;
+    localStorage.setItem('qgood_star_count', String(next));
+    if (el) el.textContent = next;
+    if (badge) {
+      badge.classList.add('pop');
+      setTimeout(function(){ badge.classList.remove('pop'); }, 350);
+    }
+    // 로그인한 경우 실제 톡톡별 적립에도 반영
+    for (var i = 0; i < n; i++) { awardStar(); }
   }
 
   var _debateTopics = [
